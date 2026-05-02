@@ -2952,6 +2952,7 @@ export namespace Prisma {
     loginId: string | null
     passwordHash: string | null
     name: string | null
+    avatarUrl: string | null
     role: $Enums.Role | null
     isActive: boolean | null
     mustChangePassword: boolean | null
@@ -2968,6 +2969,7 @@ export namespace Prisma {
     loginId: string | null
     passwordHash: string | null
     name: string | null
+    avatarUrl: string | null
     role: $Enums.Role | null
     isActive: boolean | null
     mustChangePassword: boolean | null
@@ -2984,6 +2986,7 @@ export namespace Prisma {
     loginId: number
     passwordHash: number
     name: number
+    avatarUrl: number
     role: number
     isActive: number
     mustChangePassword: number
@@ -3002,6 +3005,7 @@ export namespace Prisma {
     loginId?: true
     passwordHash?: true
     name?: true
+    avatarUrl?: true
     role?: true
     isActive?: true
     mustChangePassword?: true
@@ -3018,6 +3022,7 @@ export namespace Prisma {
     loginId?: true
     passwordHash?: true
     name?: true
+    avatarUrl?: true
     role?: true
     isActive?: true
     mustChangePassword?: true
@@ -3034,6 +3039,7 @@ export namespace Prisma {
     loginId?: true
     passwordHash?: true
     name?: true
+    avatarUrl?: true
     role?: true
     isActive?: true
     mustChangePassword?: true
@@ -3123,6 +3129,7 @@ export namespace Prisma {
     loginId: string | null
     passwordHash: string
     name: string | null
+    avatarUrl: string | null
     role: $Enums.Role
     isActive: boolean
     mustChangePassword: boolean
@@ -3156,6 +3163,7 @@ export namespace Prisma {
     loginId?: boolean
     passwordHash?: boolean
     name?: boolean
+    avatarUrl?: boolean
     role?: boolean
     isActive?: boolean
     mustChangePassword?: boolean
@@ -3174,6 +3182,7 @@ export namespace Prisma {
     loginId?: boolean
     passwordHash?: boolean
     name?: boolean
+    avatarUrl?: boolean
     role?: boolean
     isActive?: boolean
     mustChangePassword?: boolean
@@ -3191,6 +3200,7 @@ export namespace Prisma {
     loginId?: boolean
     passwordHash?: boolean
     name?: boolean
+    avatarUrl?: boolean
     role?: boolean
     isActive?: boolean
     mustChangePassword?: boolean
@@ -3208,6 +3218,7 @@ export namespace Prisma {
     loginId?: boolean
     passwordHash?: boolean
     name?: boolean
+    avatarUrl?: boolean
     role?: boolean
     isActive?: boolean
     mustChangePassword?: boolean
@@ -3218,7 +3229,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "loginId" | "passwordHash" | "name" | "role" | "isActive" | "mustChangePassword" | "temporaryPasswordIssuedAt" | "lastPasswordChangedAt" | "companyId" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "loginId" | "passwordHash" | "name" | "avatarUrl" | "role" | "isActive" | "mustChangePassword" | "temporaryPasswordIssuedAt" | "lastPasswordChangedAt" | "companyId" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | User$companyArgs<ExtArgs>
     employee?: boolean | User$employeeArgs<ExtArgs>
@@ -3242,6 +3253,7 @@ export namespace Prisma {
       loginId: string | null
       passwordHash: string
       name: string | null
+      avatarUrl: string | null
       role: $Enums.Role
       isActive: boolean
       mustChangePassword: boolean
@@ -3680,6 +3692,7 @@ export namespace Prisma {
     readonly loginId: FieldRef<"User", 'String'>
     readonly passwordHash: FieldRef<"User", 'String'>
     readonly name: FieldRef<"User", 'String'>
+    readonly avatarUrl: FieldRef<"User", 'String'>
     readonly role: FieldRef<"User", 'Role'>
     readonly isActive: FieldRef<"User", 'Boolean'>
     readonly mustChangePassword: FieldRef<"User", 'Boolean'>
@@ -7539,15 +7552,29 @@ export namespace Prisma {
     companyId: string | null
     firstName: string | null
     lastName: string | null
+    avatarUrl: string | null
+    resumeUrl: string | null
     dateOfBirth: Date | null
     dateOfJoining: Date | null
     gender: $Enums.Gender | null
     phone: string | null
     address: string | null
+    personalEmail: string | null
+    nationality: string | null
+    maritalStatus: string | null
     emergencyContactName: string | null
     emergencyContactPhone: string | null
+    managerName: string | null
+    workLocation: string | null
+    about: string | null
+    jobInterests: string | null
+    skills: string | null
+    certifications: string | null
+    bankName: string | null
     bankAccountNumber: string | null
     bankIfsc: string | null
+    panNumber: string | null
+    uanNumber: string | null
     departmentId: string | null
     designationId: string | null
     createdAt: Date | null
@@ -7561,15 +7588,29 @@ export namespace Prisma {
     companyId: string | null
     firstName: string | null
     lastName: string | null
+    avatarUrl: string | null
+    resumeUrl: string | null
     dateOfBirth: Date | null
     dateOfJoining: Date | null
     gender: $Enums.Gender | null
     phone: string | null
     address: string | null
+    personalEmail: string | null
+    nationality: string | null
+    maritalStatus: string | null
     emergencyContactName: string | null
     emergencyContactPhone: string | null
+    managerName: string | null
+    workLocation: string | null
+    about: string | null
+    jobInterests: string | null
+    skills: string | null
+    certifications: string | null
+    bankName: string | null
     bankAccountNumber: string | null
     bankIfsc: string | null
+    panNumber: string | null
+    uanNumber: string | null
     departmentId: string | null
     designationId: string | null
     createdAt: Date | null
@@ -7583,15 +7624,29 @@ export namespace Prisma {
     companyId: number
     firstName: number
     lastName: number
+    avatarUrl: number
+    resumeUrl: number
     dateOfBirth: number
     dateOfJoining: number
     gender: number
     phone: number
     address: number
+    personalEmail: number
+    nationality: number
+    maritalStatus: number
     emergencyContactName: number
     emergencyContactPhone: number
+    managerName: number
+    workLocation: number
+    about: number
+    jobInterests: number
+    skills: number
+    certifications: number
+    bankName: number
     bankAccountNumber: number
     bankIfsc: number
+    panNumber: number
+    uanNumber: number
     departmentId: number
     designationId: number
     createdAt: number
@@ -7607,15 +7662,29 @@ export namespace Prisma {
     companyId?: true
     firstName?: true
     lastName?: true
+    avatarUrl?: true
+    resumeUrl?: true
     dateOfBirth?: true
     dateOfJoining?: true
     gender?: true
     phone?: true
     address?: true
+    personalEmail?: true
+    nationality?: true
+    maritalStatus?: true
     emergencyContactName?: true
     emergencyContactPhone?: true
+    managerName?: true
+    workLocation?: true
+    about?: true
+    jobInterests?: true
+    skills?: true
+    certifications?: true
+    bankName?: true
     bankAccountNumber?: true
     bankIfsc?: true
+    panNumber?: true
+    uanNumber?: true
     departmentId?: true
     designationId?: true
     createdAt?: true
@@ -7629,15 +7698,29 @@ export namespace Prisma {
     companyId?: true
     firstName?: true
     lastName?: true
+    avatarUrl?: true
+    resumeUrl?: true
     dateOfBirth?: true
     dateOfJoining?: true
     gender?: true
     phone?: true
     address?: true
+    personalEmail?: true
+    nationality?: true
+    maritalStatus?: true
     emergencyContactName?: true
     emergencyContactPhone?: true
+    managerName?: true
+    workLocation?: true
+    about?: true
+    jobInterests?: true
+    skills?: true
+    certifications?: true
+    bankName?: true
     bankAccountNumber?: true
     bankIfsc?: true
+    panNumber?: true
+    uanNumber?: true
     departmentId?: true
     designationId?: true
     createdAt?: true
@@ -7651,15 +7734,29 @@ export namespace Prisma {
     companyId?: true
     firstName?: true
     lastName?: true
+    avatarUrl?: true
+    resumeUrl?: true
     dateOfBirth?: true
     dateOfJoining?: true
     gender?: true
     phone?: true
     address?: true
+    personalEmail?: true
+    nationality?: true
+    maritalStatus?: true
     emergencyContactName?: true
     emergencyContactPhone?: true
+    managerName?: true
+    workLocation?: true
+    about?: true
+    jobInterests?: true
+    skills?: true
+    certifications?: true
+    bankName?: true
     bankAccountNumber?: true
     bankIfsc?: true
+    panNumber?: true
+    uanNumber?: true
     departmentId?: true
     designationId?: true
     createdAt?: true
@@ -7746,15 +7843,29 @@ export namespace Prisma {
     companyId: string | null
     firstName: string
     lastName: string
+    avatarUrl: string | null
+    resumeUrl: string | null
     dateOfBirth: Date | null
     dateOfJoining: Date
     gender: $Enums.Gender
     phone: string | null
     address: string | null
+    personalEmail: string | null
+    nationality: string | null
+    maritalStatus: string | null
     emergencyContactName: string | null
     emergencyContactPhone: string | null
+    managerName: string | null
+    workLocation: string | null
+    about: string | null
+    jobInterests: string | null
+    skills: string | null
+    certifications: string | null
+    bankName: string | null
     bankAccountNumber: string | null
     bankIfsc: string | null
+    panNumber: string | null
+    uanNumber: string | null
     departmentId: string
     designationId: string
     createdAt: Date
@@ -7785,15 +7896,29 @@ export namespace Prisma {
     companyId?: boolean
     firstName?: boolean
     lastName?: boolean
+    avatarUrl?: boolean
+    resumeUrl?: boolean
     dateOfBirth?: boolean
     dateOfJoining?: boolean
     gender?: boolean
     phone?: boolean
     address?: boolean
+    personalEmail?: boolean
+    nationality?: boolean
+    maritalStatus?: boolean
     emergencyContactName?: boolean
     emergencyContactPhone?: boolean
+    managerName?: boolean
+    workLocation?: boolean
+    about?: boolean
+    jobInterests?: boolean
+    skills?: boolean
+    certifications?: boolean
+    bankName?: boolean
     bankAccountNumber?: boolean
     bankIfsc?: boolean
+    panNumber?: boolean
+    uanNumber?: boolean
     departmentId?: boolean
     designationId?: boolean
     createdAt?: boolean
@@ -7818,15 +7943,29 @@ export namespace Prisma {
     companyId?: boolean
     firstName?: boolean
     lastName?: boolean
+    avatarUrl?: boolean
+    resumeUrl?: boolean
     dateOfBirth?: boolean
     dateOfJoining?: boolean
     gender?: boolean
     phone?: boolean
     address?: boolean
+    personalEmail?: boolean
+    nationality?: boolean
+    maritalStatus?: boolean
     emergencyContactName?: boolean
     emergencyContactPhone?: boolean
+    managerName?: boolean
+    workLocation?: boolean
+    about?: boolean
+    jobInterests?: boolean
+    skills?: boolean
+    certifications?: boolean
+    bankName?: boolean
     bankAccountNumber?: boolean
     bankIfsc?: boolean
+    panNumber?: boolean
+    uanNumber?: boolean
     departmentId?: boolean
     designationId?: boolean
     createdAt?: boolean
@@ -7844,15 +7983,29 @@ export namespace Prisma {
     companyId?: boolean
     firstName?: boolean
     lastName?: boolean
+    avatarUrl?: boolean
+    resumeUrl?: boolean
     dateOfBirth?: boolean
     dateOfJoining?: boolean
     gender?: boolean
     phone?: boolean
     address?: boolean
+    personalEmail?: boolean
+    nationality?: boolean
+    maritalStatus?: boolean
     emergencyContactName?: boolean
     emergencyContactPhone?: boolean
+    managerName?: boolean
+    workLocation?: boolean
+    about?: boolean
+    jobInterests?: boolean
+    skills?: boolean
+    certifications?: boolean
+    bankName?: boolean
     bankAccountNumber?: boolean
     bankIfsc?: boolean
+    panNumber?: boolean
+    uanNumber?: boolean
     departmentId?: boolean
     designationId?: boolean
     createdAt?: boolean
@@ -7870,22 +8023,36 @@ export namespace Prisma {
     companyId?: boolean
     firstName?: boolean
     lastName?: boolean
+    avatarUrl?: boolean
+    resumeUrl?: boolean
     dateOfBirth?: boolean
     dateOfJoining?: boolean
     gender?: boolean
     phone?: boolean
     address?: boolean
+    personalEmail?: boolean
+    nationality?: boolean
+    maritalStatus?: boolean
     emergencyContactName?: boolean
     emergencyContactPhone?: boolean
+    managerName?: boolean
+    workLocation?: boolean
+    about?: boolean
+    jobInterests?: boolean
+    skills?: boolean
+    certifications?: boolean
+    bankName?: boolean
     bankAccountNumber?: boolean
     bankIfsc?: boolean
+    panNumber?: boolean
+    uanNumber?: boolean
     departmentId?: boolean
     designationId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type EmployeeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "employeeCode" | "userId" | "companyId" | "firstName" | "lastName" | "dateOfBirth" | "dateOfJoining" | "gender" | "phone" | "address" | "emergencyContactName" | "emergencyContactPhone" | "bankAccountNumber" | "bankIfsc" | "departmentId" | "designationId" | "createdAt" | "updatedAt", ExtArgs["result"]["employee"]>
+  export type EmployeeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "employeeCode" | "userId" | "companyId" | "firstName" | "lastName" | "avatarUrl" | "resumeUrl" | "dateOfBirth" | "dateOfJoining" | "gender" | "phone" | "address" | "personalEmail" | "nationality" | "maritalStatus" | "emergencyContactName" | "emergencyContactPhone" | "managerName" | "workLocation" | "about" | "jobInterests" | "skills" | "certifications" | "bankName" | "bankAccountNumber" | "bankIfsc" | "panNumber" | "uanNumber" | "departmentId" | "designationId" | "createdAt" | "updatedAt", ExtArgs["result"]["employee"]>
   export type EmployeeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     company?: boolean | Employee$companyArgs<ExtArgs>
@@ -7933,15 +8100,29 @@ export namespace Prisma {
       companyId: string | null
       firstName: string
       lastName: string
+      avatarUrl: string | null
+      resumeUrl: string | null
       dateOfBirth: Date | null
       dateOfJoining: Date
       gender: $Enums.Gender
       phone: string | null
       address: string | null
+      personalEmail: string | null
+      nationality: string | null
+      maritalStatus: string | null
       emergencyContactName: string | null
       emergencyContactPhone: string | null
+      managerName: string | null
+      workLocation: string | null
+      about: string | null
+      jobInterests: string | null
+      skills: string | null
+      certifications: string | null
+      bankName: string | null
       bankAccountNumber: string | null
       bankIfsc: string | null
+      panNumber: string | null
+      uanNumber: string | null
       departmentId: string
       designationId: string
       createdAt: Date
@@ -8385,15 +8566,29 @@ export namespace Prisma {
     readonly companyId: FieldRef<"Employee", 'String'>
     readonly firstName: FieldRef<"Employee", 'String'>
     readonly lastName: FieldRef<"Employee", 'String'>
+    readonly avatarUrl: FieldRef<"Employee", 'String'>
+    readonly resumeUrl: FieldRef<"Employee", 'String'>
     readonly dateOfBirth: FieldRef<"Employee", 'DateTime'>
     readonly dateOfJoining: FieldRef<"Employee", 'DateTime'>
     readonly gender: FieldRef<"Employee", 'Gender'>
     readonly phone: FieldRef<"Employee", 'String'>
     readonly address: FieldRef<"Employee", 'String'>
+    readonly personalEmail: FieldRef<"Employee", 'String'>
+    readonly nationality: FieldRef<"Employee", 'String'>
+    readonly maritalStatus: FieldRef<"Employee", 'String'>
     readonly emergencyContactName: FieldRef<"Employee", 'String'>
     readonly emergencyContactPhone: FieldRef<"Employee", 'String'>
+    readonly managerName: FieldRef<"Employee", 'String'>
+    readonly workLocation: FieldRef<"Employee", 'String'>
+    readonly about: FieldRef<"Employee", 'String'>
+    readonly jobInterests: FieldRef<"Employee", 'String'>
+    readonly skills: FieldRef<"Employee", 'String'>
+    readonly certifications: FieldRef<"Employee", 'String'>
+    readonly bankName: FieldRef<"Employee", 'String'>
     readonly bankAccountNumber: FieldRef<"Employee", 'String'>
     readonly bankIfsc: FieldRef<"Employee", 'String'>
+    readonly panNumber: FieldRef<"Employee", 'String'>
+    readonly uanNumber: FieldRef<"Employee", 'String'>
     readonly departmentId: FieldRef<"Employee", 'String'>
     readonly designationId: FieldRef<"Employee", 'String'>
     readonly createdAt: FieldRef<"Employee", 'DateTime'>
@@ -24124,6 +24319,7 @@ export namespace Prisma {
     loginId: 'loginId',
     passwordHash: 'passwordHash',
     name: 'name',
+    avatarUrl: 'avatarUrl',
     role: 'role',
     isActive: 'isActive',
     mustChangePassword: 'mustChangePassword',
@@ -24178,15 +24374,29 @@ export namespace Prisma {
     companyId: 'companyId',
     firstName: 'firstName',
     lastName: 'lastName',
+    avatarUrl: 'avatarUrl',
+    resumeUrl: 'resumeUrl',
     dateOfBirth: 'dateOfBirth',
     dateOfJoining: 'dateOfJoining',
     gender: 'gender',
     phone: 'phone',
     address: 'address',
+    personalEmail: 'personalEmail',
+    nationality: 'nationality',
+    maritalStatus: 'maritalStatus',
     emergencyContactName: 'emergencyContactName',
     emergencyContactPhone: 'emergencyContactPhone',
+    managerName: 'managerName',
+    workLocation: 'workLocation',
+    about: 'about',
+    jobInterests: 'jobInterests',
+    skills: 'skills',
+    certifications: 'certifications',
+    bankName: 'bankName',
     bankAccountNumber: 'bankAccountNumber',
     bankIfsc: 'bankIfsc',
+    panNumber: 'panNumber',
+    uanNumber: 'uanNumber',
     departmentId: 'departmentId',
     designationId: 'designationId',
     createdAt: 'createdAt',
@@ -24633,6 +24843,7 @@ export namespace Prisma {
     loginId?: StringNullableFilter<"User"> | string | null
     passwordHash?: StringFilter<"User"> | string
     name?: StringNullableFilter<"User"> | string | null
+    avatarUrl?: StringNullableFilter<"User"> | string | null
     role?: EnumRoleFilter<"User"> | $Enums.Role
     isActive?: BoolFilter<"User"> | boolean
     mustChangePassword?: BoolFilter<"User"> | boolean
@@ -24651,6 +24862,7 @@ export namespace Prisma {
     loginId?: SortOrderInput | SortOrder
     passwordHash?: SortOrder
     name?: SortOrderInput | SortOrder
+    avatarUrl?: SortOrderInput | SortOrder
     role?: SortOrder
     isActive?: SortOrder
     mustChangePassword?: SortOrder
@@ -24672,6 +24884,7 @@ export namespace Prisma {
     NOT?: UserWhereInput | UserWhereInput[]
     passwordHash?: StringFilter<"User"> | string
     name?: StringNullableFilter<"User"> | string | null
+    avatarUrl?: StringNullableFilter<"User"> | string | null
     role?: EnumRoleFilter<"User"> | $Enums.Role
     isActive?: BoolFilter<"User"> | boolean
     mustChangePassword?: BoolFilter<"User"> | boolean
@@ -24690,6 +24903,7 @@ export namespace Prisma {
     loginId?: SortOrderInput | SortOrder
     passwordHash?: SortOrder
     name?: SortOrderInput | SortOrder
+    avatarUrl?: SortOrderInput | SortOrder
     role?: SortOrder
     isActive?: SortOrder
     mustChangePassword?: SortOrder
@@ -24712,6 +24926,7 @@ export namespace Prisma {
     loginId?: StringNullableWithAggregatesFilter<"User"> | string | null
     passwordHash?: StringWithAggregatesFilter<"User"> | string
     name?: StringNullableWithAggregatesFilter<"User"> | string | null
+    avatarUrl?: StringNullableWithAggregatesFilter<"User"> | string | null
     role?: EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
     isActive?: BoolWithAggregatesFilter<"User"> | boolean
     mustChangePassword?: BoolWithAggregatesFilter<"User"> | boolean
@@ -24919,15 +25134,29 @@ export namespace Prisma {
     companyId?: StringNullableFilter<"Employee"> | string | null
     firstName?: StringFilter<"Employee"> | string
     lastName?: StringFilter<"Employee"> | string
+    avatarUrl?: StringNullableFilter<"Employee"> | string | null
+    resumeUrl?: StringNullableFilter<"Employee"> | string | null
     dateOfBirth?: DateTimeNullableFilter<"Employee"> | Date | string | null
     dateOfJoining?: DateTimeFilter<"Employee"> | Date | string
     gender?: EnumGenderFilter<"Employee"> | $Enums.Gender
     phone?: StringNullableFilter<"Employee"> | string | null
     address?: StringNullableFilter<"Employee"> | string | null
+    personalEmail?: StringNullableFilter<"Employee"> | string | null
+    nationality?: StringNullableFilter<"Employee"> | string | null
+    maritalStatus?: StringNullableFilter<"Employee"> | string | null
     emergencyContactName?: StringNullableFilter<"Employee"> | string | null
     emergencyContactPhone?: StringNullableFilter<"Employee"> | string | null
+    managerName?: StringNullableFilter<"Employee"> | string | null
+    workLocation?: StringNullableFilter<"Employee"> | string | null
+    about?: StringNullableFilter<"Employee"> | string | null
+    jobInterests?: StringNullableFilter<"Employee"> | string | null
+    skills?: StringNullableFilter<"Employee"> | string | null
+    certifications?: StringNullableFilter<"Employee"> | string | null
+    bankName?: StringNullableFilter<"Employee"> | string | null
     bankAccountNumber?: StringNullableFilter<"Employee"> | string | null
     bankIfsc?: StringNullableFilter<"Employee"> | string | null
+    panNumber?: StringNullableFilter<"Employee"> | string | null
+    uanNumber?: StringNullableFilter<"Employee"> | string | null
     departmentId?: StringFilter<"Employee"> | string
     designationId?: StringFilter<"Employee"> | string
     createdAt?: DateTimeFilter<"Employee"> | Date | string
@@ -24951,15 +25180,29 @@ export namespace Prisma {
     companyId?: SortOrderInput | SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
+    avatarUrl?: SortOrderInput | SortOrder
+    resumeUrl?: SortOrderInput | SortOrder
     dateOfBirth?: SortOrderInput | SortOrder
     dateOfJoining?: SortOrder
     gender?: SortOrder
     phone?: SortOrderInput | SortOrder
     address?: SortOrderInput | SortOrder
+    personalEmail?: SortOrderInput | SortOrder
+    nationality?: SortOrderInput | SortOrder
+    maritalStatus?: SortOrderInput | SortOrder
     emergencyContactName?: SortOrderInput | SortOrder
     emergencyContactPhone?: SortOrderInput | SortOrder
+    managerName?: SortOrderInput | SortOrder
+    workLocation?: SortOrderInput | SortOrder
+    about?: SortOrderInput | SortOrder
+    jobInterests?: SortOrderInput | SortOrder
+    skills?: SortOrderInput | SortOrder
+    certifications?: SortOrderInput | SortOrder
+    bankName?: SortOrderInput | SortOrder
     bankAccountNumber?: SortOrderInput | SortOrder
     bankIfsc?: SortOrderInput | SortOrder
+    panNumber?: SortOrderInput | SortOrder
+    uanNumber?: SortOrderInput | SortOrder
     departmentId?: SortOrder
     designationId?: SortOrder
     createdAt?: SortOrder
@@ -24987,15 +25230,29 @@ export namespace Prisma {
     companyId?: StringNullableFilter<"Employee"> | string | null
     firstName?: StringFilter<"Employee"> | string
     lastName?: StringFilter<"Employee"> | string
+    avatarUrl?: StringNullableFilter<"Employee"> | string | null
+    resumeUrl?: StringNullableFilter<"Employee"> | string | null
     dateOfBirth?: DateTimeNullableFilter<"Employee"> | Date | string | null
     dateOfJoining?: DateTimeFilter<"Employee"> | Date | string
     gender?: EnumGenderFilter<"Employee"> | $Enums.Gender
     phone?: StringNullableFilter<"Employee"> | string | null
     address?: StringNullableFilter<"Employee"> | string | null
+    personalEmail?: StringNullableFilter<"Employee"> | string | null
+    nationality?: StringNullableFilter<"Employee"> | string | null
+    maritalStatus?: StringNullableFilter<"Employee"> | string | null
     emergencyContactName?: StringNullableFilter<"Employee"> | string | null
     emergencyContactPhone?: StringNullableFilter<"Employee"> | string | null
+    managerName?: StringNullableFilter<"Employee"> | string | null
+    workLocation?: StringNullableFilter<"Employee"> | string | null
+    about?: StringNullableFilter<"Employee"> | string | null
+    jobInterests?: StringNullableFilter<"Employee"> | string | null
+    skills?: StringNullableFilter<"Employee"> | string | null
+    certifications?: StringNullableFilter<"Employee"> | string | null
+    bankName?: StringNullableFilter<"Employee"> | string | null
     bankAccountNumber?: StringNullableFilter<"Employee"> | string | null
     bankIfsc?: StringNullableFilter<"Employee"> | string | null
+    panNumber?: StringNullableFilter<"Employee"> | string | null
+    uanNumber?: StringNullableFilter<"Employee"> | string | null
     departmentId?: StringFilter<"Employee"> | string
     designationId?: StringFilter<"Employee"> | string
     createdAt?: DateTimeFilter<"Employee"> | Date | string
@@ -25019,15 +25276,29 @@ export namespace Prisma {
     companyId?: SortOrderInput | SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
+    avatarUrl?: SortOrderInput | SortOrder
+    resumeUrl?: SortOrderInput | SortOrder
     dateOfBirth?: SortOrderInput | SortOrder
     dateOfJoining?: SortOrder
     gender?: SortOrder
     phone?: SortOrderInput | SortOrder
     address?: SortOrderInput | SortOrder
+    personalEmail?: SortOrderInput | SortOrder
+    nationality?: SortOrderInput | SortOrder
+    maritalStatus?: SortOrderInput | SortOrder
     emergencyContactName?: SortOrderInput | SortOrder
     emergencyContactPhone?: SortOrderInput | SortOrder
+    managerName?: SortOrderInput | SortOrder
+    workLocation?: SortOrderInput | SortOrder
+    about?: SortOrderInput | SortOrder
+    jobInterests?: SortOrderInput | SortOrder
+    skills?: SortOrderInput | SortOrder
+    certifications?: SortOrderInput | SortOrder
+    bankName?: SortOrderInput | SortOrder
     bankAccountNumber?: SortOrderInput | SortOrder
     bankIfsc?: SortOrderInput | SortOrder
+    panNumber?: SortOrderInput | SortOrder
+    uanNumber?: SortOrderInput | SortOrder
     departmentId?: SortOrder
     designationId?: SortOrder
     createdAt?: SortOrder
@@ -25047,15 +25318,29 @@ export namespace Prisma {
     companyId?: StringNullableWithAggregatesFilter<"Employee"> | string | null
     firstName?: StringWithAggregatesFilter<"Employee"> | string
     lastName?: StringWithAggregatesFilter<"Employee"> | string
+    avatarUrl?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    resumeUrl?: StringNullableWithAggregatesFilter<"Employee"> | string | null
     dateOfBirth?: DateTimeNullableWithAggregatesFilter<"Employee"> | Date | string | null
     dateOfJoining?: DateTimeWithAggregatesFilter<"Employee"> | Date | string
     gender?: EnumGenderWithAggregatesFilter<"Employee"> | $Enums.Gender
     phone?: StringNullableWithAggregatesFilter<"Employee"> | string | null
     address?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    personalEmail?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    nationality?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    maritalStatus?: StringNullableWithAggregatesFilter<"Employee"> | string | null
     emergencyContactName?: StringNullableWithAggregatesFilter<"Employee"> | string | null
     emergencyContactPhone?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    managerName?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    workLocation?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    about?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    jobInterests?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    skills?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    certifications?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    bankName?: StringNullableWithAggregatesFilter<"Employee"> | string | null
     bankAccountNumber?: StringNullableWithAggregatesFilter<"Employee"> | string | null
     bankIfsc?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    panNumber?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    uanNumber?: StringNullableWithAggregatesFilter<"Employee"> | string | null
     departmentId?: StringWithAggregatesFilter<"Employee"> | string
     designationId?: StringWithAggregatesFilter<"Employee"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Employee"> | Date | string
@@ -26092,6 +26377,7 @@ export namespace Prisma {
     loginId?: string | null
     passwordHash: string
     name?: string | null
+    avatarUrl?: string | null
     role?: $Enums.Role
     isActive?: boolean
     mustChangePassword?: boolean
@@ -26109,6 +26395,7 @@ export namespace Prisma {
     loginId?: string | null
     passwordHash: string
     name?: string | null
+    avatarUrl?: string | null
     role?: $Enums.Role
     isActive?: boolean
     mustChangePassword?: boolean
@@ -26126,6 +26413,7 @@ export namespace Prisma {
     loginId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     isActive?: BoolFieldUpdateOperationsInput | boolean
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
@@ -26143,6 +26431,7 @@ export namespace Prisma {
     loginId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     isActive?: BoolFieldUpdateOperationsInput | boolean
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
@@ -26160,6 +26449,7 @@ export namespace Prisma {
     loginId?: string | null
     passwordHash: string
     name?: string | null
+    avatarUrl?: string | null
     role?: $Enums.Role
     isActive?: boolean
     mustChangePassword?: boolean
@@ -26176,6 +26466,7 @@ export namespace Prisma {
     loginId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     isActive?: BoolFieldUpdateOperationsInput | boolean
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
@@ -26191,6 +26482,7 @@ export namespace Prisma {
     loginId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     isActive?: BoolFieldUpdateOperationsInput | boolean
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
@@ -26403,15 +26695,29 @@ export namespace Prisma {
     employeeCode: string
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutEmployeeInput
@@ -26433,15 +26739,29 @@ export namespace Prisma {
     companyId?: string | null
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     departmentId: string
     designationId: string
     createdAt?: Date | string
@@ -26459,15 +26779,29 @@ export namespace Prisma {
     employeeCode?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutEmployeeNestedInput
@@ -26489,15 +26823,29 @@ export namespace Prisma {
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     departmentId?: StringFieldUpdateOperationsInput | string
     designationId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26517,15 +26865,29 @@ export namespace Prisma {
     companyId?: string | null
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     departmentId: string
     designationId: string
     createdAt?: Date | string
@@ -26537,15 +26899,29 @@ export namespace Prisma {
     employeeCode?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -26557,15 +26933,29 @@ export namespace Prisma {
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     departmentId?: StringFieldUpdateOperationsInput | string
     designationId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27756,6 +28146,7 @@ export namespace Prisma {
     loginId?: SortOrder
     passwordHash?: SortOrder
     name?: SortOrder
+    avatarUrl?: SortOrder
     role?: SortOrder
     isActive?: SortOrder
     mustChangePassword?: SortOrder
@@ -27772,6 +28163,7 @@ export namespace Prisma {
     loginId?: SortOrder
     passwordHash?: SortOrder
     name?: SortOrder
+    avatarUrl?: SortOrder
     role?: SortOrder
     isActive?: SortOrder
     mustChangePassword?: SortOrder
@@ -27788,6 +28180,7 @@ export namespace Prisma {
     loginId?: SortOrder
     passwordHash?: SortOrder
     name?: SortOrder
+    avatarUrl?: SortOrder
     role?: SortOrder
     isActive?: SortOrder
     mustChangePassword?: SortOrder
@@ -28094,15 +28487,29 @@ export namespace Prisma {
     companyId?: SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
+    avatarUrl?: SortOrder
+    resumeUrl?: SortOrder
     dateOfBirth?: SortOrder
     dateOfJoining?: SortOrder
     gender?: SortOrder
     phone?: SortOrder
     address?: SortOrder
+    personalEmail?: SortOrder
+    nationality?: SortOrder
+    maritalStatus?: SortOrder
     emergencyContactName?: SortOrder
     emergencyContactPhone?: SortOrder
+    managerName?: SortOrder
+    workLocation?: SortOrder
+    about?: SortOrder
+    jobInterests?: SortOrder
+    skills?: SortOrder
+    certifications?: SortOrder
+    bankName?: SortOrder
     bankAccountNumber?: SortOrder
     bankIfsc?: SortOrder
+    panNumber?: SortOrder
+    uanNumber?: SortOrder
     departmentId?: SortOrder
     designationId?: SortOrder
     createdAt?: SortOrder
@@ -28116,15 +28523,29 @@ export namespace Prisma {
     companyId?: SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
+    avatarUrl?: SortOrder
+    resumeUrl?: SortOrder
     dateOfBirth?: SortOrder
     dateOfJoining?: SortOrder
     gender?: SortOrder
     phone?: SortOrder
     address?: SortOrder
+    personalEmail?: SortOrder
+    nationality?: SortOrder
+    maritalStatus?: SortOrder
     emergencyContactName?: SortOrder
     emergencyContactPhone?: SortOrder
+    managerName?: SortOrder
+    workLocation?: SortOrder
+    about?: SortOrder
+    jobInterests?: SortOrder
+    skills?: SortOrder
+    certifications?: SortOrder
+    bankName?: SortOrder
     bankAccountNumber?: SortOrder
     bankIfsc?: SortOrder
+    panNumber?: SortOrder
+    uanNumber?: SortOrder
     departmentId?: SortOrder
     designationId?: SortOrder
     createdAt?: SortOrder
@@ -28138,15 +28559,29 @@ export namespace Prisma {
     companyId?: SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
+    avatarUrl?: SortOrder
+    resumeUrl?: SortOrder
     dateOfBirth?: SortOrder
     dateOfJoining?: SortOrder
     gender?: SortOrder
     phone?: SortOrder
     address?: SortOrder
+    personalEmail?: SortOrder
+    nationality?: SortOrder
+    maritalStatus?: SortOrder
     emergencyContactName?: SortOrder
     emergencyContactPhone?: SortOrder
+    managerName?: SortOrder
+    workLocation?: SortOrder
+    about?: SortOrder
+    jobInterests?: SortOrder
+    skills?: SortOrder
+    certifications?: SortOrder
+    bankName?: SortOrder
     bankAccountNumber?: SortOrder
     bankIfsc?: SortOrder
+    panNumber?: SortOrder
+    uanNumber?: SortOrder
     departmentId?: SortOrder
     designationId?: SortOrder
     createdAt?: SortOrder
@@ -30748,15 +31183,29 @@ export namespace Prisma {
     employeeCode: string
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     company?: CompanyCreateNestedOneWithoutEmployeesInput
@@ -30776,15 +31225,29 @@ export namespace Prisma {
     companyId?: string | null
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     departmentId: string
     designationId: string
     createdAt?: Date | string
@@ -30851,15 +31314,29 @@ export namespace Prisma {
     employeeCode?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneWithoutEmployeesNestedInput
@@ -30879,15 +31356,29 @@ export namespace Prisma {
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     departmentId?: StringFieldUpdateOperationsInput | string
     designationId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -30906,6 +31397,7 @@ export namespace Prisma {
     loginId?: string | null
     passwordHash: string
     name?: string | null
+    avatarUrl?: string | null
     role?: $Enums.Role
     isActive?: boolean
     mustChangePassword?: boolean
@@ -30922,6 +31414,7 @@ export namespace Prisma {
     loginId?: string | null
     passwordHash: string
     name?: string | null
+    avatarUrl?: string | null
     role?: $Enums.Role
     isActive?: boolean
     mustChangePassword?: boolean
@@ -30975,15 +31468,29 @@ export namespace Prisma {
     employeeCode: string
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutEmployeeInput
@@ -31003,15 +31510,29 @@ export namespace Prisma {
     userId: string
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     departmentId: string
     designationId: string
     createdAt?: Date | string
@@ -31059,6 +31580,7 @@ export namespace Prisma {
     loginId?: StringNullableFilter<"User"> | string | null
     passwordHash?: StringFilter<"User"> | string
     name?: StringNullableFilter<"User"> | string | null
+    avatarUrl?: StringNullableFilter<"User"> | string | null
     role?: EnumRoleFilter<"User"> | $Enums.Role
     isActive?: BoolFilter<"User"> | boolean
     mustChangePassword?: BoolFilter<"User"> | boolean
@@ -31122,15 +31644,29 @@ export namespace Prisma {
     companyId?: StringNullableFilter<"Employee"> | string | null
     firstName?: StringFilter<"Employee"> | string
     lastName?: StringFilter<"Employee"> | string
+    avatarUrl?: StringNullableFilter<"Employee"> | string | null
+    resumeUrl?: StringNullableFilter<"Employee"> | string | null
     dateOfBirth?: DateTimeNullableFilter<"Employee"> | Date | string | null
     dateOfJoining?: DateTimeFilter<"Employee"> | Date | string
     gender?: EnumGenderFilter<"Employee"> | $Enums.Gender
     phone?: StringNullableFilter<"Employee"> | string | null
     address?: StringNullableFilter<"Employee"> | string | null
+    personalEmail?: StringNullableFilter<"Employee"> | string | null
+    nationality?: StringNullableFilter<"Employee"> | string | null
+    maritalStatus?: StringNullableFilter<"Employee"> | string | null
     emergencyContactName?: StringNullableFilter<"Employee"> | string | null
     emergencyContactPhone?: StringNullableFilter<"Employee"> | string | null
+    managerName?: StringNullableFilter<"Employee"> | string | null
+    workLocation?: StringNullableFilter<"Employee"> | string | null
+    about?: StringNullableFilter<"Employee"> | string | null
+    jobInterests?: StringNullableFilter<"Employee"> | string | null
+    skills?: StringNullableFilter<"Employee"> | string | null
+    certifications?: StringNullableFilter<"Employee"> | string | null
+    bankName?: StringNullableFilter<"Employee"> | string | null
     bankAccountNumber?: StringNullableFilter<"Employee"> | string | null
     bankIfsc?: StringNullableFilter<"Employee"> | string | null
+    panNumber?: StringNullableFilter<"Employee"> | string | null
+    uanNumber?: StringNullableFilter<"Employee"> | string | null
     departmentId?: StringFilter<"Employee"> | string
     designationId?: StringFilter<"Employee"> | string
     createdAt?: DateTimeFilter<"Employee"> | Date | string
@@ -31169,15 +31705,29 @@ export namespace Prisma {
     employeeCode: string
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutEmployeeInput
@@ -31198,15 +31748,29 @@ export namespace Prisma {
     companyId?: string | null
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     designationId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -31358,15 +31922,29 @@ export namespace Prisma {
     employeeCode: string
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutEmployeeInput
@@ -31387,15 +31965,29 @@ export namespace Prisma {
     companyId?: string | null
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     departmentId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -31468,6 +32060,7 @@ export namespace Prisma {
     loginId?: string | null
     passwordHash: string
     name?: string | null
+    avatarUrl?: string | null
     role?: $Enums.Role
     isActive?: boolean
     mustChangePassword?: boolean
@@ -31484,6 +32077,7 @@ export namespace Prisma {
     loginId?: string | null
     passwordHash: string
     name?: string | null
+    avatarUrl?: string | null
     role?: $Enums.Role
     isActive?: boolean
     mustChangePassword?: boolean
@@ -31804,6 +32398,7 @@ export namespace Prisma {
     loginId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     isActive?: BoolFieldUpdateOperationsInput | boolean
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
@@ -31820,6 +32415,7 @@ export namespace Prisma {
     loginId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     isActive?: BoolFieldUpdateOperationsInput | boolean
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
@@ -32124,15 +32720,29 @@ export namespace Prisma {
     employeeCode: string
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutEmployeeInput
@@ -32153,15 +32763,29 @@ export namespace Prisma {
     companyId?: string | null
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     departmentId: string
     designationId: string
     createdAt?: Date | string
@@ -32194,15 +32818,29 @@ export namespace Prisma {
     employeeCode?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutEmployeeNestedInput
@@ -32223,15 +32861,29 @@ export namespace Prisma {
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     departmentId?: StringFieldUpdateOperationsInput | string
     designationId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -32419,15 +33071,29 @@ export namespace Prisma {
     employeeCode: string
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutEmployeeInput
@@ -32448,15 +33114,29 @@ export namespace Prisma {
     companyId?: string | null
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     departmentId: string
     designationId: string
     createdAt?: Date | string
@@ -32518,15 +33198,29 @@ export namespace Prisma {
     employeeCode?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutEmployeeNestedInput
@@ -32547,15 +33241,29 @@ export namespace Prisma {
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     departmentId?: StringFieldUpdateOperationsInput | string
     designationId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -32607,15 +33315,29 @@ export namespace Prisma {
     employeeCode: string
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutEmployeeInput
@@ -32636,15 +33358,29 @@ export namespace Prisma {
     companyId?: string | null
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     departmentId: string
     designationId: string
     createdAt?: Date | string
@@ -32738,15 +33474,29 @@ export namespace Prisma {
     employeeCode?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutEmployeeNestedInput
@@ -32767,15 +33517,29 @@ export namespace Prisma {
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     departmentId?: StringFieldUpdateOperationsInput | string
     designationId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -32995,15 +33759,29 @@ export namespace Prisma {
     employeeCode: string
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutEmployeeInput
@@ -33024,15 +33802,29 @@ export namespace Prisma {
     companyId?: string | null
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     departmentId: string
     designationId: string
     createdAt?: Date | string
@@ -33065,15 +33857,29 @@ export namespace Prisma {
     employeeCode?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutEmployeeNestedInput
@@ -33094,15 +33900,29 @@ export namespace Prisma {
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     departmentId?: StringFieldUpdateOperationsInput | string
     designationId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33214,15 +34034,29 @@ export namespace Prisma {
     employeeCode: string
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutEmployeeInput
@@ -33243,15 +34077,29 @@ export namespace Prisma {
     companyId?: string | null
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     departmentId: string
     designationId: string
     createdAt?: Date | string
@@ -33307,15 +34155,29 @@ export namespace Prisma {
     employeeCode?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutEmployeeNestedInput
@@ -33336,15 +34198,29 @@ export namespace Prisma {
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     departmentId?: StringFieldUpdateOperationsInput | string
     designationId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33619,15 +34495,29 @@ export namespace Prisma {
     employeeCode: string
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutEmployeeInput
@@ -33648,15 +34538,29 @@ export namespace Prisma {
     companyId?: string | null
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     departmentId: string
     designationId: string
     createdAt?: Date | string
@@ -33750,15 +34654,29 @@ export namespace Prisma {
     employeeCode?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutEmployeeNestedInput
@@ -33779,15 +34697,29 @@ export namespace Prisma {
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     departmentId?: StringFieldUpdateOperationsInput | string
     designationId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33977,6 +34909,7 @@ export namespace Prisma {
     loginId?: string | null
     passwordHash: string
     name?: string | null
+    avatarUrl?: string | null
     role?: $Enums.Role
     isActive?: boolean
     mustChangePassword?: boolean
@@ -33999,15 +34932,29 @@ export namespace Prisma {
     userId: string
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     departmentId: string
     designationId: string
     createdAt?: Date | string
@@ -34020,6 +34967,7 @@ export namespace Prisma {
     loginId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     isActive?: BoolFieldUpdateOperationsInput | boolean
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
@@ -34036,6 +34984,7 @@ export namespace Prisma {
     loginId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     isActive?: BoolFieldUpdateOperationsInput | boolean
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
@@ -34052,6 +35001,7 @@ export namespace Prisma {
     loginId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     isActive?: BoolFieldUpdateOperationsInput | boolean
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
@@ -34091,15 +35041,29 @@ export namespace Prisma {
     employeeCode?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutEmployeeNestedInput
@@ -34119,15 +35083,29 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     departmentId?: StringFieldUpdateOperationsInput | string
     designationId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34146,15 +35124,29 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     departmentId?: StringFieldUpdateOperationsInput | string
     designationId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34168,15 +35160,29 @@ export namespace Prisma {
     companyId?: string | null
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     designationId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34194,15 +35200,29 @@ export namespace Prisma {
     employeeCode?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutEmployeeNestedInput
@@ -34223,15 +35243,29 @@ export namespace Prisma {
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     designationId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34250,15 +35284,29 @@ export namespace Prisma {
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     designationId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34294,15 +35342,29 @@ export namespace Prisma {
     companyId?: string | null
     firstName: string
     lastName: string
+    avatarUrl?: string | null
+    resumeUrl?: string | null
     dateOfBirth?: Date | string | null
     dateOfJoining: Date | string
     gender: $Enums.Gender
     phone?: string | null
     address?: string | null
+    personalEmail?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
     emergencyContactName?: string | null
     emergencyContactPhone?: string | null
+    managerName?: string | null
+    workLocation?: string | null
+    about?: string | null
+    jobInterests?: string | null
+    skills?: string | null
+    certifications?: string | null
+    bankName?: string | null
     bankAccountNumber?: string | null
     bankIfsc?: string | null
+    panNumber?: string | null
+    uanNumber?: string | null
     departmentId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34313,15 +35375,29 @@ export namespace Prisma {
     employeeCode?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutEmployeeNestedInput
@@ -34342,15 +35418,29 @@ export namespace Prisma {
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     departmentId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34369,15 +35459,29 @@ export namespace Prisma {
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeUrl?: NullableStringFieldUpdateOperationsInput | string | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dateOfJoining?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: EnumGenderFieldUpdateOperationsInput | $Enums.Gender
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactName?: NullableStringFieldUpdateOperationsInput | string | null
     emergencyContactPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    managerName?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    about?: NullableStringFieldUpdateOperationsInput | string | null
+    jobInterests?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    certifications?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
     bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankIfsc?: NullableStringFieldUpdateOperationsInput | string | null
+    panNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    uanNumber?: NullableStringFieldUpdateOperationsInput | string | null
     departmentId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

@@ -12,6 +12,7 @@ import {
   createPeriod,
   getPayrollEntry,
   getPayslipForUser,
+  getSalaryStatement,
   listMyPayslips,
   listPeriods,
   runPayroll,
@@ -363,4 +364,19 @@ export const payrollRouter = createTRPCRouter({
   listMyPayslips: protectedProcedure.query(({ ctx }) =>
     listMyPayslips(ctx.db, ctx.session.user.id),
   ),
+
+  /**
+   * Get salary statement for a specific employee and year.
+   * FGA: can_manage_payroll on company:{companyId}
+   */
+  getSalaryStatement: fgaCompanyProcedure("can_manage_payroll")
+    .input(
+      z.object({
+        employeeId: z.string().min(1, "Employee is required"),
+        year: z.number().int().min(2020).max(2100),
+      }),
+    )
+    .query(({ ctx, input }) =>
+      getSalaryStatement(ctx.db, ctx.session.user.id, input.employeeId, input.year),
+    ),
 });

@@ -90,33 +90,44 @@ export function PayrunDetail({ period }: { period: Period }) {
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-gray-50 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase">
             <tr>
+              <th className="px-4 py-3">Pay Period</th>
               <th className="px-4 py-3">Employee</th>
-              <th className="px-4 py-3">Attendance</th>
-              <th className="px-4 py-3">Gross</th>
-              <th className="px-4 py-3">Deductions</th>
-              <th className="px-4 py-3">Net</th>
+              <th className="px-4 py-3">Employer Cost</th>
+              <th className="px-4 py-3">Basic Wage</th>
+              <th className="px-4 py-3">Gross Wage</th>
+              <th className="px-4 py-3">Net Wage</th>
+              <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {entry?.salarySlips.map((slip) => (
               <tr key={slip.id}>
+                <td className="px-4 py-3 text-gray-600">{period.name}</td>
                 <td className="px-4 py-3">
                   <p className="font-medium text-gray-900">
                     {slip.employee.firstName} {slip.employee.lastName}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {slip.employee.user.loginId} -{" "}
-                    {slip.employee.department.name}
+                    {slip.employee.user.loginId} · {slip.employee.department.name}
                   </p>
                 </td>
                 <td className="px-4 py-3 text-gray-700">
-                  {slip.workingDays}/{slip.totalWorkingDays} days
+                  {money(slip.grossSalary + slip.pfEmployer)}
                 </td>
-                <td className="px-4 py-3">{money(slip.grossSalary)}</td>
-                <td className="px-4 py-3">{money(slip.totalDeductions)}</td>
-                <td className="px-4 py-3 font-semibold">
+                <td className="px-4 py-3 text-gray-700">
+                  {money(slip.basicSalary)}
+                </td>
+                <td className="px-4 py-3 text-gray-700">
+                  {money(slip.grossSalary)}
+                </td>
+                <td className="px-4 py-3 font-semibold text-gray-900">
                   {money(slip.netSalary)}
+                </td>
+                <td className="px-4 py-3">
+                  <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-700">
+                    Done
+                  </span>
                 </td>
                 <td className="px-4 py-3">
                   <Link
@@ -130,7 +141,7 @@ export function PayrunDetail({ period }: { period: Period }) {
             ))}
             {!entry && (
               <tr>
-                <td className="px-4 py-8 text-center text-gray-500" colSpan={6}>
+                <td className="px-4 py-8 text-center text-gray-500" colSpan={8}>
                   Payroll has not been run for this period yet.
                 </td>
               </tr>

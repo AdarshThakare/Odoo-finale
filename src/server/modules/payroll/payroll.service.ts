@@ -6,7 +6,7 @@ import {
   listPayrollPeriods,
 } from "~/server/repositories/payroll.repo";
 import { calculatePayroll } from "./payroll.engine";
-import { countWeekdays } from "./payroll.utils";
+import { countWeekdays, lookupProfessionalTax, PF_RATE, roundMoney } from "./payroll.utils";
 
 async function getCompanyScope(db: PrismaClient, userId: string) {
   const user = await db.user.findUnique({
@@ -354,4 +354,106 @@ export async function listMyPayslips(db: PrismaClient, userId: string) {
       totalNet: Number(slip.payrollEntry.totalNet),
     },
   }));
+}
+
+export async function getSalaryStatement(
+  db: PrismaClient,
+  userId: string,
+  employeeId: string,
+  year: number,
+) {
+  const companyId = await getCompanyScope(db, userId);
+
+  const employee = await db.employee.findFirst({
+    where: { id: employeeId, companyId },
+    include: {
+      salaryStructure: true,
+      employeeSalaryComponents: {
+        where: { isActive: true },
+        include: { salaryComponent: true },
+        orderBy: { salaryComponent: { name: "asc" } },
+      },
+      department: { select: { name: true } },
+      designation: { select: { name: true } },
+      company: { select: { name: true, logoUrl: true } },
+    },
+  });
+
+  if (!employee) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "Employee not found" });
+  }
+
+  const structure = employee.salaryStructure;
+  if (!structure) {
+    throw new TRPCError({
+      code: "PRECONDITION_FAILED",
+      message: "No salary structure configured for this employee",
+    });
+  }
+
+  const basic = Number(structure.basicSalary);
+  const hra = Number(structure.hra);
+
+  const earningComponents = employee.employeeSalaryComponents
+    .filter((c) => c.salaryComponent.type === "EARNING")
+    .map((c) => ({ name: c.salaryComponent.name, monthly: Number(c.amount) }));
+
+  const deductionComponents = employee.employeeSalaryComponents
+    .filter((c) => c.salaryComponent.type === "DEDUCTION")
+    .map((c) => ({ name: c.salaryComponent.name, monthly: Number(c.amount) }));
+
+  const totalEarnings = earningComponents.reduce((sum, c) => sum + c.monthly, 0);
+  const grossMonthly = basic + hra + totalEarnings;
+  const pfEmployee = roundMoney(basic * PF_RATE);
+  const profTax = lookupProfessionalTax(grossMonthly);
+  const totalDeductionsMonthly =
+    pfEmployee +
+    profTax +
+    deductionComponents.reduce((sum, c) => sum + c.monthly, 0);
+  const netMonthly = roundMoney(grossMonthly - totalDeductionsMonthly);
+
+  // year param reserved for future period-filtered statements
+  void year;
+
+  return {
+    employee: {
+      name: `${employee.firstName} ${employee.lastName}`,
+      code: employee.employeeCode,
+      dateOfJoining: employee.dateOfJoining,
+      designation: employee.designation.name,
+      department: employee.department.name,
+      salaryEffectiveFrom: structure.effectiveFrom,
+      company: employee.company,
+    },
+    rows: [
+      { name: "Basic Salary", monthly: basic, yearly: basic * 12, kind: "earning" as const },
+      { name: "House Rent Allowance", monthly: hra, yearly: hra * 12, kind: "earning" as const },
+      ...earningComponents.map((c) => ({
+        name: c.name,
+        monthly: c.monthly,
+        yearly: c.monthly * 12,
+        kind: "earning" as const,
+      })),
+      {
+        name: "Gross",
+        monthly: grossMonthly,
+        yearly: grossMonthly * 12,
+        kind: "gross" as const,
+      },
+      { name: "PF Employee", monthly: pfEmployee, yearly: pfEmployee * 12, kind: "deduction" as const },
+      { name: "Professional Tax", monthly: profTax, yearly: profTax * 12, kind: "deduction" as const },
+      ...deductionComponents.map((c) => ({
+        name: c.name,
+        monthly: c.monthly,
+        yearly: c.monthly * 12,
+        kind: "deduction" as const,
+      })),
+      {
+        name: "Net Salary",
+        monthly: netMonthly,
+        yearly: netMonthly * 12,
+        kind: "net" as const,
+      },
+    ],
+  };
 }
