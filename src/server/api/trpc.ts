@@ -160,7 +160,7 @@ export const permissionRoles = {
     "EMPLOYEE",
   ],
   can_manage_employees: ["ADMIN", "HR_OFFICER"],
-  can_view_all_attendance: ["ADMIN", "HR_OFFICER"],
+  can_view_all_attendance: ["ADMIN", "HR_OFFICER", "PAYROLL_OFFICER"],
   can_manage_settings: ["ADMIN"],
   can_manage_payroll: ["ADMIN", "PAYROLL_OFFICER"],
   can_manage_leave_allocations: ["ADMIN", "HR_OFFICER"],

@@ -37,7 +37,7 @@ export default async function AttendanceAllPage({
   }
 
   if (session.user.mustChangePassword) {
-    redirect("/dashboard/security/change-password");
+    redirect("/change-password");
   }
 
   const dateKey = params?.date?.trim() ?? new Date().toISOString().slice(0, 10);

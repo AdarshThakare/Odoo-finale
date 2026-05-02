@@ -19,6 +19,15 @@ import {
 import { type Role } from "../../../generated/prisma";
 import { BrandLogo } from "~/components/BrandLogo";
 
+// Use the absolute app URL so sign-out works correctly on production too.
+// Falls back to /login (relative) which works for local dev.
+const SIGNOUT_CALLBACK =
+  typeof window !== "undefined" &&
+  window.location.hostname !== "localhost" &&
+  window.location.hostname !== "127.0.0.1"
+    ? `${window.location.origin}/login`
+    : "/login";
+
 interface NavItem {
   label: string;
   href: string;
@@ -152,7 +161,7 @@ export function Sidebar({ role, userName }: SidebarProps) {
             <p className="text-xs text-gray-500">{role.replace("_", " ")}</p>
           </div>
           <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={() => signOut({ callbackUrl: SIGNOUT_CALLBACK })}
             className="w-full rounded-lg px-3 py-2 text-left text-sm text-gray-600 transition hover:bg-gray-50 hover:text-gray-900"
           >
             Sign out
@@ -163,7 +172,7 @@ export function Sidebar({ role, userName }: SidebarProps) {
       <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-gray-200 bg-white px-4 md:hidden">
         <BrandLogo size="sm" />
         <button
-          onClick={() => signOut({ callbackUrl: "/login" })}
+          onClick={() => signOut({ callbackUrl: SIGNOUT_CALLBACK })}
           className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700"
         >
           Sign out
