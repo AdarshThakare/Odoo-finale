@@ -40,7 +40,7 @@ export async function sendOnboardingEmail(
     body: JSON.stringify({
       from: env.EMAIL_FROM,
       to: input.to,
-      subject: "Welcome to EmPay - your account is ready",
+      subject: "Welcome to EMPAY - your account is ready",
       html: renderOnboardingEmail(input),
       text: renderOnboardingText(input),
     }),
@@ -71,14 +71,14 @@ function renderOnboardingEmail(input: OnboardingEmailInput) {
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="x-apple-disable-message-reformatting" />
-        <title>Welcome to EmPay</title>
+        <title>Welcome to EMPAY</title>
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
         </style>
       </head>
       <body style="margin: 0; padding: 0; background-color: #f3efff;">
         <span style="display: none; font-size: 1px; color: #f3efff; line-height: 1px; max-height: 0; max-width: 0; opacity: 0; overflow: hidden;">
-          Your EmPay account is ready. Use the credentials inside to sign in.
+          Your EMPAY account is ready. Use the credentials inside to sign in.
         </span>
         <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f3efff;">
           <tr>
@@ -95,7 +95,7 @@ function renderOnboardingEmail(input: OnboardingEmailInput) {
                           <div style="position: absolute; top: 16px; left: 20px; color: rgba(255,255,255,0.5); font-size: 8px; line-height: 10px; letter-spacing: 6px;">&#8226;&#8226;&#8226;&#8226;&#8226;<br/>&#8226;&#8226;&#8226;&#8226;&#8226;<br/>&#8226;&#8226;&#8226;&#8226;&#8226;<br/>&#8226;&#8226;&#8226;&#8226;&#8226;</div>
                           <!-- Decorative dot grid top-right -->
                           <div style="position: absolute; top: 40px; right: 24px; color: rgba(92,61,240,0.25); font-size: 8px; line-height: 10px; letter-spacing: 6px;">&#8226;&#8226;&#8226;&#8226;&#8226;<br/>&#8226;&#8226;&#8226;&#8226;&#8226;<br/>&#8226;&#8226;&#8226;&#8226;&#8226;</div>
-                          <!-- EmPay Logo centered -->
+                          <!-- EMPAY Logo centered -->
                           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
                             <tr>
                               <td align="center" style="padding-top: 36px;">
@@ -104,8 +104,8 @@ function renderOnboardingEmail(input: OnboardingEmailInput) {
                                     <td style="width: 40px; height: 40px; background: #7c5ce7; border-radius: 12px; text-align: center; vertical-align: middle;">
                                       <span style="color: #ffffff; font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 700;">E</span>
                                     </td>
-                                    <td style="padding-left: 10px; font-family: 'Poppins', sans-serif; font-size: 26px; font-weight: 700; color: #ffffff; text-shadow: 0 1px 4px rgba(0,0,0,0.08);">
-                                      EmPay
+                                    <td style="padding-left: 10px; font-family: 'Poppins', sans-serif; font-size: 26px; font-weight: 700; text-shadow: 0 1px 4px rgba(255,255,255,0.18);">
+                                      <span style="color: #7c5ce7;">EM</span><span style="color: #111827;">PAY</span>
                                     </td>
                                   </tr>
                                 </table>
@@ -135,7 +135,7 @@ function renderOnboardingEmail(input: OnboardingEmailInput) {
                       <!-- Title -->
                       <tr>
                         <td align="center" style="font-family: 'Poppins', 'Segoe UI', sans-serif; font-size: 30px; font-weight: 700; color: #1a1338; padding-top: 16px; line-height: 1.2;">
-                          Welcome to EmPay
+                          Welcome to <span style="color: #7c5ce7;">EM</span><span style="color: #111827;">PAY</span>
                         </td>
                       </tr>
 
@@ -155,7 +155,7 @@ function renderOnboardingEmail(input: OnboardingEmailInput) {
                       </tr>
                       <tr>
                         <td align="center" style="font-family: 'Poppins', sans-serif; font-size: 13px; color: #6b668c; padding-top: 6px; line-height: 1.6;">
-                          ${input.companyName} has created an EmPay account for you. Use the<br/>credentials below to sign in and get started.
+                          ${input.companyName} has created an EMPAY account for you. Use the<br/>credentials below to sign in and get started.
                         </td>
                       </tr>
 
@@ -237,7 +237,7 @@ function renderOnboardingEmail(input: OnboardingEmailInput) {
                       <tr>
                         <td align="center" style="padding-top: 28px;">
                           <a href="${loginUrl}" style="display: inline-block; background: linear-gradient(135deg, #7c5ce7 0%, #6341d4 100%); color: #ffffff; font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 600; text-decoration: none; padding: 14px 36px; border-radius: 28px; box-shadow: 0 4px 14px rgba(124, 92, 231, 0.35);">
-                            Sign in to EmPay &nbsp;&rarr;
+                            Sign in to EMPAY &nbsp;&rarr;
                           </a>
                         </td>
                       </tr>
@@ -278,7 +278,7 @@ function renderOnboardingEmail(input: OnboardingEmailInput) {
                               <td align="right" valign="top" style="font-family: 'Poppins', sans-serif; font-size: 12px; color: #5b5676;">
                                 <span style="color: #c5b3f7; font-size: 18px;">&#9825;</span><br/>
                                 Thank you,<br/>
-                                <span style="color: #7c5ce7; font-weight: 600;">The EmPay Team</span>
+                                <span style="font-weight: 600;"><span style="color: #7c5ce7;">EM</span><span style="color: #111827;">PAY</span> Team</span>
                               </td>
                             </tr>
                           </table>
@@ -303,9 +303,9 @@ function renderOnboardingText(input: OnboardingEmailInput) {
     input.supportEmail ?? env.EMAIL_FROM ?? "support@empay.com",
   );
 
-  return `Welcome to EmPay, ${input.name}
+  return `Welcome to EMPAY, ${input.name}
 
-Your EmPay account for ${input.companyName} has been created.
+Your EMPAY account for ${input.companyName} has been created.
 
 Company: ${input.companyName}
 Login URL: ${loginUrl}
@@ -317,7 +317,7 @@ Please change your temporary password after your first sign-in.
 
 Need help? Contact our support team at ${supportEmail}.
 Thank you,
-The EmPay Team`;
+The EMPAY Team`;
 }
 
 function extractEmail(value: string) {

@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
 
+import { BrandName } from "~/components/BrandLogo";
+
 const loginSchema = z.object({
   identifier: z.string().min(1, "Login ID or email is required"),
   password: z.string().min(1, "Password is required"),
@@ -59,22 +61,30 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="rounded-xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
-      <h2 className="mb-6 text-xl font-semibold text-gray-900">
-        Sign in to your account
-      </h2>
+    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+      <div className="mb-7">
+        <p className="text-xs font-semibold tracking-[0.18em] text-purple-700 uppercase">
+          Welcome back
+        </p>
+        <h1 className="mt-3 text-3xl font-bold tracking-normal text-gray-950">
+          Sign in to <BrandName />
+        </h1>
+        <p className="mt-2 text-sm leading-6 text-gray-500">
+          Use your login ID or work email to continue.
+        </p>
+      </div>
 
       {serverError && (
-        <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mb-5 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
           {serverError}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <label
             htmlFor="identifier"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-semibold text-gray-800"
           >
             Login ID or email
           </label>
@@ -83,7 +93,8 @@ export default function LoginPage() {
             name="identifier"
             type="text"
             autoComplete="username"
-            className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm shadow-sm transition outline-none focus:ring-2 focus:ring-purple-500 ${
+            placeholder="SAKA20260001 or name@company.com"
+            className={`mt-2 block h-11 w-full rounded-lg border bg-white px-3 text-sm text-gray-900 shadow-sm transition outline-none placeholder:text-gray-400 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 ${
               errors.identifier ? "border-red-400 bg-red-50" : "border-gray-300"
             }`}
           />
@@ -95,7 +106,7 @@ export default function LoginPage() {
         <div>
           <label
             htmlFor="password"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-semibold text-gray-800"
           >
             Password
           </label>
@@ -104,7 +115,8 @@ export default function LoginPage() {
             name="password"
             type="password"
             autoComplete="current-password"
-            className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm shadow-sm transition outline-none focus:ring-2 focus:ring-purple-500 ${
+            placeholder="Enter your password"
+            className={`mt-2 block h-11 w-full rounded-lg border bg-white px-3 text-sm text-gray-900 shadow-sm transition outline-none placeholder:text-gray-400 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 ${
               errors.password ? "border-red-400 bg-red-50" : "border-gray-300"
             }`}
           />
@@ -116,15 +128,18 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800 disabled:opacity-60"
+          className="mt-1 h-11 w-full rounded-lg bg-purple-700 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-800 focus:ring-4 focus:ring-purple-100 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? "Signing in..." : "Sign in"}
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-500">
+      <p className="mt-7 text-center text-sm text-gray-500">
         Need to create a company?{" "}
-        <Link href="/register" className="font-semibold text-purple-700">
+        <Link
+          href="/register"
+          className="font-semibold text-purple-700 hover:text-purple-800"
+        >
           Create an admin account
         </Link>
       </p>
