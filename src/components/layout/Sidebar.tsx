@@ -41,7 +41,7 @@ const navItems: NavItem[] = [
   {
     label: "Payroll",
     href: "/dashboard/payroll",
-    roles: ["ADMIN", "PAYROLL_OFFICER"],
+    roles: ["ADMIN", "PAYROLL_OFFICER", "EMPLOYEE"],
     icon: "$",
   },
   {
