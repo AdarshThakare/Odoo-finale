@@ -142,15 +142,29 @@ model Employee {
   company               Company?    @relation(fields: [companyId], references: [id])
   firstName             String
   lastName              String
+  avatarUrl             String?
+  resumeUrl             String?
   dateOfBirth           DateTime?
   dateOfJoining         DateTime
   gender                Gender
   phone                 String?
   address               String?
+  personalEmail         String?
+  nationality           String?
+  maritalStatus         String?
   emergencyContactName  String?
   emergencyContactPhone String?
+  managerName           String?
+  workLocation          String?
+  about                 String?
+  jobInterests          String?
+  skills                String?
+  certifications        String?
+  bankName              String?
   bankAccountNumber     String?
   bankIfsc              String?
+  panNumber             String?
+  uanNumber             String?
   departmentId          String
   department            Department  @relation(fields: [departmentId], references: [id])
   designationId         String
