@@ -78,10 +78,19 @@ interface SidebarProps {
 export function Sidebar({ role, userName }: SidebarProps) {
   const pathname = usePathname();
   const visibleItems = navItems.filter((item) => item.roles.includes(role));
-  const isItemActive = (href: string) =>
-    href === "/dashboard"
-      ? pathname === href
-      : pathname === href || pathname.startsWith(`${href}/`);
+  const isItemActive = (href: string) => {
+    if (href === "/dashboard") return pathname === href;
+    return (
+      pathname === href ||
+      (pathname.startsWith(`${href}/`) &&
+        !visibleItems.some(
+          (other) =>
+            other.href !== href &&
+            other.href.startsWith(`${href}/`) &&
+            (pathname === other.href || pathname.startsWith(`${other.href}/`)),
+        ))
+    );
+  };
 
   return (
     <>

@@ -2952,6 +2952,7 @@ export namespace Prisma {
     loginId: string | null
     passwordHash: string | null
     name: string | null
+    avatarUrl: string | null
     role: $Enums.Role | null
     isActive: boolean | null
     mustChangePassword: boolean | null
@@ -2968,6 +2969,7 @@ export namespace Prisma {
     loginId: string | null
     passwordHash: string | null
     name: string | null
+    avatarUrl: string | null
     role: $Enums.Role | null
     isActive: boolean | null
     mustChangePassword: boolean | null
@@ -2984,6 +2986,7 @@ export namespace Prisma {
     loginId: number
     passwordHash: number
     name: number
+    avatarUrl: number
     role: number
     isActive: number
     mustChangePassword: number
@@ -3002,6 +3005,7 @@ export namespace Prisma {
     loginId?: true
     passwordHash?: true
     name?: true
+    avatarUrl?: true
     role?: true
     isActive?: true
     mustChangePassword?: true
@@ -3018,6 +3022,7 @@ export namespace Prisma {
     loginId?: true
     passwordHash?: true
     name?: true
+    avatarUrl?: true
     role?: true
     isActive?: true
     mustChangePassword?: true
@@ -3034,6 +3039,7 @@ export namespace Prisma {
     loginId?: true
     passwordHash?: true
     name?: true
+    avatarUrl?: true
     role?: true
     isActive?: true
     mustChangePassword?: true
@@ -3123,6 +3129,7 @@ export namespace Prisma {
     loginId: string | null
     passwordHash: string
     name: string | null
+    avatarUrl: string | null
     role: $Enums.Role
     isActive: boolean
     mustChangePassword: boolean
@@ -3156,6 +3163,7 @@ export namespace Prisma {
     loginId?: boolean
     passwordHash?: boolean
     name?: boolean
+    avatarUrl?: boolean
     role?: boolean
     isActive?: boolean
     mustChangePassword?: boolean
@@ -3174,6 +3182,7 @@ export namespace Prisma {
     loginId?: boolean
     passwordHash?: boolean
     name?: boolean
+    avatarUrl?: boolean
     role?: boolean
     isActive?: boolean
     mustChangePassword?: boolean
@@ -3191,6 +3200,7 @@ export namespace Prisma {
     loginId?: boolean
     passwordHash?: boolean
     name?: boolean
+    avatarUrl?: boolean
     role?: boolean
     isActive?: boolean
     mustChangePassword?: boolean
@@ -3208,6 +3218,7 @@ export namespace Prisma {
     loginId?: boolean
     passwordHash?: boolean
     name?: boolean
+    avatarUrl?: boolean
     role?: boolean
     isActive?: boolean
     mustChangePassword?: boolean
@@ -3218,7 +3229,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "loginId" | "passwordHash" | "name" | "role" | "isActive" | "mustChangePassword" | "temporaryPasswordIssuedAt" | "lastPasswordChangedAt" | "companyId" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "loginId" | "passwordHash" | "name" | "avatarUrl" | "role" | "isActive" | "mustChangePassword" | "temporaryPasswordIssuedAt" | "lastPasswordChangedAt" | "companyId" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | User$companyArgs<ExtArgs>
     employee?: boolean | User$employeeArgs<ExtArgs>
@@ -3242,6 +3253,7 @@ export namespace Prisma {
       loginId: string | null
       passwordHash: string
       name: string | null
+      avatarUrl: string | null
       role: $Enums.Role
       isActive: boolean
       mustChangePassword: boolean
@@ -3680,6 +3692,7 @@ export namespace Prisma {
     readonly loginId: FieldRef<"User", 'String'>
     readonly passwordHash: FieldRef<"User", 'String'>
     readonly name: FieldRef<"User", 'String'>
+    readonly avatarUrl: FieldRef<"User", 'String'>
     readonly role: FieldRef<"User", 'Role'>
     readonly isActive: FieldRef<"User", 'Boolean'>
     readonly mustChangePassword: FieldRef<"User", 'Boolean'>
@@ -24306,6 +24319,7 @@ export namespace Prisma {
     loginId: 'loginId',
     passwordHash: 'passwordHash',
     name: 'name',
+    avatarUrl: 'avatarUrl',
     role: 'role',
     isActive: 'isActive',
     mustChangePassword: 'mustChangePassword',
@@ -24829,6 +24843,7 @@ export namespace Prisma {
     loginId?: StringNullableFilter<"User"> | string | null
     passwordHash?: StringFilter<"User"> | string
     name?: StringNullableFilter<"User"> | string | null
+    avatarUrl?: StringNullableFilter<"User"> | string | null
     role?: EnumRoleFilter<"User"> | $Enums.Role
     isActive?: BoolFilter<"User"> | boolean
     mustChangePassword?: BoolFilter<"User"> | boolean
@@ -24847,6 +24862,7 @@ export namespace Prisma {
     loginId?: SortOrderInput | SortOrder
     passwordHash?: SortOrder
     name?: SortOrderInput | SortOrder
+    avatarUrl?: SortOrderInput | SortOrder
     role?: SortOrder
     isActive?: SortOrder
     mustChangePassword?: SortOrder
@@ -24868,6 +24884,7 @@ export namespace Prisma {
     NOT?: UserWhereInput | UserWhereInput[]
     passwordHash?: StringFilter<"User"> | string
     name?: StringNullableFilter<"User"> | string | null
+    avatarUrl?: StringNullableFilter<"User"> | string | null
     role?: EnumRoleFilter<"User"> | $Enums.Role
     isActive?: BoolFilter<"User"> | boolean
     mustChangePassword?: BoolFilter<"User"> | boolean
@@ -24886,6 +24903,7 @@ export namespace Prisma {
     loginId?: SortOrderInput | SortOrder
     passwordHash?: SortOrder
     name?: SortOrderInput | SortOrder
+    avatarUrl?: SortOrderInput | SortOrder
     role?: SortOrder
     isActive?: SortOrder
     mustChangePassword?: SortOrder
@@ -24908,6 +24926,7 @@ export namespace Prisma {
     loginId?: StringNullableWithAggregatesFilter<"User"> | string | null
     passwordHash?: StringWithAggregatesFilter<"User"> | string
     name?: StringNullableWithAggregatesFilter<"User"> | string | null
+    avatarUrl?: StringNullableWithAggregatesFilter<"User"> | string | null
     role?: EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
     isActive?: BoolWithAggregatesFilter<"User"> | boolean
     mustChangePassword?: BoolWithAggregatesFilter<"User"> | boolean
@@ -26358,6 +26377,7 @@ export namespace Prisma {
     loginId?: string | null
     passwordHash: string
     name?: string | null
+    avatarUrl?: string | null
     role?: $Enums.Role
     isActive?: boolean
     mustChangePassword?: boolean
@@ -26375,6 +26395,7 @@ export namespace Prisma {
     loginId?: string | null
     passwordHash: string
     name?: string | null
+    avatarUrl?: string | null
     role?: $Enums.Role
     isActive?: boolean
     mustChangePassword?: boolean
@@ -26392,6 +26413,7 @@ export namespace Prisma {
     loginId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     isActive?: BoolFieldUpdateOperationsInput | boolean
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
@@ -26409,6 +26431,7 @@ export namespace Prisma {
     loginId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     isActive?: BoolFieldUpdateOperationsInput | boolean
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
@@ -26426,6 +26449,7 @@ export namespace Prisma {
     loginId?: string | null
     passwordHash: string
     name?: string | null
+    avatarUrl?: string | null
     role?: $Enums.Role
     isActive?: boolean
     mustChangePassword?: boolean
@@ -26442,6 +26466,7 @@ export namespace Prisma {
     loginId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     isActive?: BoolFieldUpdateOperationsInput | boolean
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
@@ -26457,6 +26482,7 @@ export namespace Prisma {
     loginId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     isActive?: BoolFieldUpdateOperationsInput | boolean
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
@@ -28120,6 +28146,7 @@ export namespace Prisma {
     loginId?: SortOrder
     passwordHash?: SortOrder
     name?: SortOrder
+    avatarUrl?: SortOrder
     role?: SortOrder
     isActive?: SortOrder
     mustChangePassword?: SortOrder
@@ -28136,6 +28163,7 @@ export namespace Prisma {
     loginId?: SortOrder
     passwordHash?: SortOrder
     name?: SortOrder
+    avatarUrl?: SortOrder
     role?: SortOrder
     isActive?: SortOrder
     mustChangePassword?: SortOrder
@@ -28152,6 +28180,7 @@ export namespace Prisma {
     loginId?: SortOrder
     passwordHash?: SortOrder
     name?: SortOrder
+    avatarUrl?: SortOrder
     role?: SortOrder
     isActive?: SortOrder
     mustChangePassword?: SortOrder
@@ -31368,6 +31397,7 @@ export namespace Prisma {
     loginId?: string | null
     passwordHash: string
     name?: string | null
+    avatarUrl?: string | null
     role?: $Enums.Role
     isActive?: boolean
     mustChangePassword?: boolean
@@ -31384,6 +31414,7 @@ export namespace Prisma {
     loginId?: string | null
     passwordHash: string
     name?: string | null
+    avatarUrl?: string | null
     role?: $Enums.Role
     isActive?: boolean
     mustChangePassword?: boolean
@@ -31549,6 +31580,7 @@ export namespace Prisma {
     loginId?: StringNullableFilter<"User"> | string | null
     passwordHash?: StringFilter<"User"> | string
     name?: StringNullableFilter<"User"> | string | null
+    avatarUrl?: StringNullableFilter<"User"> | string | null
     role?: EnumRoleFilter<"User"> | $Enums.Role
     isActive?: BoolFilter<"User"> | boolean
     mustChangePassword?: BoolFilter<"User"> | boolean
@@ -32028,6 +32060,7 @@ export namespace Prisma {
     loginId?: string | null
     passwordHash: string
     name?: string | null
+    avatarUrl?: string | null
     role?: $Enums.Role
     isActive?: boolean
     mustChangePassword?: boolean
@@ -32044,6 +32077,7 @@ export namespace Prisma {
     loginId?: string | null
     passwordHash: string
     name?: string | null
+    avatarUrl?: string | null
     role?: $Enums.Role
     isActive?: boolean
     mustChangePassword?: boolean
@@ -32364,6 +32398,7 @@ export namespace Prisma {
     loginId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     isActive?: BoolFieldUpdateOperationsInput | boolean
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
@@ -32380,6 +32415,7 @@ export namespace Prisma {
     loginId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     isActive?: BoolFieldUpdateOperationsInput | boolean
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
@@ -34873,6 +34909,7 @@ export namespace Prisma {
     loginId?: string | null
     passwordHash: string
     name?: string | null
+    avatarUrl?: string | null
     role?: $Enums.Role
     isActive?: boolean
     mustChangePassword?: boolean
@@ -34930,6 +34967,7 @@ export namespace Prisma {
     loginId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     isActive?: BoolFieldUpdateOperationsInput | boolean
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
@@ -34946,6 +34984,7 @@ export namespace Prisma {
     loginId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     isActive?: BoolFieldUpdateOperationsInput | boolean
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
@@ -34962,6 +35001,7 @@ export namespace Prisma {
     loginId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     isActive?: BoolFieldUpdateOperationsInput | boolean
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean

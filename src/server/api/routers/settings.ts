@@ -1,6 +1,8 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
+import { type Role } from "../../../../generated/prisma";
+import { replaceUserRole } from "~/lib/fga-sync";
 import {
   createTRPCRouter,
   fgaCompanyProcedure,
@@ -15,7 +17,104 @@ const designationSchema = z.object({
   name: z.string().min(2, "Designation name is required"),
 });
 
+const roleSchema = z.enum([
+  "ADMIN",
+  "HR_OFFICER",
+  "PAYROLL_OFFICER",
+  "EMPLOYEE",
+]);
+
+function requireAdmin(role: Role) {
+  if (role !== "ADMIN") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Only admins can manage user access",
+    });
+  }
+}
+
 export const settingsRouter = createTRPCRouter({
+  /**
+   * List users in the current company for Admin User Settings.
+   */
+  listUsers: fgaCompanyProcedure("can_manage_settings").query(async ({ ctx }) => {
+    requireAdmin(ctx.session.user.role);
+
+    return ctx.db.user.findMany({
+      where: { companyId: ctx.companyId },
+      orderBy: [{ role: "asc" }, { name: "asc" }],
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        loginId: true,
+        role: true,
+        isActive: true,
+        employee: {
+          select: {
+            id: true,
+            employeeCode: true,
+            firstName: true,
+            lastName: true,
+            department: { select: { name: true } },
+            designation: { select: { name: true } },
+          },
+        },
+      },
+    });
+  }),
+
+  /**
+   * Update a user's company role.
+   */
+  updateUserRole: fgaCompanyProcedure("can_manage_settings")
+    .input(
+      z.object({
+        userId: z.string().min(1, "User is required"),
+        role: roleSchema,
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      requireAdmin(ctx.session.user.role);
+
+      if (input.userId === ctx.session.user.id) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "You cannot change your own role from User Settings",
+        });
+      }
+
+      const user = await ctx.db.user.findFirst({
+        where: { id: input.userId, companyId: ctx.companyId },
+        select: { id: true, role: true },
+      });
+
+      if (!user) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+      }
+
+      const updated = await ctx.db.user.update({
+        where: { id: user.id },
+        data: { role: input.role },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          loginId: true,
+          role: true,
+          isActive: true,
+        },
+      });
+
+      try {
+        await replaceUserRole(updated.id, input.role, ctx.companyId);
+      } catch (error) {
+        console.warn("[FGA] Failed to replace user role tuple:", error);
+      }
+
+      return updated;
+    }),
+
   /**
    * List all departments.
    * FGA: can_view_employee_directory on company:{companyId}

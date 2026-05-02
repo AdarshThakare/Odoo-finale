@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import bcrypt from "bcryptjs";
 
-import { type PrismaClient } from "../../../../generated/prisma";
+import { type PrismaClient, type Role } from "../../../../generated/prisma";
 import { sendOnboardingEmail } from "~/server/email";
 import {
   countEmployeesForYear,
@@ -211,6 +211,7 @@ export async function getMyProfileForUser(db: PrismaClient, userId: string) {
       email: true,
       loginId: true,
       name: true,
+      avatarUrl: true,
       role: true,
       company: {
         select: {
@@ -291,6 +292,7 @@ export async function getMyProfileForUser(db: PrismaClient, userId: string) {
       email: user.email,
       loginId: user.loginId,
       name: user.name,
+      avatarUrl: user.avatarUrl,
       role: user.role,
     },
     company: user.company,
@@ -357,7 +359,16 @@ export async function updateMyProfileForUser(
   if (input.name !== undefined) {
     await db.user.update({
       where: { id: user.id },
-      data: { name: input.name.trim() },
+      data: {
+        name: input.name.trim(),
+        avatarUrl:
+          input.avatarUrl !== undefined ? emptyToNull(input.avatarUrl) : undefined,
+      },
+    });
+  } else if (input.avatarUrl !== undefined) {
+    await db.user.update({
+      where: { id: user.id },
+      data: { avatarUrl: emptyToNull(input.avatarUrl) },
     });
   }
 

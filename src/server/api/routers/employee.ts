@@ -65,8 +65,6 @@ const updateMyProfileSchema = z.object({
   uanNumber: z.string().optional(),
 });
 
-const creatorRoles = ["ADMIN", "HR_OFFICER"] as const;
-
 export const employeeRouter = createTRPCRouter({
   /**
    * List all employees in the company.
