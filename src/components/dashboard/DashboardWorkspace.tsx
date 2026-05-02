@@ -224,28 +224,54 @@ export function DashboardWorkspace({
           </div>
         </header>
 
-        {stats.role === "ADMIN" && (warnings.withoutBank > 0 || warnings.withoutManager > 0) ? (
-          <section className={`grid gap-3 sm:grid-cols-2 ${cardAnimation}`} style={{ animationDelay: "80ms" }}>
+        {stats.role === "ADMIN" &&
+        (warnings.withoutBank > 0 || warnings.withoutManager > 0) ? (
+          <section
+            className={`grid gap-3 sm:grid-cols-2 ${cardAnimation}`}
+            style={{ animationDelay: "80ms" }}
+          >
             {warnings.withoutBank > 0 && (
-              <Link href="/dashboard/employees" className="flex items-center gap-3 rounded-xl bg-amber-50 px-4 py-3 ring-1 ring-amber-200 transition hover:bg-amber-100">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600 text-sm font-bold ring-1 ring-amber-200">!</span>
-                <div>
-                  <p className="text-sm font-semibold text-amber-800">
-                    {warnings.withoutBank} employee{warnings.withoutBank !== 1 ? "s" : ""} without Bank A/c
+              <Link
+                href="/dashboard/employees"
+                className="group flex items-start gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200/70 transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <span className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-50 text-violet-700 ring-1 ring-violet-100 text-sm font-semibold">
+                  !
+                </span>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-slate-900">
+                    {warnings.withoutBank} employee
+                    {warnings.withoutBank !== 1 ? "s" : ""} without bank details
                   </p>
-                  <p className="text-xs text-amber-600">Add bank details to enable payroll</p>
+                  <p className="text-xs text-slate-500">
+                    Add bank details to enable payroll
+                  </p>
                 </div>
+                <span className="mt-1 text-xs font-semibold text-slate-400 transition group-hover:text-slate-600">
+                  Employees -&gt;
+                </span>
               </Link>
             )}
             {warnings.withoutManager > 0 && (
-              <Link href="/dashboard/employees" className="flex items-center gap-3 rounded-xl bg-amber-50 px-4 py-3 ring-1 ring-amber-200 transition hover:bg-amber-100">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600 text-sm font-bold ring-1 ring-amber-200">!</span>
-                <div>
-                  <p className="text-sm font-semibold text-amber-800">
-                    {warnings.withoutManager} employee{warnings.withoutManager !== 1 ? "s" : ""} without Manager
+              <Link
+                href="/dashboard/employees"
+                className="group flex items-start gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200/70 transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <span className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-50 text-violet-700 ring-1 ring-violet-100 text-sm font-semibold">
+                  !
+                </span>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-slate-900">
+                    {warnings.withoutManager} employee
+                    {warnings.withoutManager !== 1 ? "s" : ""} without a manager
                   </p>
-                  <p className="text-xs text-amber-600">Assign a manager in employee profiles</p>
+                  <p className="text-xs text-slate-500">
+                    Assign managers in employee profiles
+                  </p>
                 </div>
+                <span className="mt-1 text-xs font-semibold text-slate-400 transition group-hover:text-slate-600">
+                  Employees -&gt;
+                </span>
               </Link>
             )}
           </section>
@@ -352,22 +378,32 @@ export function DashboardWorkspace({
           </section>
 
           {recentPayruns.length > 0 && (
-            <div className={`rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 ${cardAnimation}`} style={{ animationDelay: "500ms" }}>
+            <div
+              className={`rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 ${cardAnimation}`}
+              style={{ animationDelay: "500ms" }}
+            >
               <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-sm font-medium text-slate-900 font-display">Recent Payruns</h2>
-                <Link href="/dashboard/payroll" className="text-xs font-semibold text-violet-700 hover:underline">View all</Link>
+                <h2 className="text-sm font-medium text-slate-900 font-display">
+                  Recent Payruns
+                </h2>
+                <Link
+                  href="/dashboard/payroll"
+                  className="text-xs font-semibold text-slate-400 transition hover:text-slate-700"
+                >
+                  View all
+                </Link>
               </div>
               <ul className="space-y-2">
                 {recentPayruns.map((run) => (
                   <li key={run.entryId}>
                     <Link
                       href={`/dashboard/payroll/${run.periodId}`}
-                      className="flex items-center justify-between rounded-xl border border-slate-200/70 bg-slate-50 px-4 py-2.5 transition hover:bg-violet-50 hover:border-violet-200"
+                      className="flex items-center justify-between rounded-xl border border-slate-200/70 bg-white px-4 py-2.5 transition hover:-translate-y-0.5 hover:shadow-md"
                     >
                       <span className="text-sm font-medium text-slate-800">
-                        Payrun for {run.name}
+                        Payrun - {run.name}
                       </span>
-                      <span className="rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-semibold text-violet-700">
+                      <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">
                         {run.slipCount} Payslip{run.slipCount !== 1 ? "s" : ""}
                       </span>
                     </Link>
