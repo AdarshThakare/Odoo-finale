@@ -244,8 +244,7 @@ function deriveStatus(record: {
 
   const workingHours = record.workingHours ? Number(record.workingHours) : 0;
   if (workingHours >= WORK_DAY_HOURS) return "PRESENT";
-  if (workingHours >= 4) return "HALF_DAY";
-  return "ABSENT";
+  return "HALF_DAY";
 }
 
 function deriveExtraHours(workingHours: number | null) {
@@ -543,8 +542,7 @@ export async function checkOutForUser(db: PrismaClient, userId: string) {
     0,
   );
   const workingHours = new Prisma.Decimal(hours.toFixed(2));
-  const status =
-    hours >= WORK_DAY_HOURS ? "PRESENT" : hours >= 4 ? "HALF_DAY" : "ABSENT";
+  const status = hours >= WORK_DAY_HOURS ? "PRESENT" : "HALF_DAY";
 
   return updateAttendanceRecord(db, record.id, {
     checkOut: now,
