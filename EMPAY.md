@@ -32,45 +32,51 @@
 
 ## 1.1 Authentication & Account Creation Flow
 
-EmPay does **not** allow normal employees to self-register. Public sign-up is disabled for security and data integrity.
+EmPay does **not** allow normal employees to self-register. Public sign-up is only for creating a new company and its first Admin.
 
 **Account creation flow:**
 
-1. The initial admin is created by the seed/onboarding process.
-2. Admin or HR Officer creates employee accounts from the protected Employees module.
+1. A company Admin self-registers via `/register` and creates a new company.
+2. The Admin (or HR Officer within that company) creates employee accounts from the protected Employees module.
 3. During employee creation, the system auto-generates:
    - `loginId`
    - `employeeCode`
    - temporary password
-4. The system sends an onboarding email with Login URL, Login ID, temporary password, and role.
+4. The system sends an onboarding email with company name, Login URL, Login ID, temporary password, and role.
 5. The employee signs in using either Login ID or email plus password.
 6. Employees with generated passwords are marked `mustChangePassword=true` and are routed to password management after first login.
+
+**Company setup details:**
+
+- Company logo is uploaded to Cloudinary during admin sign-up.
+- Company code is derived from the company name and is used as the Login ID prefix.
 
 **Login ID format:**
 
 ```txt
-[First two letters of first name][First two letters of last name][Joining year][Serial number for that year]
+[Company initials][First two letters of first name][First two letters of last name][Joining year][Serial number for that year]
 ```
 
 Example:
 
 ```txt
-SAKA20260001
+OISAKA20260001
 ```
 
 Meaning:
 
 ```txt
+OI   = company initials (from company name)
 SAKA = first two letters of first name + first two letters of last name
 2026 = year of joining
-0001 = serial number for that joining year
+0001 = serial number for that joining year (within the company)
 ```
 
 **Role assignment rules:**
 
-- `ADMIN` can create users for all roles.
-- `HR_OFFICER` can create employee profiles and employee accounts.
-- Public `/register` must not create accounts.
+- `ADMIN` can create users for all roles within their company.
+- `HR_OFFICER` can create employee profiles and employee accounts within their company.
+- Public `/register` is for company Admin signup only (no employee self-registration).
 - `PAYROLL_OFFICER` and `EMPLOYEE` cannot create users.
 
 **Onboarding email:**
@@ -78,6 +84,7 @@ SAKA = first two letters of first name + first two letters of last name
 - Sent through Resend when `RESEND_API_KEY` or `AUTH_RESEND_KEY` and `EMAIL_FROM` are configured.
 - Employee creation should still succeed if email delivery is skipped or fails, but the UI must show the email status so HR/Admin can manually share the credentials if needed.
 - Email content includes:
+  - Company name
   - Login URL
   - Login ID
   - temporary password
@@ -526,7 +533,7 @@ src/
 ├── app/
 │   ├── (auth)/
 │   │   ├── login/page.tsx
-│   │   └── register/page.tsx          # Disabled public registration notice
+│   │   └── register/page.tsx          # Company admin self-serve signup
 │   ├── (dashboard)/
 │   │   ├── layout.tsx              # Sidebar shell + role-guard
 │   │   └── dashboard/
@@ -622,6 +629,7 @@ src/
 
 | Procedure      | Type     | Who    | Description                                        |
 | -------------- | -------- | ------ | -------------------------------------------------- |
+| bootstrapAdmin | mutation | public | Create company + first admin account               |
 | me             | query    | authed | Current user, role, employee, password-change flag |
 | changePassword | mutation | authed | Validate current password and update password      |
 
@@ -695,10 +703,10 @@ Credentials sign-in is handled by NextAuth at `/api/auth/[...nextauth]`. The pro
 **Goal:** Runnable app with credentials auth, DB, role-based routing, Admin/HR account creation, onboarding email, and first-login password change.
 
 - [x] Update `prisma/schema.prisma` with full schema (Sections 2.1–2.5 above)
-- [x] Run `prisma db push` and seed PT slabs + default leave types + company + admin
+- [x] Run `prisma db push` and seed PT slabs + default leave types
 - [x] Configure NextAuth credentials provider (`bcryptjs` for password hashing)
 - [x] Login accepts Login ID or email plus password
-- [x] Public registration disabled; `/register` shows HR/Admin-managed account notice
+- [x] Public registration creates a new company Admin; employees cannot self-register
 - [x] Implement `auth` tRPC router: `me`, `changePassword`
 - [x] Role guard middleware via `protectedProcedure` + `roleProcedure(roles[])`
 - [x] Dashboard layout shell: sidebar with role-conditional nav items
@@ -714,17 +722,17 @@ Credentials sign-in is handled by NextAuth at `/api/auth/[...nextauth]`. The pro
 **Goal:** HR Officer can manage the workforce. Admin can configure the system.
 
 - [x] `employee` tRPC router (list, create)
-- [ ] `employee` tRPC router (getById, update)
-- [ ] `employee.service.ts` + `employee.repo.ts`
+- [x] `employee` tRPC router (getById, update)
+- [x] `employee.service.ts` + `employee.repo.ts`
 - [x] Auto-generate `employeeCode` and Login ID during employee creation
-- [ ] Department + Designation CRUD (Admin only, inline in settings page)
+- [x] Department + Designation CRUD (Admin only, inline in settings page)
 - [x] Employee directory page (initial table)
-- [ ] Employee directory search/filter by department
-- [ ] Employee profile page (view + edit form)
-- [ ] Salary component catalogue CRUD (Admin/Payroll Officer)
-- [ ] Assign salary structure to employee (basic + HRA)
-- [ ] Assign additional components to employee
-- [ ] **Checkpoint:** HR can create employees; Admin can set up pay components
+- [x] Employee directory search/filter by department
+- [x] Employee profile page (view + edit form)
+- [x] Salary component catalogue CRUD (Admin/Payroll Officer)
+- [x] Assign salary structure to employee (basic + HRA)
+- [x] Assign additional components to employee
+- [x] **Checkpoint:** HR can create employees; Admin can set up pay components
 
 ---
 

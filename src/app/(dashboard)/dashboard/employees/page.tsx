@@ -2,8 +2,18 @@ import Link from "next/link";
 
 import { api } from "~/trpc/server";
 
-export default async function EmployeesPage() {
-  const employees = await api.employee.list();
+export default async function EmployeesPage({
+  searchParams,
+}: {
+  searchParams?: { departmentId?: string; q?: string };
+}) {
+  const departmentId = searchParams?.departmentId || undefined;
+  const search = searchParams?.q?.trim() || undefined;
+
+  const [employees, departments] = await Promise.all([
+    api.employee.list({ departmentId, search }),
+    api.settings.listDepartments(),
+  ]);
 
   return (
     <div>
@@ -23,6 +33,40 @@ export default async function EmployeesPage() {
       </div>
 
       <div className="mt-6 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
+        <div className="border-b border-gray-100 bg-gray-50 px-4 py-3">
+          <form className="flex flex-wrap gap-3">
+            <input
+              name="q"
+              placeholder="Search by name or email"
+              defaultValue={search}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm sm:w-64"
+            />
+            <select
+              name="departmentId"
+              defaultValue={departmentId ?? ""}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm sm:w-56"
+            >
+              <option value="">All departments</option>
+              {departments.map((department) => (
+                <option key={department.id} value={department.id}>
+                  {department.name}
+                </option>
+              ))}
+            </select>
+            <button
+              type="submit"
+              className="rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800"
+            >
+              Filter
+            </button>
+            <Link
+              href="/dashboard/employees"
+              className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600"
+            >
+              Clear
+            </Link>
+          </form>
+        </div>
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-gray-50 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase">
             <tr>
@@ -37,9 +81,12 @@ export default async function EmployeesPage() {
             {employees.map((employee) => (
               <tr key={employee.id}>
                 <td className="px-4 py-3">
-                  <p className="font-medium text-gray-900">
+                  <Link
+                    href={`/dashboard/employees/${employee.id}`}
+                    className="font-medium text-gray-900 hover:underline"
+                  >
                     {employee.firstName} {employee.lastName}
-                  </p>
+                  </Link>
                   <p className="text-xs text-gray-500">{employee.user.email}</p>
                 </td>
                 <td className="px-4 py-3 font-mono text-xs text-gray-700">
