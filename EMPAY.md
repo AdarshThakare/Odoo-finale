@@ -664,7 +664,7 @@ Credentials sign-in is handled by NextAuth at `/api/auth/[...nextauth]`. The pro
 | createType          | mutation | HR/ADMIN       | Add leave type             |
 | allocate            | mutation | HR/ADMIN       | Allocate leave to employee |
 | getBalance          | query    | authed         | Remaining leave balance    |
-| apply               | mutation | authed         | Submit leave application   |
+| applyForLeave       | mutation | authed         | Submit leave application   |
 | getMyApplications   | query    | authed         | Own leave history          |
 | getPendingApprovals | query    | PAYROLL/ADMIN  | All pending requests       |
 | approve             | mutation | PAYROLL/ADMIN  | Approve leave              |
@@ -753,19 +753,19 @@ Credentials sign-in is handled by NextAuth at `/api/auth/[...nextauth]`. The pro
 
 **Goal:** Full leave lifecycle from application to approval to ledger.
 
-- [ ] `leave` tRPC router (full surface — see Section 5)
-- [ ] `leave.service.ts`:
+- [x] `leave` tRPC router (full surface — see Section 5)
+- [x] `leave.service.ts`:
   - `calculateLeaveDays(from, to, isHalfDay)` — exclude weekends
   - `checkBalance(employeeId, leaveTypeId, days)` — before applying
   - `applyLeave()` — creates application + ledger debit on approval
   - `approveLeave()` — updates attendance records to ON_LEAVE for those dates
   - `cancelLeave()` — reverses ledger entry
-- [ ] Leave types management page (HR)
-- [ ] Leave allocation page (HR: assign quota per employee per year)
-- [ ] Leave application form (Employee): date picker, type selector, balance preview
-- [ ] My leaves page: application history + status badges
-- [ ] Approvals queue (Payroll Officer): approve/reject with reason modal
-- [ ] **Checkpoint:** Full leave workflow end-to-end
+- [x] Leave types management page (HR)
+- [x] Leave allocation page (HR: assign quota per employee per year)
+- [x] Leave application form (Employee): date picker, type selector, balance preview
+- [x] My leaves page: application history + status badges
+- [x] Approvals queue (Payroll Officer): approve/reject with reason modal
+- [x] **Checkpoint:** Full leave workflow end-to-end
 
 ---
 

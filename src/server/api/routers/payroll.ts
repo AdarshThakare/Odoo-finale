@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, roleProcedure } from "~/server/api/trpc";
+import { type PrismaClient } from "../../../../generated/prisma";
 
 const payrollRoles = ["ADMIN", "PAYROLL_OFFICER"] as const;
 
@@ -25,7 +26,10 @@ const assignComponentSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
-async function getCompanyId(ctx: { db: typeof import("~/server/db").db; session: { user: { id: string } } }) {
+async function getCompanyId(ctx: {
+  db: PrismaClient;
+  session: { user: { id: string } };
+}) {
   const user = await ctx.db.user.findUnique({
     where: { id: ctx.session.user.id },
     select: { companyId: true },

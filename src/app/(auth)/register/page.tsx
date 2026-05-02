@@ -27,12 +27,27 @@ const bootstrapSchema = z
 
 type FieldErrors = Partial<
   Record<
-    "companyName" | "adminName" | "email" | "password" | "confirmPassword" | "companyLogoUrl",
+    | "companyName"
+    | "adminName"
+    | "email"
+    | "password"
+    | "confirmPassword"
+    | "companyLogoUrl",
     string
   >
 >;
 
 const MAX_LOGO_BYTES = 1024 * 1024;
+
+type LogoUploadResponse = { url: string } | { error: string };
+
+function isLogoUploadResponse(value: unknown): value is LogoUploadResponse {
+  if (!value || typeof value !== "object") return false;
+  return (
+    ("url" in value && typeof value.url === "string") ||
+    ("error" in value && typeof value.error === "string")
+  );
+}
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -42,7 +57,7 @@ export default function RegisterPage() {
   const [logoUploading, setLogoUploading] = useState(false);
 
   const bootstrapAdmin = api.auth.bootstrapAdmin.useMutation({
-    onSuccess: (result) => {
+    onSuccess: () => {
       setServerError("");
       router.push("/login");
     },
@@ -80,13 +95,17 @@ export default function RegisterPage() {
         body: formData,
       });
 
-      const payload = await response.json().catch(() => null);
+      const payload: unknown = await response.json().catch(() => null);
 
       if (!response.ok) {
-        throw new Error(payload?.error ?? "Logo upload failed");
+        const message =
+          isLogoUploadResponse(payload) && "error" in payload
+            ? payload.error
+            : "Logo upload failed";
+        throw new Error(message);
       }
 
-      if (!payload?.url) {
+      if (!isLogoUploadResponse(payload) || !("url" in payload)) {
         throw new Error("Logo upload failed");
       }
 
@@ -184,9 +203,7 @@ export default function RegisterPage() {
             <p className="mt-1 text-xs text-green-600">Logo uploaded.</p>
           )}
           {errors.companyLogoUrl && (
-            <p className="mt-1 text-xs text-red-600">
-              {errors.companyLogoUrl}
-            </p>
+            <p className="mt-1 text-xs text-red-600">{errors.companyLogoUrl}</p>
           )}
         </div>
         <Field label="Admin name" id="adminName" error={errors.adminName} />

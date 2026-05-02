@@ -23,12 +23,18 @@ import {
   enumerateWorkdays,
   startOfUtcDay,
 } from "./leave.utils";
-import { getEmployeeByUserId, getUserCompany } from "~/server/repositories/employee.repo";
+import {
+  getEmployeeByUserId,
+  getUserCompany,
+} from "~/server/repositories/employee.repo";
 
 async function requireEmployee(db: PrismaClient, userId: string) {
   const employee = await getEmployeeByUserId(db, userId);
   if (!employee) {
-    throw new TRPCError({ code: "NOT_FOUND", message: "Employee profile not found" });
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Employee profile not found",
+    });
   }
   return employee;
 }
@@ -36,9 +42,16 @@ async function requireEmployee(db: PrismaClient, userId: string) {
 async function requireCompany(db: PrismaClient, userId: string) {
   const scope = await getUserCompany(db, userId);
   if (!scope?.companyId || !scope.company) {
-    throw new TRPCError({ code: "PRECONDITION_FAILED", message: "Company setup is required" });
+    throw new TRPCError({
+      code: "PRECONDITION_FAILED",
+      message: "Company setup is required",
+    });
   }
-  return scope;
+  return {
+    ...scope,
+    companyId: scope.companyId,
+    company: scope.company,
+  };
 }
 
 // ─── Leave Types ──────────────────────────────────────────────────────────────
@@ -49,11 +62,21 @@ export async function listLeaveTypes(db: PrismaClient) {
 
 export async function addLeaveType(
   db: PrismaClient,
-  data: { name: string; maxDaysPerYear: number; isPaid: boolean; carryForward: boolean },
+  data: {
+    name: string;
+    maxDaysPerYear: number;
+    isPaid: boolean;
+    carryForward: boolean;
+  },
 ) {
-  const existing = await db.leaveType.findUnique({ where: { name: data.name } });
+  const existing = await db.leaveType.findUnique({
+    where: { name: data.name },
+  });
   if (existing) {
-    throw new TRPCError({ code: "CONFLICT", message: "Leave type already exists" });
+    throw new TRPCError({
+      code: "CONFLICT",
+      message: "Leave type already exists",
+    });
   }
   return createLeaveType(db, data);
 }
@@ -63,7 +86,12 @@ export async function addLeaveType(
 export async function allocateLeave(
   db: PrismaClient,
   userId: string,
-  input: { employeeId: string; leaveTypeId: string; year: number; totalDays: number },
+  input: {
+    employeeId: string;
+    leaveTypeId: string;
+    year: number;
+    totalDays: number;
+  },
 ) {
   const scope = await requireCompany(db, userId);
 
@@ -74,12 +102,19 @@ export async function allocateLeave(
     throw new TRPCError({ code: "NOT_FOUND", message: "Employee not found" });
   }
 
-  const leaveType = await db.leaveType.findUnique({ where: { id: input.leaveTypeId } });
+  const leaveType = await db.leaveType.findUnique({
+    where: { id: input.leaveTypeId },
+  });
   if (!leaveType) {
     throw new TRPCError({ code: "NOT_FOUND", message: "Leave type not found" });
   }
 
-  const existing = await getLeaveAllocation(db, input.employeeId, input.leaveTypeId, input.year);
+  const existing = await getLeaveAllocation(
+    db,
+    input.employeeId,
+    input.leaveTypeId,
+    input.year,
+  );
 
   const allocation = await upsertLeaveAllocation(
     db,
@@ -92,7 +127,9 @@ export async function allocateLeave(
   const yearStart = new Date(Date.UTC(input.year, 0, 1));
   const yearEnd = new Date(Date.UTC(input.year + 1, 0, 1));
 
-  const delta = existing ? input.totalDays - existing.totalDays : input.totalDays;
+  const delta = existing
+    ? input.totalDays - existing.totalDays
+    : input.totalDays;
   if (delta !== 0) {
     await createLeaveLedgerEntry(db, {
       employeeId: input.employeeId,
@@ -112,11 +149,20 @@ export async function allocateLeave(
 export async function getLeaveBalances(db: PrismaClient, userId: string) {
   const employee = await requireEmployee(db, userId);
   const year = new Date().getUTCFullYear();
-  const allocations = await getLeaveAllocationsByEmployee(db, employee.id, year);
+  const allocations = await getLeaveAllocationsByEmployee(
+    db,
+    employee.id,
+    year,
+  );
 
   return Promise.all(
     allocations.map(async (alloc) => {
-      const balance = await getLeaveLedgerBalance(db, employee.id, alloc.leaveTypeId, year);
+      const balance = await getLeaveLedgerBalance(
+        db,
+        employee.id,
+        alloc.leaveTypeId,
+        year,
+      );
       return {
         leaveTypeId: alloc.leaveTypeId,
         leaveTypeName: alloc.leaveType.name,
@@ -149,22 +195,35 @@ export async function applyForLeave(
   const to = startOfUtcDay(new Date(`${input.toDate}T00:00:00Z`));
   const year = from.getUTCFullYear();
 
-  const leaveType = await db.leaveType.findUnique({ where: { id: input.leaveTypeId } });
+  const leaveType = await db.leaveType.findUnique({
+    where: { id: input.leaveTypeId },
+  });
   if (!leaveType) {
     throw new TRPCError({ code: "NOT_FOUND", message: "Leave type not found" });
   }
 
   if (from > to) {
-    throw new TRPCError({ code: "BAD_REQUEST", message: "Start date must be before end date" });
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Start date must be before end date",
+    });
   }
 
   const totalDays = calculateLeaveDays(from, to, input.isHalfDay);
   if (totalDays === 0) {
-    throw new TRPCError({ code: "BAD_REQUEST", message: "No working days in the selected range" });
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "No working days in the selected range",
+    });
   }
 
   // Check balance
-  const balance = await getLeaveLedgerBalance(db, employee.id, input.leaveTypeId, year);
+  const balance = await getLeaveLedgerBalance(
+    db,
+    employee.id,
+    input.leaveTypeId,
+    year,
+  );
   if (balance < totalDays) {
     throw new TRPCError({
       code: "BAD_REQUEST",
@@ -208,10 +267,16 @@ export async function approveLeaveApplication(
 ) {
   const application = await getLeaveApplicationById(db, applicationId);
   if (!application) {
-    throw new TRPCError({ code: "NOT_FOUND", message: "Leave application not found" });
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Leave application not found",
+    });
   }
   if (application.status !== "PENDING") {
-    throw new TRPCError({ code: "BAD_REQUEST", message: "Only pending applications can be approved" });
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Only pending applications can be approved",
+    });
   }
 
   const scope = await requireCompany(db, userId);
@@ -222,7 +287,12 @@ export async function approveLeaveApplication(
   const year = application.fromDate.getUTCFullYear();
 
   await db.$transaction(async (tx) => {
-    await updateLeaveApplicationStatus(tx as unknown as PrismaClient, applicationId, "APPROVED", userId);
+    await updateLeaveApplicationStatus(
+      tx as unknown as PrismaClient,
+      applicationId,
+      "APPROVED",
+      userId,
+    );
 
     await createLeaveLedgerEntry(tx as unknown as PrismaClient, {
       employeeId: application.employeeId,
@@ -242,10 +312,17 @@ export async function approveLeaveApplication(
       application.totalDays,
     );
 
-    const workdays = enumerateWorkdays(application.fromDate, application.toDate);
+    const workdays = enumerateWorkdays(
+      application.fromDate,
+      application.toDate,
+    );
     await Promise.all(
       workdays.map((date) =>
-        upsertAttendanceOnLeave(tx as unknown as PrismaClient, application.employeeId, date),
+        upsertAttendanceOnLeave(
+          tx as unknown as PrismaClient,
+          application.employeeId,
+          date,
+        ),
       ),
     );
   });
@@ -261,13 +338,25 @@ export async function rejectLeaveApplication(
 ) {
   const application = await getLeaveApplicationById(db, applicationId);
   if (!application) {
-    throw new TRPCError({ code: "NOT_FOUND", message: "Leave application not found" });
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Leave application not found",
+    });
   }
   if (application.status !== "PENDING") {
-    throw new TRPCError({ code: "BAD_REQUEST", message: "Only pending applications can be rejected" });
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Only pending applications can be rejected",
+    });
   }
 
-  await updateLeaveApplicationStatus(db, applicationId, "REJECTED", userId, reason);
+  await updateLeaveApplicationStatus(
+    db,
+    applicationId,
+    "REJECTED",
+    userId,
+    reason,
+  );
   return { success: true };
 }
 
@@ -278,17 +367,30 @@ export async function cancelLeaveApplication(
 ) {
   const application = await getLeaveApplicationById(db, applicationId);
   if (!application) {
-    throw new TRPCError({ code: "NOT_FOUND", message: "Leave application not found" });
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Leave application not found",
+    });
   }
   if (application.employee.user.id !== userId) {
-    throw new TRPCError({ code: "FORBIDDEN", message: "You can only cancel your own leave" });
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "You can only cancel your own leave",
+    });
   }
   if (!["PENDING", "APPROVED"].includes(application.status)) {
-    throw new TRPCError({ code: "BAD_REQUEST", message: "Only pending or approved applications can be cancelled" });
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Only pending or approved applications can be cancelled",
+    });
   }
 
   await db.$transaction(async (tx) => {
-    await updateLeaveApplicationStatus(tx as unknown as PrismaClient, applicationId, "CANCELLED");
+    await updateLeaveApplicationStatus(
+      tx as unknown as PrismaClient,
+      applicationId,
+      "CANCELLED",
+    );
 
     if (application.status === "APPROVED") {
       await createLeaveLedgerEntry(tx as unknown as PrismaClient, {

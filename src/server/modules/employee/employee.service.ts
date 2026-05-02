@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import bcrypt from "bcryptjs";
 
-import { type PrismaClient } from "../../../generated/prisma";
+import { type PrismaClient, type Role } from "../../../../generated/prisma";
 import { sendOnboardingEmail } from "~/server/email";
 import {
   countEmployeesForYear,
@@ -16,7 +16,7 @@ import {
   updateEmployeeProfile,
 } from "~/server/repositories/employee.repo";
 
-const creatorRoles = ["ADMIN", "HR_OFFICER"] as const;
+const creatorRoles: Role[] = ["ADMIN", "HR_OFFICER"];
 
 function initials(value: string) {
   return value
@@ -37,14 +37,15 @@ export async function listEmployeesForUser(
   filters?: { departmentId?: string; search?: string },
 ) {
   const creator = await getUserCompany(db, userId);
-  if (!creator?.companyId) {
+  const companyId = creator?.companyId;
+  if (!companyId) {
     throw new TRPCError({
       code: "PRECONDITION_FAILED",
       message: "Company setup is required before listing employees",
     });
   }
 
-  return listEmployeesByCompany(db, creator.companyId, filters);
+  return listEmployeesByCompany(db, companyId, filters);
 }
 
 export async function createEmployeeForUser(
@@ -63,7 +64,8 @@ export async function createEmployeeForUser(
   },
 ) {
   const creator = await getUserCompany(db, userId);
-  if (!creator?.company) {
+  const company = creator?.company;
+  if (!company) {
     throw new TRPCError({
       code: "PRECONDITION_FAILED",
       message: "Company setup is required before creating employees",
@@ -88,7 +90,7 @@ export async function createEmployeeForUser(
   const department = await findDepartmentById(
     db,
     input.departmentId,
-    creator.company.id,
+    company.id,
   );
   if (!department) {
     throw new TRPCError({
@@ -98,7 +100,7 @@ export async function createEmployeeForUser(
   }
 
   const designation = await findDesignationById(db, input.designationId);
-  if (!designation || designation.departmentId !== department.id) {
+  if (designation?.departmentId !== department.id) {
     throw new TRPCError({
       code: "BAD_REQUEST",
       message: "Designation not found for selected department",
@@ -107,14 +109,10 @@ export async function createEmployeeForUser(
 
   const joiningDate = new Date(input.dateOfJoining);
   const joiningYear = joiningDate.getUTCFullYear();
-  const serial = await countEmployeesForYear(
-    db,
-    creator.company.id,
-    joiningYear,
-  );
+  const serial = await countEmployeesForYear(db, company.id, joiningYear);
 
   const sequence = String(serial + 1).padStart(4, "0");
-  const loginId = `${creator.company.code}${initials(
+  const loginId = `${company.code}${initials(
     input.firstName,
   )}${initials(input.lastName)}${joiningYear}${sequence}`;
   const employeeCode = `EMP-${joiningYear}-${sequence}`;
@@ -123,7 +121,7 @@ export async function createEmployeeForUser(
 
   const employee = await db.$transaction(async (tx) => {
     return createEmployeeWithUser(tx, {
-      companyId: creator.company.id,
+      companyId: company.id,
       employeeCode,
       firstName: input.firstName,
       lastName: input.lastName,
@@ -149,7 +147,7 @@ export async function createEmployeeForUser(
     email: await sendOnboardingEmail({
       to: input.email,
       name: `${input.firstName} ${input.lastName}`,
-      companyName: creator.company.name,
+      companyName: company.name,
       loginId,
       temporaryPassword,
       role: input.role,
@@ -163,7 +161,8 @@ export async function getEmployeeForUser(
   employeeId: string,
 ) {
   const creator = await getUserCompany(db, userId);
-  if (!creator?.companyId) {
+  const companyId = creator?.companyId;
+  if (!companyId) {
     throw new TRPCError({
       code: "PRECONDITION_FAILED",
       message: "Company setup is required before viewing employees",
@@ -172,7 +171,7 @@ export async function getEmployeeForUser(
 
   if (!creatorRoles.includes(creator.role)) {
     const selfEmployee = await getEmployeeByUserId(db, userId);
-    if (!selfEmployee || selfEmployee.id !== employeeId) {
+    if (selfEmployee?.id !== employeeId) {
       throw new TRPCError({
         code: "FORBIDDEN",
         message: "You are not allowed to view this profile",
@@ -188,7 +187,7 @@ export async function getEmployeeForUser(
     });
   }
 
-  if (employee.companyId !== creator.companyId) {
+  if (employee.companyId !== companyId) {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "You are not allowed to view this profile",
@@ -212,7 +211,8 @@ export async function updateEmployeeForUser(
   },
 ) {
   const creator = await getUserCompany(db, userId);
-  if (!creator?.companyId) {
+  const companyId = creator?.companyId;
+  if (!companyId) {
     throw new TRPCError({
       code: "PRECONDITION_FAILED",
       message: "Company setup is required before updating employees",
@@ -222,7 +222,7 @@ export async function updateEmployeeForUser(
   const department = await findDepartmentById(
     db,
     input.departmentId,
-    creator.companyId,
+    companyId,
   );
   if (!department) {
     throw new TRPCError({
@@ -232,7 +232,7 @@ export async function updateEmployeeForUser(
   }
 
   const designation = await findDesignationById(db, input.designationId);
-  if (!designation || designation.departmentId !== department.id) {
+  if (designation?.departmentId !== department.id) {
     throw new TRPCError({
       code: "BAD_REQUEST",
       message: "Designation not found for selected department",
@@ -247,7 +247,7 @@ export async function updateEmployeeForUser(
     });
   }
 
-  if (employee.companyId !== creator.companyId) {
+  if (employee.companyId !== companyId) {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "You are not allowed to update this profile",
