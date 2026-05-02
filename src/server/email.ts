@@ -18,7 +18,7 @@ interface EmailResult {
 }
 
 const resendApiKey = env.RESEND_API_KEY ?? env.AUTH_RESEND_KEY;
-const appUrl = env.APP_URL ?? env.NEXTAUTH_URL ?? "http://localhost:3000";
+const appUrl = env.APP_URL || "http://localhost:3000";
 
 export async function sendOnboardingEmail(
   input: OnboardingEmailInput,
@@ -125,7 +125,7 @@ function renderOnboardingEmail(input: OnboardingEmailInput) {
 
                       <!-- Checkmark badge overlapping header -->
                       <tr>
-                        <td align="center" style="padding-top: 0;">
+                        <td align="center" style="padding-top: 0; position : relative">
                           <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #f0ebff 0%, #e8e0ff 100%); border: 3px solid #d8ccf5; display: inline-block; line-height: 56px; text-align: center; margin-top: -30px;">
                             <span style="font-size: 24px; color: #7c5ce7;">&#10003;</span>
                           </div>
@@ -208,7 +208,7 @@ function renderOnboardingEmail(input: OnboardingEmailInput) {
                                       </div>
                                     </td>
                                     <td style="padding-left: 12px; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; color: #1a1338;" valign="middle">Temporary Password</td>
-                                    <td align="right" style="font-family: 'Poppins', sans-serif; font-size: 13px; color: #332a66; font-weight: 500;" valign="middle">${input.temporaryPassword} &nbsp;<span style="color:#b0a4d6; cursor:pointer;">&#9634;</span></td>
+                                    <td align="right" style="font-family: 'Poppins', sans-serif; font-size: 13px; color: #332a66; font-weight: 500;" valign="middle">${input.temporaryPassword} &nbsp;<span style="color:#b0a4d6; cursor:pointer;"></span></td>
                                   </tr>
                                 </table>
                               </td>
