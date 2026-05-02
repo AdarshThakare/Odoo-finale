@@ -113,6 +113,7 @@ export async function listEmployeesByCompany(
     select: {
       id: true,
       employeeCode: true,
+      avatarUrl: true,
       firstName: true,
       lastName: true,
       phone: true,
