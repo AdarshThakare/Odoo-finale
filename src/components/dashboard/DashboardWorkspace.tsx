@@ -403,18 +403,6 @@ export function DashboardWorkspace({
                     data={headcountByDepartment}
                     margin={{ left: 6, right: 12, top: 8, bottom: 24 }}
                   >
-                    <defs>
-                      <linearGradient
-                        id="headcountGradient"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop offset="0%" stopColor="#7c3aed" stopOpacity={0.9} />
-                        <stop offset="100%" stopColor="#c4b5fd" stopOpacity={0.25} />
-                      </linearGradient>
-                    </defs>
                     <CartesianGrid
                       strokeDasharray="4 4"
                       stroke="#e2e8f0"
@@ -432,8 +420,8 @@ export function DashboardWorkspace({
                     <Tooltip contentStyle={tooltipStyle} />
                     <Bar
                       dataKey="employees"
-                      fill="url(#headcountGradient)"
-                      radius={[10, 10, 0, 0]}
+                      fill="#7c3aed"
+                      radius={[6, 6, 0, 0]}
                       barSize={28}
                     />
                   </BarChart>

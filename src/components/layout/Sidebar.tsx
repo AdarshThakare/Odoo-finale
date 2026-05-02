@@ -81,7 +81,7 @@ const navItems: NavItem[] = [
   },
   {
     label: "Security",
-    href: "/dashboard/security/change-password",
+    href: "/dashboard/security",
     roles: ["ADMIN", "HR_OFFICER", "PAYROLL_OFFICER", "EMPLOYEE"],
     icon: IconLockCheck,
   },
