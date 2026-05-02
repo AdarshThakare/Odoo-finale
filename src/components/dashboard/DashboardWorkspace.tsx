@@ -30,6 +30,8 @@ type AttendanceTrend = RouterOutputs["dashboard"]["getAttendanceTrend"];
 type LeaveDistribution = RouterOutputs["dashboard"]["getLeaveDistribution"];
 type PayrollTrend = RouterOutputs["dashboard"]["getPayrollTrend"];
 type Headcount = RouterOutputs["dashboard"]["getHeadcountByDepartment"];
+type Warnings = RouterOutputs["dashboard"]["getAdminWarnings"];
+type RecentPayruns = RouterOutputs["dashboard"]["getRecentPayruns"];
 
 type Tone = "teal" | "blue" | "amber" | "rose" | "slate";
 
@@ -154,12 +156,16 @@ export function DashboardWorkspace({
   leaveDistribution,
   payrollTrend,
   headcountByDepartment,
+  warnings,
+  recentPayruns,
 }: {
   stats: Stats;
   attendanceTrend: AttendanceTrend;
   leaveDistribution: LeaveDistribution;
   payrollTrend: PayrollTrend;
   headcountByDepartment: Headcount;
+  warnings: Warnings;
+  recentPayruns: RecentPayruns;
 }) {
   const canSeeHr = stats.role === "ADMIN" || stats.role === "HR_OFFICER";
   const canSeePayroll =
@@ -217,6 +223,59 @@ export function DashboardWorkspace({
             </Link>
           </div>
         </header>
+
+        {stats.role === "ADMIN" &&
+        (warnings.withoutBank > 0 || warnings.withoutManager > 0) ? (
+          <section
+            className={`grid gap-3 sm:grid-cols-2 ${cardAnimation}`}
+            style={{ animationDelay: "80ms" }}
+          >
+            {warnings.withoutBank > 0 && (
+              <Link
+                href="/dashboard/employees"
+                className="group flex items-start gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200/70 transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <span className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-50 text-violet-700 ring-1 ring-violet-100 text-sm font-semibold">
+                  !
+                </span>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-slate-900">
+                    {warnings.withoutBank} employee
+                    {warnings.withoutBank !== 1 ? "s" : ""} without bank details
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    Add bank details to enable payroll
+                  </p>
+                </div>
+                <span className="mt-1 text-xs font-semibold text-slate-400 transition group-hover:text-slate-600">
+                  Employees -&gt;
+                </span>
+              </Link>
+            )}
+            {warnings.withoutManager > 0 && (
+              <Link
+                href="/dashboard/employees"
+                className="group flex items-start gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200/70 transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <span className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-50 text-violet-700 ring-1 ring-violet-100 text-sm font-semibold">
+                  !
+                </span>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-slate-900">
+                    {warnings.withoutManager} employee
+                    {warnings.withoutManager !== 1 ? "s" : ""} without a manager
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    Assign managers in employee profiles
+                  </p>
+                </div>
+                <span className="mt-1 text-xs font-semibold text-slate-400 transition group-hover:text-slate-600">
+                  Employees -&gt;
+                </span>
+              </Link>
+            )}
+          </section>
+        ) : null}
 
         {showPersonalCards ? (
           <section className="grid gap-4 lg:grid-cols-3">
@@ -284,6 +343,7 @@ export function DashboardWorkspace({
         ) : null}
 
         {canSeePayroll ? (
+          <>
           <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             <StatCard
               label="Last payrun"
@@ -316,6 +376,43 @@ export function DashboardWorkspace({
               delay="480ms"
             />
           </section>
+
+          {recentPayruns.length > 0 && (
+            <div
+              className={`rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 ${cardAnimation}`}
+              style={{ animationDelay: "500ms" }}
+            >
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-sm font-medium text-slate-900 font-display">
+                  Recent Payruns
+                </h2>
+                <Link
+                  href="/dashboard/payroll"
+                  className="text-xs font-semibold text-slate-400 transition hover:text-slate-700"
+                >
+                  View all
+                </Link>
+              </div>
+              <ul className="space-y-2">
+                {recentPayruns.map((run) => (
+                  <li key={run.entryId}>
+                    <Link
+                      href={`/dashboard/payroll/${run.periodId}`}
+                      className="flex items-center justify-between rounded-xl border border-slate-200/70 bg-white px-4 py-2.5 transition hover:-translate-y-0.5 hover:shadow-md"
+                    >
+                      <span className="text-sm font-medium text-slate-800">
+                        Payrun - {run.name}
+                      </span>
+                      <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">
+                        {run.slipCount} Payslip{run.slipCount !== 1 ? "s" : ""}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          </>
         ) : null}
 
         {canSeeHr && stats.hr ? (

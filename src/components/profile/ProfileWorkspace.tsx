@@ -544,14 +544,21 @@ function SalaryInfoTab({ employee }: { employee: Employee | null }) {
 
   const basic = employee.salaryStructure?.basicSalary ?? 0;
   const hra = employee.salaryStructure?.hra ?? 0;
+  const earningComponents = employee.employeeSalaryComponents.filter(
+    (c) => c.salaryComponent.type === "EARNING",
+  );
+  const deductionComponents = employee.employeeSalaryComponents.filter(
+    (c) => c.salaryComponent.type === "DEDUCTION",
+  );
   const monthlyWage =
-    basic +
-    hra +
-    employee.employeeSalaryComponents
-      .filter((component) => component.salaryComponent.type === "EARNING")
-      .reduce((sum, component) => sum + component.amount, 0);
+    basic + hra + earningComponents.reduce((sum, c) => sum + c.amount, 0);
   const yearlyWage = monthlyWage * 12;
   const pf = basic * 0.12;
+
+  function pct(amount: number) {
+    if (!monthlyWage) return "—";
+    return `${((amount / monthlyWage) * 100).toFixed(2)}%`;
+  }
 
   return (
     <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
@@ -566,42 +573,42 @@ function SalaryInfoTab({ employee }: { employee: Employee | null }) {
           <SalaryLine label="Yearly wage" value={`${money(yearlyWage)} / Yearly`} />
           <div className="pt-3">
             <h3 className="font-semibold text-gray-900">Salary Components</h3>
-            <SalaryLine label="Basic Salary" value={money(basic)} detail="50.00%" />
-            <SalaryLine label="House Rent Allowance" value={money(hra)} detail="50.00%" />
-            {employee.employeeSalaryComponents
-              .filter((component) => component.salaryComponent.type === "EARNING")
-              .map((component) => (
-                <SalaryLine
-                  key={component.id}
-                  label={component.salaryComponent.name}
-                  value={money(component.amount)}
-                />
-              ))}
+            <SalaryLine label="Basic Salary" value={`${money(basic)} / month`} detail={pct(basic)} />
+            <SalaryLine label="House Rent Allowance" value={`${money(hra)} / month`} detail={pct(hra)} />
+            {earningComponents.map((c) => (
+              <SalaryLine
+                key={c.id}
+                label={c.salaryComponent.name}
+                value={`${money(c.amount)} / month`}
+                detail={pct(c.amount)}
+              />
+            ))}
           </div>
         </div>
 
         <div className="space-y-4">
-          <SalaryLine label="No of working days" value="Auto calculated" />
-          <SalaryLine label="Break time" value="1 hrs" />
+          <SalaryLine label="No of working days in a week" value="5 days" />
+          <SalaryLine label="Break time" value="1 hr" />
           <div className="pt-3">
             <h3 className="font-semibold text-gray-900">
-              Provident Fund Contribution
+              Provident Fund (PF) Contribution
             </h3>
             <SalaryLine label="Employee" value={`${money(pf)} / month`} detail="12.00%" />
+            <p className="text-xs text-gray-400 pl-1">PF is calculated based on the basic salary</p>
             <SalaryLine label="Employer" value={`${money(pf)} / month`} detail="12.00%" />
           </div>
           <div className="pt-3">
             <h3 className="font-semibold text-gray-900">Tax Deductions</h3>
-            {employee.employeeSalaryComponents
-              .filter((component) => component.salaryComponent.type === "DEDUCTION")
-              .map((component) => (
-                <SalaryLine
-                  key={component.id}
-                  label={component.salaryComponent.name}
-                  value={money(component.amount)}
-                />
-              ))}
-            <SalaryLine label="Professional Tax" value={money(200)} />
+            {deductionComponents.map((c) => (
+              <SalaryLine
+                key={c.id}
+                label={c.salaryComponent.name}
+                value={`${money(c.amount)} / month`}
+                detail={pct(c.amount)}
+              />
+            ))}
+            <SalaryLine label="Professional Tax" value="₹200 / month" />
+            <p className="text-xs text-gray-400 pl-1">Professional Tax deducted from the Gross salary</p>
           </div>
         </div>
       </div>
@@ -618,7 +625,7 @@ function SecurityTab() {
         page.
       </p>
       <Link
-        href="/change-password"
+        href="/dashboard/security/change-password"
         className="mt-5 inline-flex rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800"
       >
         Change Password

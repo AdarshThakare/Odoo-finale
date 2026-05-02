@@ -20,15 +20,17 @@ export default async function DashboardPage() {
     session.user.role,
   );
 
-  const [stats, attendanceTrend, leaveDistribution, payrollTrend, headcount] =
+  const isAdmin = session.user.role === "ADMIN";
+
+  const [stats, attendanceTrend, leaveDistribution, payrollTrend, headcount, warnings, recentPayruns] =
     await Promise.all([
       api.dashboard.getStats(),
       canSeeHr ? api.dashboard.getAttendanceTrend() : Promise.resolve([]),
       canSeeHr ? api.dashboard.getLeaveDistribution() : Promise.resolve([]),
       canSeePayroll ? api.dashboard.getPayrollTrend() : Promise.resolve([]),
-      canSeeHr
-        ? api.dashboard.getHeadcountByDepartment()
-        : Promise.resolve([]),
+      canSeeHr ? api.dashboard.getHeadcountByDepartment() : Promise.resolve([]),
+      isAdmin ? api.dashboard.getAdminWarnings() : Promise.resolve({ withoutBank: 0, withoutManager: 0 }),
+      canSeePayroll ? api.dashboard.getRecentPayruns() : Promise.resolve([]),
     ]);
 
   return (
@@ -38,6 +40,8 @@ export default async function DashboardPage() {
       leaveDistribution={leaveDistribution}
       payrollTrend={payrollTrend}
       headcountByDepartment={headcount}
+      warnings={warnings}
+      recentPayruns={recentPayruns}
     />
   );
 }
