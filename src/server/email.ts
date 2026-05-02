@@ -3,6 +3,7 @@ import { env } from "~/env";
 interface OnboardingEmailInput {
   to: string;
   name: string;
+  companyName: string;
   loginId: string;
   temporaryPassword: string;
   role: string;
@@ -60,8 +61,9 @@ function renderOnboardingEmail(input: OnboardingEmailInput) {
     <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #111827;">
       <h1 style="color: #6d28d9;">Welcome to EmPay</h1>
       <p>Hello ${input.name},</p>
-      <p>Your EmPay account has been created. Use the credentials below to sign in.</p>
+      <p>Your EmPay account for ${input.companyName} has been created. Use the credentials below to sign in.</p>
       <table style="border-collapse: collapse; margin: 20px 0;">
+        <tr><td style="padding: 6px 12px; font-weight: 700;">Company</td><td style="padding: 6px 12px;">${input.companyName}</td></tr>
         <tr><td style="padding: 6px 12px; font-weight: 700;">Login URL</td><td style="padding: 6px 12px;"><a href="${appUrl}/login">${appUrl}/login</a></td></tr>
         <tr><td style="padding: 6px 12px; font-weight: 700;">Login ID</td><td style="padding: 6px 12px;">${input.loginId}</td></tr>
         <tr><td style="padding: 6px 12px; font-weight: 700;">Temporary password</td><td style="padding: 6px 12px;">${input.temporaryPassword}</td></tr>
@@ -75,8 +77,9 @@ function renderOnboardingEmail(input: OnboardingEmailInput) {
 function renderOnboardingText(input: OnboardingEmailInput) {
   return `Welcome to EmPay, ${input.name}
 
-Your EmPay account has been created.
+Your EmPay account for ${input.companyName} has been created.
 
+Company: ${input.companyName}
 Login URL: ${appUrl}/login
 Login ID: ${input.loginId}
 Temporary password: ${input.temporaryPassword}
