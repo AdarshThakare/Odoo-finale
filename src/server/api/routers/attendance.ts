@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import {
   createTRPCRouter,
-  fgaCompanyProcedure,
+  companyPermissionProcedure,
   protectedProcedure,
 } from "~/server/api/trpc";
 import {
@@ -15,7 +15,7 @@ import {
 export const attendanceRouter = createTRPCRouter({
   /**
    * Get the current user's own attendance records.
-   * Self-service — no FGA check needed (service layer scopes by user).
+   * Self-service — no RBAC check needed (service layer scopes by user).
    */
   getMyAttendance: protectedProcedure
     .input(z.object({ month: z.string().optional() }).optional())
@@ -25,9 +25,9 @@ export const attendanceRouter = createTRPCRouter({
 
   /**
    * Get all attendance records across the company.
-   * FGA: can_view_all_attendance on company:{companyId}
+   * RBAC: can_view_all_attendance on company:{companyId}
    */
-  getAllAttendance: fgaCompanyProcedure("can_view_all_attendance")
+  getAllAttendance: companyPermissionProcedure("can_view_all_attendance")
     .input(
       z
         .object({
@@ -47,7 +47,7 @@ export const attendanceRouter = createTRPCRouter({
 
   /**
    * Check in for the current user.
-   * Self-service — no FGA check needed.
+   * Self-service — no RBAC check needed.
    */
   checkIn: protectedProcedure.mutation(async ({ ctx }) => {
     return checkInForUser(ctx.db, ctx.session.user.id);
@@ -55,7 +55,7 @@ export const attendanceRouter = createTRPCRouter({
 
   /**
    * Check out for the current user.
-   * Self-service — no FGA check needed.
+   * Self-service — no RBAC check needed.
    */
   checkOut: protectedProcedure.mutation(async ({ ctx }) => {
     return checkOutForUser(ctx.db, ctx.session.user.id);

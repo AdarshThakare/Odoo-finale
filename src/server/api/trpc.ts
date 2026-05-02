@@ -13,7 +13,6 @@ import { ZodError } from "zod";
 
 import { auth } from "~/server/auth";
 import { db } from "~/server/db";
-import { checkAccess } from "~/lib/fga";
 import { type Role } from "../../../generated/prisma";
 
 /**
@@ -150,8 +149,57 @@ export const roleProcedure = (allowedRoles: Role[]) =>
   });
 
 // ---------------------------------------------------------------------------
-// 4. OpenFGA Fine-Grained Authorization Procedures
+// 4. Role-Based Authorization Procedures
 // ---------------------------------------------------------------------------
+
+export const permissionRoles = {
+  can_view_employee_directory: [
+    "ADMIN",
+    "HR_OFFICER",
+    "PAYROLL_OFFICER",
+    "EMPLOYEE",
+  ],
+  can_manage_employees: ["ADMIN", "HR_OFFICER"],
+  can_view_all_attendance: ["ADMIN", "HR_OFFICER"],
+  can_manage_settings: ["ADMIN"],
+  can_manage_payroll: ["ADMIN", "PAYROLL_OFFICER"],
+  can_manage_leave_allocations: ["ADMIN", "HR_OFFICER"],
+  can_approve_leave_applications: [
+    "ADMIN",
+    "HR_OFFICER",
+    "PAYROLL_OFFICER",
+  ],
+  can_view_reports: ["ADMIN", "HR_OFFICER", "PAYROLL_OFFICER"],
+  can_view_employee_profile: [
+    "ADMIN",
+    "HR_OFFICER",
+    "PAYROLL_OFFICER",
+    "EMPLOYEE",
+  ],
+  can_edit_employee_details: ["ADMIN", "HR_OFFICER"],
+  can_edit_salary: ["ADMIN", "PAYROLL_OFFICER"],
+  can_approve_leave_application: [
+    "ADMIN",
+    "HR_OFFICER",
+    "PAYROLL_OFFICER",
+  ],
+  can_view_all_payslips: ["ADMIN", "PAYROLL_OFFICER"],
+} as const satisfies Record<string, readonly Role[]>;
+
+export type Permission = keyof typeof permissionRoles;
+
+export function hasPermission(role: Role, permission: Permission) {
+  return (permissionRoles[permission] as readonly Role[]).includes(role);
+}
+
+export function requirePermission(role: Role, permission: Permission) {
+  if (!hasPermission(role, permission)) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: `Access denied: requires "${permission}" permission`,
+    });
+  }
+}
 
 /**
  * Helper: resolve the companyId for the current user (cached per-request).
@@ -176,40 +224,21 @@ async function resolveCompanyId(
 }
 
 /**
- * FGA Company-Level Procedure
+ * Company-scoped permission procedure.
  *
- * Checks a company-level FGA relation (e.g. can_manage_employees on company:{companyId}).
- * Resolves the user's companyId automatically and injects it into ctx.
+ * Checks the current user's role against a permission, resolves the user's
+ * companyId automatically, and injects it into ctx.
  *
  * Usage:
- *   fgaCompanyProcedure("can_manage_employees")
+ *   companyPermissionProcedure("can_manage_employees")
  *     .input(...)
  *     .mutation(({ ctx }) => { ... ctx.companyId is available ... })
  */
-export const fgaCompanyProcedure = (relation: string) =>
+export const companyPermissionProcedure = (permission: Permission) =>
   protectedProcedure.use(async ({ ctx, next }) => {
     const companyId = await resolveCompanyId(ctx.db, ctx.session.user.id);
 
-    const allowed = await checkAccess(
-      ctx.session.user.id,
-      relation,
-      "company",
-      companyId,
-    );
-
-    if (!allowed) {
-      console.warn(
-        `[FGA] DENIED: user:${ctx.session.user.id} → ${relation} → company:${companyId}`,
-      );
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: `Access denied: requires "${relation}" permission`,
-      });
-    }
-
-    console.log(
-      `[FGA] ALLOWED: user:${ctx.session.user.id} → ${relation} → company:${companyId}`,
-    );
+    requirePermission(ctx.session.user.role, permission);
 
     return next({
       ctx: {
@@ -220,29 +249,8 @@ export const fgaCompanyProcedure = (relation: string) =>
   });
 
 /**
- * FGA Resource-Level Procedure
- *
- * Checks a resource-level FGA relation (e.g. can_view on employee_profile:{id}).
- * The objectId must be provided as a function that extracts it from the parsed input.
- *
- * Usage:
- *   fgaResourceProcedure("can_view", "employee_profile")
- *     .input(z.object({ id: z.string() }))
- *     .query(({ ctx, input }) => { ... })
- *
- * For resource checks, the objectIdFn will be called with the raw input to extract
- * the resource id. If not provided, the middleware checks company-level access instead.
- */
-export const fgaResourceCheck = (
-  relation: string,
-  objectType: string,
-  objectId: string,
-  userId: string,
-) => checkAccess(userId, relation, objectType, objectId);
-
-/**
  * Protected procedure with companyId injected into context.
- * Used for self-service procedures that don't need FGA checks
+ * Used for self-service procedures that don't need permission checks
  * but benefit from having companyId available.
  */
 export const protectedWithCompanyProcedure = protectedProcedure.use(

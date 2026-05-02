@@ -19,13 +19,6 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
-    FGA_API_URL: z.string().url().default("http://localhost:8080"),
-    FGA_STORE_ID: z.string().optional(),
-    FGA_AUTHORIZATION_MODEL_ID: z.string().optional(),
-    FGA_CLIENT_ID: z.string().optional(),
-    FGA_CLIENT_SECRET: z.string().optional(),
-    FGA_API_TOKEN_ISSUER: z.string().optional(),
-    FGA_API_AUDIENCE: z.string().optional(),
   },
   client: {},
   runtimeEnv: {
@@ -40,13 +33,6 @@ export const env = createEnv({
     CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
     CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
     NODE_ENV: process.env.NODE_ENV,
-    FGA_API_URL: process.env.FGA_API_URL,
-    FGA_STORE_ID: process.env.FGA_STORE_ID,
-    FGA_AUTHORIZATION_MODEL_ID: process.env.FGA_AUTHORIZATION_MODEL_ID,
-    FGA_CLIENT_ID: process.env.FGA_CLIENT_ID,
-    FGA_CLIENT_SECRET: process.env.FGA_CLIENT_SECRET,
-    FGA_API_TOKEN_ISSUER: process.env.FGA_API_TOKEN_ISSUER,
-    FGA_API_AUDIENCE: process.env.FGA_API_AUDIENCE,
   },
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
   emptyStringAsUndefined: true,
