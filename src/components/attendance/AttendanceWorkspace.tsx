@@ -6,6 +6,13 @@ import { useState } from "react";
 
 import { api } from "~/trpc/react";
 
+type AttendanceStatus =
+  | "ABSENT"
+  | "PRESENT"
+  | "HALF_DAY"
+  | "ON_LEAVE"
+  | "IN_PROGRESS";
+
 type EmployeeAttendanceDay = {
   date: string;
   weekday: string;
@@ -13,7 +20,7 @@ type EmployeeAttendanceDay = {
   checkOut: string | null;
   workingHours: string | null;
   extraHours: string | null;
-  status: "ABSENT" | "PRESENT" | "HALF_DAY" | "ON_LEAVE" | "IN_PROGRESS";
+  status: AttendanceStatus;
 };
 
 type EmployeeAttendanceData = {
@@ -54,7 +61,7 @@ type TeamAttendanceRow = {
   checkOut: string | null;
   workingHours: string | null;
   extraHours: string | null;
-  status: "ABSENT" | "PRESENT" | "HALF_DAY" | "ON_LEAVE" | "IN_PROGRESS";
+  status: AttendanceStatus;
 };
 
 type TeamAttendanceData = {
@@ -127,7 +134,7 @@ function EmployeeAttendanceWorkspace({
   const [error, setError] = useState<string | null>(null);
 
   const checkIn = api.attendance.checkIn.useMutation({
-    onSuccess: async () => {
+    onSuccess: () => {
       setMessage("Check-in recorded.");
       setError(null);
       router.refresh();
@@ -139,7 +146,7 @@ function EmployeeAttendanceWorkspace({
   });
 
   const checkOut = api.attendance.checkOut.useMutation({
-    onSuccess: async () => {
+    onSuccess: () => {
       setMessage("Check-out recorded.");
       setError(null);
       router.refresh();
@@ -150,214 +157,118 @@ function EmployeeAttendanceWorkspace({
     },
   });
 
-  const currentStatus = data.stats.currentlyCheckedIn ? "Checked in" : "Ready";
-  const currentMonthLabel = data.month.label;
-
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-[#090909] px-4 py-6 text-[#f5f1e8] sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-[1600px] flex-col gap-6">
-        <header className="grid gap-4 rounded-[28px] border border-white/20 bg-white/5 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur md:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)] md:p-6">
-          <div>
-            <p className="text-xs tracking-[0.35em] text-[#9cb3b0] uppercase">
-              Attendance / My view
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold text-[#faf7ef] sm:text-4xl">
-              Attendance List view
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#c9c2b4]">
-              {data.company.name} • {data.employee.department} •{" "}
-              {data.employee.designation}
-            </p>
+    <div>
+      <PageHeader
+        eyebrow="Attendance / My view"
+        title="My attendance"
+        description={`${data.company.name} - ${data.employee.department} - ${data.employee.designation}`}
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <LinkButton href={prevHref}>Previous</LinkButton>
+            <LinkButton href={nextHref}>Next</LinkButton>
           </div>
+        }
+      />
 
-          <div className="grid gap-3 sm:grid-cols-3">
-            <StatCard label="Present" value={String(data.stats.daysPresent)} />
-            <StatCard label="Leaves" value={String(data.stats.leaveCount)} />
-            <StatCard
-              label="Working days"
-              value={String(data.stats.totalWorkingDays)}
-            />
-          </div>
-        </header>
+      <div className="mt-6 grid gap-4 md:grid-cols-3">
+        <MetricCard label="Present" value={data.stats.daysPresent} />
+        <MetricCard label="Leaves" value={data.stats.leaveCount} />
+        <MetricCard label="Working days" value={data.stats.totalWorkingDays} />
+      </div>
 
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.35fr)]">
-          <aside className="space-y-6">
-            <section className="rounded-[28px] border border-white/20 bg-[#0f0f0f] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.3)]">
-              <div className="flex items-center justify-between gap-4 border-b border-white/15 pb-4">
-                <div>
-                  <p className="text-xs tracking-[0.3em] text-[#8ca3a0] uppercase">
-                    Note
-                  </p>
-                  <h2 className="mt-1 text-2xl font-semibold text-[#fbf7ee]">
-                    Attendance rules
-                  </h2>
-                </div>
-                <div className="rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs text-[#d9d2c6]">
-                  {currentStatus}
-                </div>
-              </div>
+      <div className="mt-6 grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
+        <aside className="space-y-6">
+          <InfoPanel
+            title="Attendance rules"
+            badge={data.stats.currentlyCheckedIn ? "Checked in" : "Ready"}
+            lines={noteLines.mine}
+          />
 
-              <ul className="mt-4 space-y-3 text-sm leading-6 text-[#d0cabf]">
-                {noteLines.mine.map((line) => (
-                  <li key={line} className="flex gap-3">
-                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#8ac6a2]" />
-                    <span>{line}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            <section className="rounded-[28px] border border-white/20 bg-[#111111] p-5">
-              <div className="flex flex-wrap items-end justify-between gap-4">
-                <div>
-                  <p className="text-xs tracking-[0.3em] text-[#8ca3a0] uppercase">
-                    Actions
-                  </p>
-                  <h2 className="mt-1 text-xl font-semibold text-[#faf7ef]">
-                    Punch clock
-                  </h2>
-                </div>
-                <div className="rounded-full border border-white/15 px-3 py-1 text-xs text-[#d5cfbf]">
-                  {currentMonthLabel}
-                </div>
-              </div>
-
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={() => checkIn.mutate()}
-                  disabled={checkIn.isPending}
-                  className="rounded-2xl border border-[#8ac6a2]/40 bg-[#102018] px-4 py-3 text-sm font-semibold text-[#e4f5e9] transition hover:bg-[#13261c] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {checkIn.isPending ? "Recording..." : "Check in"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => checkOut.mutate()}
-                  disabled={checkOut.isPending}
-                  className="rounded-2xl border border-[#f1c27d]/40 bg-[#221a10] px-4 py-3 text-sm font-semibold text-[#f8edd8] transition hover:bg-[#2b2114] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {checkOut.isPending ? "Recording..." : "Check out"}
-                </button>
-              </div>
-
-              {message && (
-                <p className="mt-4 rounded-2xl border border-[#8ac6a2]/30 bg-[#102018] px-4 py-3 text-sm text-[#cde6d3]">
-                  {message}
+          <section className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-gray-200">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="font-semibold text-gray-900">Punch clock</h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  {data.month.label}
                 </p>
-              )}
-              {error && (
-                <p className="mt-4 rounded-2xl border border-[#f3a6a6]/30 bg-[#221111] px-4 py-3 text-sm text-[#f0c5c5]">
-                  {error}
-                </p>
-              )}
-            </section>
-          </aside>
-
-          <section className="overflow-hidden rounded-[28px] border border-white/20 bg-[#0f0f0f] shadow-[0_24px_80px_rgba(0,0,0,0.3)]">
-            <div className="flex flex-col gap-4 border-b border-white/15 p-4 sm:p-5">
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm font-medium text-[#f4efe4]">
-                  {data.company.name}
-                </div>
-                <div className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm font-medium text-[#d7d0c3]">
-                  {data.employee.employeeCode}
-                </div>
-                <div className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm font-medium text-[#d7d0c3]">
-                  {data.employee.name}
-                </div>
-                <div className="ml-auto flex items-center gap-2">
-                  <Link
-                    href={prevHref}
-                    className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-[#f5f1e8] transition hover:bg-white/10"
-                  >
-                    ←
-                  </Link>
-                  <Link
-                    href={nextHref}
-                    className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-[#f5f1e8] transition hover:bg-white/10"
-                  >
-                    →
-                  </Link>
-                  <form
-                    action={basePath}
-                    method="get"
-                    className="flex items-center gap-2"
-                  >
-                    <input
-                      name="month"
-                      type="month"
-                      defaultValue={data.month.key}
-                      className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-[#f5f1e8] outline-none"
-                    />
-                    <button
-                      type="submit"
-                      className="rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-sm font-semibold text-[#f5f1e8] transition hover:bg-white/15"
-                    >
-                      Go
-                    </button>
-                  </form>
-                </div>
               </div>
-
-              <div className="overflow-x-auto">
-                <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
-                  <thead>
-                    <tr className="text-xs tracking-[0.24em] text-[#a9a49a] uppercase">
-                      <th className="border-r border-b border-white/10 px-4 py-3">
-                        Date
-                      </th>
-                      <th className="border-r border-b border-white/10 px-4 py-3">
-                        Check in
-                      </th>
-                      <th className="border-r border-b border-white/10 px-4 py-3">
-                        Check out
-                      </th>
-                      <th className="border-r border-b border-white/10 px-4 py-3">
-                        Work hours
-                      </th>
-                      <th className="border-r border-b border-white/10 px-4 py-3">
-                        Extra hours
-                      </th>
-                      <th className="border-b border-white/10 px-4 py-3">
-                        Status
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.days.map((day) => (
-                      <tr key={day.date} className="text-[#efe8db]">
-                        <td className="border-r border-b border-white/10 px-4 py-3 align-top">
-                          <div className="font-medium text-[#fbf7ee]">
-                            {day.date}
-                          </div>
-                          <div className="text-xs text-[#a9a49a]">
-                            {day.weekday}
-                          </div>
-                        </td>
-                        <td className="border-r border-b border-white/10 px-4 py-3 font-mono">
-                          {day.checkIn ?? "—"}
-                        </td>
-                        <td className="border-r border-b border-white/10 px-4 py-3 font-mono">
-                          {day.checkOut ?? "—"}
-                        </td>
-                        <td className="border-r border-b border-white/10 px-4 py-3 font-mono">
-                          {day.workingHours ?? "—"}
-                        </td>
-                        <td className="border-r border-b border-white/10 px-4 py-3 font-mono">
-                          {day.extraHours ?? "—"}
-                        </td>
-                        <td className="border-b border-white/10 px-4 py-3">
-                          <StatusBadge status={day.status} />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <span className="rounded-full bg-purple-50 px-2 py-1 text-xs font-semibold text-purple-700">
+                {data.stats.currentlyCheckedIn ? "Active" : "Idle"}
+              </span>
             </div>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => checkIn.mutate()}
+                disabled={checkIn.isPending}
+                className="rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800 disabled:opacity-60"
+              >
+                {checkIn.isPending ? "Recording..." : "Check in"}
+              </button>
+              <button
+                type="button"
+                onClick={() => checkOut.mutate()}
+                disabled={checkOut.isPending}
+                className="rounded-lg border border-purple-200 px-4 py-2 text-sm font-semibold text-purple-700 transition hover:bg-purple-50 disabled:opacity-60"
+              >
+                {checkOut.isPending ? "Recording..." : "Check out"}
+              </button>
+            </div>
+
+            {message && (
+              <p className="mt-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700 ring-1 ring-green-200">
+                {message}
+              </p>
+            )}
+            {error && (
+              <p className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200">
+                {error}
+              </p>
+            )}
           </section>
-        </div>
+        </aside>
+
+        <section className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
+          <div className="border-b border-gray-100 bg-gray-50 px-4 py-3">
+            <form
+              action={basePath}
+              method="get"
+              className="flex flex-wrap items-center gap-3"
+            >
+              <Pill>{data.employee.employeeCode}</Pill>
+              <Pill>{data.employee.name}</Pill>
+              <div className="ml-auto flex flex-wrap items-center gap-2">
+                <input
+                  name="month"
+                  type="month"
+                  defaultValue={data.month.key}
+                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-purple-500"
+                />
+                <button
+                  type="submit"
+                  className="rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800"
+                >
+                  Go
+                </button>
+              </div>
+            </form>
+          </div>
+          <AttendanceTable
+            rows={data.days.map((day) => ({
+              key: day.date,
+              primary: day.date,
+              secondary: day.weekday,
+              checkIn: day.checkIn,
+              checkOut: day.checkOut,
+              workingHours: day.workingHours,
+              extraHours: day.extraHours,
+              status: day.status,
+            }))}
+            empty="No attendance records for this month."
+          />
+        </section>
       </div>
     </div>
   );
@@ -370,236 +281,257 @@ function TeamAttendanceWorkspace({
   nextHref,
 }: Extract<AttendanceWorkspaceProps, { mode: "team" }>) {
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-[#090909] px-4 py-6 text-[#f5f1e8] sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-[1600px] flex-col gap-6">
-        <header className="grid gap-4 rounded-[28px] border border-white/20 bg-white/5 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur md:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] md:p-6">
-          <div>
-            <p className="text-xs tracking-[0.35em] text-[#9cb3b0] uppercase">
-              Attendance / Team view
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold text-[#faf7ef] sm:text-4xl">
-              Attendances List view
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#c9c2b4]">
-              For Admin / HR Officer / Payroll Officer • {data.company.name}
-            </p>
+    <div>
+      <PageHeader
+        eyebrow="Attendance / Team view"
+        title="Team attendance"
+        description={`For Admin / HR Officer / Payroll Officer - ${data.company.name}`}
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <LinkButton href={prevHref}>Previous</LinkButton>
+            <LinkButton href={nextHref}>Next</LinkButton>
           </div>
+        }
+      />
 
-          <div className="grid gap-3 sm:grid-cols-4">
-            <StatCard label="Present" value={String(data.stats.presentCount)} />
-            <StatCard
-              label="In progress"
-              value={String(data.stats.inProgressCount)}
-            />
-            <StatCard label="Absent" value={String(data.stats.absentCount)} />
-            <StatCard
-              label="Employees"
-              value={String(data.stats.totalEmployees)}
-            />
-          </div>
-        </header>
+      <div className="mt-6 grid gap-4 md:grid-cols-4">
+        <MetricCard label="Present" value={data.stats.presentCount} />
+        <MetricCard label="In progress" value={data.stats.inProgressCount} />
+        <MetricCard label="Absent" value={data.stats.absentCount} />
+        <MetricCard label="Employees" value={data.stats.totalEmployees} />
+      </div>
 
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.35fr)]">
-          <aside className="space-y-6">
-            <section className="rounded-[28px] border border-white/20 bg-[#0f0f0f] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.3)]">
-              <div className="flex items-center justify-between gap-4 border-b border-white/15 pb-4">
-                <div>
-                  <p className="text-xs tracking-[0.3em] text-[#8ca3a0] uppercase">
-                    Note
-                  </p>
-                  <h2 className="mt-1 text-2xl font-semibold text-[#fbf7ee]">
-                    Attendance rules
-                  </h2>
-                </div>
-                <div className="rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs text-[#d9d2c6]">
-                  {data.date.weekday}
-                </div>
-              </div>
-
-              <ul className="mt-4 space-y-3 text-sm leading-6 text-[#d0cabf]">
-                {noteLines.team.map((line) => (
-                  <li key={line} className="flex gap-3">
-                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#8ac6a2]" />
-                    <span>{line}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            <section className="rounded-[28px] border border-white/20 bg-[#111111] p-5">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <MiniStat
-                  label="Present today"
-                  value={String(data.stats.presentCount)}
-                />
-                <MiniStat
-                  label="Leaves"
-                  value={String(data.stats.leaveCount)}
-                />
-                <MiniStat label="Selected date" value={data.date.label} />
-                <MiniStat
-                  label="Employees scanned"
-                  value={String(data.stats.totalEmployees)}
-                />
-              </div>
-            </section>
-          </aside>
-
-          <section className="overflow-hidden rounded-[28px] border border-white/20 bg-[#0f0f0f] shadow-[0_24px_80px_rgba(0,0,0,0.3)]">
-            <div className="flex flex-col gap-4 border-b border-white/15 p-4 sm:p-5">
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm font-medium text-[#f4efe4]">
-                  {data.company.name}
-                </div>
-                <div className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm font-medium text-[#d7d0c3]">
-                  {data.date.label}
-                </div>
-                <div className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm font-medium text-[#d7d0c3]">
-                  {data.date.weekday}
-                </div>
-                <div className="ml-auto flex items-center gap-2">
-                  <Link
-                    href={prevHref}
-                    className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-[#f5f1e8] transition hover:bg-white/10"
-                  >
-                    ←
-                  </Link>
-                  <Link
-                    href={nextHref}
-                    className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-[#f5f1e8] transition hover:bg-white/10"
-                  >
-                    →
-                  </Link>
-                  <form
-                    action={basePath}
-                    method="get"
-                    className="flex items-center gap-2"
-                  >
-                    <input
-                      name="search"
-                      defaultValue={data.search}
-                      placeholder="Searchbar"
-                      className="w-44 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-[#f5f1e8] outline-none placeholder:text-[#8e8a80]"
-                    />
-                    <input type="hidden" name="date" value={data.date.key} />
-                    <button
-                      type="submit"
-                      className="rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-sm font-semibold text-[#f5f1e8] transition hover:bg-white/15"
-                    >
-                      Search
-                    </button>
-                  </form>
-                </div>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
-                  <thead>
-                    <tr className="text-xs tracking-[0.24em] text-[#a9a49a] uppercase">
-                      <th className="border-r border-b border-white/10 px-4 py-3">
-                        Emp
-                      </th>
-                      <th className="border-r border-b border-white/10 px-4 py-3">
-                        Check in
-                      </th>
-                      <th className="border-r border-b border-white/10 px-4 py-3">
-                        Check out
-                      </th>
-                      <th className="border-r border-b border-white/10 px-4 py-3">
-                        Work hours
-                      </th>
-                      <th className="border-r border-b border-white/10 px-4 py-3">
-                        Extra hours
-                      </th>
-                      <th className="border-b border-white/10 px-4 py-3">
-                        Status
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.rows.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan={6}
-                          className="px-4 py-10 text-center text-[#b7b0a3]"
-                        >
-                          No attendance records for this date.
-                        </td>
-                      </tr>
-                    ) : (
-                      data.rows.map((row) => (
-                        <tr key={row.employeeId} className="text-[#efe8db]">
-                          <td className="border-r border-b border-white/10 px-4 py-3 align-top">
-                            <div className="font-medium text-[#fbf7ee]">
-                              {row.name}
-                            </div>
-                            <div className="text-xs text-[#a9a49a]">
-                              {row.employeeCode} · {row.department}
-                            </div>
-                          </td>
-                          <td className="border-r border-b border-white/10 px-4 py-3 font-mono">
-                            {row.checkIn ?? "—"}
-                          </td>
-                          <td className="border-r border-b border-white/10 px-4 py-3 font-mono">
-                            {row.checkOut ?? "—"}
-                          </td>
-                          <td className="border-r border-b border-white/10 px-4 py-3 font-mono">
-                            {row.workingHours ?? "—"}
-                          </td>
-                          <td className="border-r border-b border-white/10 px-4 py-3 font-mono">
-                            {row.extraHours ?? "—"}
-                          </td>
-                          <td className="border-b border-white/10 px-4 py-3">
-                            <StatusBadge status={row.status} />
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+      <div className="mt-6 grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
+        <aside className="space-y-6">
+          <InfoPanel
+            title="Attendance rules"
+            badge={data.date.weekday}
+            lines={noteLines.team}
+          />
+          <section className="grid gap-3 rounded-xl bg-white p-5 shadow-sm ring-1 ring-gray-200 sm:grid-cols-2">
+            <MiniStat label="Present today" value={data.stats.presentCount} />
+            <MiniStat label="Leaves" value={data.stats.leaveCount} />
+            <MiniStat label="Selected date" value={data.date.label} />
+            <MiniStat label="Employees scanned" value={data.stats.totalEmployees} />
           </section>
-        </div>
+        </aside>
+
+        <section className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
+          <div className="border-b border-gray-100 bg-gray-50 px-4 py-3">
+            <form
+              action={basePath}
+              method="get"
+              className="flex flex-wrap items-center gap-3"
+            >
+              <Pill>{data.date.label}</Pill>
+              <Pill>{data.date.weekday}</Pill>
+              <div className="ml-auto flex flex-wrap items-center gap-2">
+                <input
+                  name="search"
+                  defaultValue={data.search}
+                  placeholder="Search employees"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-purple-500 sm:w-48"
+                />
+                <input type="hidden" name="date" value={data.date.key} />
+                <button
+                  type="submit"
+                  className="rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800"
+                >
+                  Search
+                </button>
+              </div>
+            </form>
+          </div>
+          <AttendanceTable
+            rows={data.rows.map((row) => ({
+              key: row.employeeId,
+              primary: row.name,
+              secondary: `${row.employeeCode} - ${row.department}`,
+              checkIn: row.checkIn,
+              checkOut: row.checkOut,
+              workingHours: row.workingHours,
+              extraHours: row.extraHours,
+              status: row.status,
+            }))}
+            empty="No attendance records for this date."
+          />
+        </section>
       </div>
     </div>
   );
 }
 
-function StatCard({ label, value }: { label: string; value: string }) {
+function PageHeader({
+  eyebrow,
+  title,
+  description,
+  actions,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  actions: React.ReactNode;
+}) {
   return (
-    <div className="rounded-2xl border border-white/15 bg-black/20 px-4 py-3">
-      <p className="text-[11px] tracking-[0.32em] text-[#8ca3a0] uppercase">
-        {label}
-      </p>
-      <p className="mt-2 text-2xl font-semibold text-[#faf7ef]">{value}</p>
+    <header className="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <p className="text-xs font-semibold tracking-wide text-purple-700 uppercase">
+          {eyebrow}
+        </p>
+        <h1 className="mt-1 text-2xl font-bold text-gray-900">{title}</h1>
+        <p className="mt-1 text-sm text-gray-500">{description}</p>
+      </div>
+      {actions}
+    </header>
+  );
+}
+
+function MetricCard({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-gray-200">
+      <p className="text-sm font-medium text-gray-500">{label}</p>
+      <p className="mt-2 text-2xl font-bold text-gray-900">{value}</p>
     </div>
   );
 }
 
-function MiniStat({ label, value }: { label: string; value: string }) {
+function MiniStat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-2xl border border-white/15 bg-black/20 px-4 py-3">
-      <p className="text-[11px] tracking-[0.28em] text-[#8ca3a0] uppercase">
+    <div className="rounded-lg bg-gray-50 p-4">
+      <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
         {label}
       </p>
-      <p className="mt-2 text-base font-semibold text-[#faf7ef]">{value}</p>
+      <p className="mt-2 text-sm font-semibold text-gray-900">{value}</p>
     </div>
   );
 }
 
-function StatusBadge({ status }: { status: EmployeeAttendanceDay["status"] }) {
-  const styles: Record<typeof status, string> = {
-    ABSENT: "border-[#e58c8c]/30 bg-[#231313] text-[#f5b2b2]",
-    PRESENT: "border-[#82c29b]/30 bg-[#132316] text-[#b8e8c8]",
-    HALF_DAY: "border-[#e2b36b]/30 bg-[#241d10] text-[#f1d29b]",
-    ON_LEAVE: "border-[#7ca3f6]/30 bg-[#101a2c] text-[#bfd2ff]",
-    IN_PROGRESS: "border-[#d9d9d9]/30 bg-[#1c1c1c] text-[#efefef]",
+function InfoPanel({
+  title,
+  badge,
+  lines,
+}: {
+  title: string;
+  badge: string;
+  lines: readonly string[];
+}) {
+  return (
+    <section className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-gray-200">
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="font-semibold text-gray-900">{title}</h2>
+        <span className="rounded-full bg-purple-50 px-2 py-1 text-xs font-semibold text-purple-700">
+          {badge}
+        </span>
+      </div>
+      <ul className="mt-4 space-y-3 text-sm leading-6 text-gray-600">
+        {lines.map((line) => (
+          <li key={line} className="flex gap-3">
+            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-purple-600" />
+            <span>{line}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function LinkButton({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+    >
+      {children}
+    </Link>
+  );
+}
+
+function Pill({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="rounded-lg bg-white px-3 py-2 text-sm font-medium text-gray-700 ring-1 ring-gray-200">
+      {children}
+    </span>
+  );
+}
+
+function AttendanceTable({
+  rows,
+  empty,
+}: {
+  rows: Array<{
+    key: string;
+    primary: string;
+    secondary: string;
+    checkIn: string | null;
+    checkOut: string | null;
+    workingHours: string | null;
+    extraHours: string | null;
+    status: AttendanceStatus;
+  }>;
+  empty: string;
+}) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-gray-200 text-sm">
+        <thead className="bg-gray-50 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase">
+          <tr>
+            <th className="px-4 py-3">Employee / Date</th>
+            <th className="px-4 py-3">Check in</th>
+            <th className="px-4 py-3">Check out</th>
+            <th className="px-4 py-3">Work hours</th>
+            <th className="px-4 py-3">Extra hours</th>
+            <th className="px-4 py-3">Status</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-100">
+          {rows.map((row) => (
+            <tr key={row.key}>
+              <td className="px-4 py-3">
+                <p className="font-medium text-gray-900">{row.primary}</p>
+                <p className="text-xs text-gray-500">{row.secondary}</p>
+              </td>
+              <td className="px-4 py-3 font-mono text-gray-700">
+                {row.checkIn ?? "-"}
+              </td>
+              <td className="px-4 py-3 font-mono text-gray-700">
+                {row.checkOut ?? "-"}
+              </td>
+              <td className="px-4 py-3 font-mono text-gray-700">
+                {row.workingHours ?? "-"}
+              </td>
+              <td className="px-4 py-3 font-mono text-gray-700">
+                {row.extraHours ?? "-"}
+              </td>
+              <td className="px-4 py-3">
+                <StatusBadge status={row.status} />
+              </td>
+            </tr>
+          ))}
+          {rows.length === 0 && (
+            <tr>
+              <td className="px-4 py-8 text-center text-gray-500" colSpan={6}>
+                {empty}
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function StatusBadge({ status }: { status: AttendanceStatus }) {
+  const styles: Record<AttendanceStatus, string> = {
+    ABSENT: "bg-red-50 text-red-700 ring-red-200",
+    PRESENT: "bg-green-50 text-green-700 ring-green-200",
+    HALF_DAY: "bg-amber-50 text-amber-700 ring-amber-200",
+    ON_LEAVE: "bg-blue-50 text-blue-700 ring-blue-200",
+    IN_PROGRESS: "bg-purple-50 text-purple-700 ring-purple-200",
   };
 
   return (
     <span
-      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold tracking-[0.18em] uppercase ${styles[status]}`}
+      className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ring-1 ${styles[status]}`}
     >
       {status.replace("_", " ")}
     </span>
