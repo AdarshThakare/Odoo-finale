@@ -10,7 +10,9 @@ import { checkAccess } from "~/lib/fga";
 import {
   createEmployeeForUser,
   getEmployeeForUser,
+  getMyProfileForUser,
   listEmployeesForUser,
+  updateMyProfileForUser,
   updateEmployeeForUser,
 } from "~/server/modules/employee/employee.service";
 
@@ -36,6 +38,31 @@ const updateEmployeeSchema = z.object({
   gender: z.enum(["MALE", "FEMALE", "OTHER"]),
   departmentId: z.string().min(1, "Department is required"),
   designationId: z.string().min(1, "Designation is required"),
+});
+
+const updateMyProfileSchema = z.object({
+  name: z.string().min(2, "Name is required").optional(),
+  phone: z.string().optional(),
+  avatarUrl: z.string().url("Invalid avatar URL").optional().or(z.literal("")),
+  resumeUrl: z.string().url("Invalid resume URL").optional().or(z.literal("")),
+  dateOfBirth: z.string().optional(),
+  address: z.string().optional(),
+  personalEmail: z.string().email("Invalid email").optional().or(z.literal("")),
+  nationality: z.string().optional(),
+  maritalStatus: z.string().optional(),
+  emergencyContactName: z.string().optional(),
+  emergencyContactPhone: z.string().optional(),
+  managerName: z.string().optional(),
+  workLocation: z.string().optional(),
+  about: z.string().optional(),
+  jobInterests: z.string().optional(),
+  skills: z.string().optional(),
+  certifications: z.string().optional(),
+  bankName: z.string().optional(),
+  bankAccountNumber: z.string().optional(),
+  bankIfsc: z.string().optional(),
+  panNumber: z.string().optional(),
+  uanNumber: z.string().optional(),
 });
 
 export const employeeRouter = createTRPCRouter({
@@ -81,6 +108,10 @@ export const employeeRouter = createTRPCRouter({
       return getEmployeeForUser(ctx.db, ctx.session.user.id, input.id);
     }),
 
+  getMyProfile: protectedProcedure.query(async ({ ctx }) => {
+    return getMyProfileForUser(ctx.db, ctx.session.user.id);
+  }),
+
   /**
    * Create a new employee.
    * FGA: can_manage_employees on company:{companyId}
@@ -114,5 +145,11 @@ export const employeeRouter = createTRPCRouter({
       }
 
       return updateEmployeeForUser(ctx.db, ctx.session.user.id, input);
+    }),
+
+  updateMyProfile: protectedProcedure
+    .input(updateMyProfileSchema)
+    .mutation(async ({ ctx, input }) => {
+      return updateMyProfileForUser(ctx.db, ctx.session.user.id, input);
     }),
 });

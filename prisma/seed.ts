@@ -54,6 +54,9 @@ async function upsertDemoEmployee(input: {
   designationId: string;
   basicSalary: number;
   hra: number;
+  about: string;
+  skills: string;
+  certifications: string;
 }) {
   const joiningDate = utcDate("2026-01-05");
   const loginId = `${input.companyCode}${loginInitials(
@@ -91,9 +94,30 @@ async function upsertDemoEmployee(input: {
       employeeCode: input.employeeCode,
       firstName: input.firstName,
       lastName: input.lastName,
+      avatarUrl: `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(`${input.firstName} ${input.lastName}`)}`,
+      resumeUrl: "https://example.com/resume.pdf",
+      dateOfBirth: utcDate("1996-06-15"),
       dateOfJoining: joiningDate,
       gender: input.gender,
       phone: input.phone,
+      address: "Mumbai, Maharashtra",
+      personalEmail: input.email.replace("@empay.com", "@gmail.com"),
+      nationality: "Indian",
+      maritalStatus: "Single",
+      emergencyContactName: "Demo Contact",
+      emergencyContactPhone: "9876501999",
+      managerName: input.role === "HR_OFFICER" ? "Admin User" : "Aarav Mehta",
+      workLocation: "Mumbai HQ",
+      about: input.about,
+      jobInterests:
+        "I enjoy building reliable workplace systems and improving employee experience.",
+      skills: input.skills,
+      certifications: input.certifications,
+      bankName: "HDFC Bank",
+      bankAccountNumber: `50100${input.serial}`,
+      bankIfsc: "HDFC0001234",
+      panNumber: `DEMO${input.serial}P`,
+      uanNumber: `100200${input.serial}`,
       departmentId: input.departmentId,
       designationId: input.designationId,
     },
@@ -103,9 +127,30 @@ async function upsertDemoEmployee(input: {
       userId: user.id,
       firstName: input.firstName,
       lastName: input.lastName,
+      avatarUrl: `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(`${input.firstName} ${input.lastName}`)}`,
+      resumeUrl: "https://example.com/resume.pdf",
+      dateOfBirth: utcDate("1996-06-15"),
       dateOfJoining: joiningDate,
       gender: input.gender,
       phone: input.phone,
+      address: "Mumbai, Maharashtra",
+      personalEmail: input.email.replace("@empay.com", "@gmail.com"),
+      nationality: "Indian",
+      maritalStatus: "Single",
+      emergencyContactName: "Demo Contact",
+      emergencyContactPhone: "9876501999",
+      managerName: input.role === "HR_OFFICER" ? "Admin User" : "Aarav Mehta",
+      workLocation: "Mumbai HQ",
+      about: input.about,
+      jobInterests:
+        "I enjoy building reliable workplace systems and improving employee experience.",
+      skills: input.skills,
+      certifications: input.certifications,
+      bankName: "HDFC Bank",
+      bankAccountNumber: `50100${input.serial}`,
+      bankIfsc: "HDFC0001234",
+      panNumber: `DEMO${input.serial}P`,
+      uanNumber: `100200${input.serial}`,
       departmentId: input.departmentId,
       designationId: input.designationId,
     },
@@ -322,6 +367,9 @@ async function main() {
       designationId: hrManager.id,
       basicSalary: 65000,
       hra: 26000,
+      about: "HR officer focused on onboarding, policy hygiene, and employee support.",
+      skills: "Employee Relations, Onboarding, Payroll Coordination",
+      certifications: "SHRM-CP",
     }),
     upsertDemoEmployee({
       companyId: admin.company.id,
@@ -338,6 +386,9 @@ async function main() {
       designationId: payrollOfficer.id,
       basicSalary: 70000,
       hra: 28000,
+      about: "Payroll officer who keeps pay runs accurate, compliant, and on time.",
+      skills: "Payroll, Compliance, Statutory Deductions",
+      certifications: "Payroll Compliance Certificate",
     }),
     upsertDemoEmployee({
       companyId: admin.company.id,
@@ -354,6 +405,9 @@ async function main() {
       designationId: softwareEngineer.id,
       basicSalary: 55000,
       hra: 22000,
+      about: "Software engineer working across HR workflows and internal tooling.",
+      skills: "React, TypeScript, Prisma, PostgreSQL",
+      certifications: "AWS Cloud Practitioner",
     }),
     upsertDemoEmployee({
       companyId: admin.company.id,
@@ -370,6 +424,9 @@ async function main() {
       designationId: productDesigner.id,
       basicSalary: 52000,
       hra: 20800,
+      about: "Product designer focused on clean operational workflows.",
+      skills: "Product Design, Figma, User Research",
+      certifications: "Google UX Design",
     }),
     upsertDemoEmployee({
       companyId: admin.company.id,
@@ -386,6 +443,9 @@ async function main() {
       designationId: softwareEngineer.id,
       basicSalary: 58000,
       hra: 23200,
+      about: "Backend engineer building reliable payroll and attendance services.",
+      skills: "Node.js, PostgreSQL, API Design",
+      certifications: "PostgreSQL Associate",
     }),
   ]);
 

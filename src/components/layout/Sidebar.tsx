@@ -21,6 +21,12 @@ const navItems: NavItem[] = [
     icon: "[]",
   },
   {
+    label: "My Profile",
+    href: "/dashboard/profile",
+    roles: ["ADMIN", "HR_OFFICER", "PAYROLL_OFFICER", "EMPLOYEE"],
+    icon: "ME",
+  },
+  {
     label: "Employees",
     href: "/dashboard/employees",
     roles: ["ADMIN", "HR_OFFICER"],
@@ -45,6 +51,12 @@ const navItems: NavItem[] = [
     icon: "$",
   },
   {
+    label: "Reports",
+    href: "/dashboard/payroll/reports",
+    roles: ["ADMIN", "PAYROLL_OFFICER"],
+    icon: "RP",
+  },
+  {
     label: "Settings",
     href: "/dashboard/settings",
     roles: ["ADMIN"],
@@ -66,6 +78,19 @@ interface SidebarProps {
 export function Sidebar({ role, userName }: SidebarProps) {
   const pathname = usePathname();
   const visibleItems = navItems.filter((item) => item.roles.includes(role));
+  const isItemActive = (href: string) => {
+    if (href === "/dashboard") return pathname === href;
+    return (
+      pathname === href ||
+      (pathname.startsWith(`${href}/`) &&
+        !visibleItems.some(
+          (other) =>
+            other.href !== href &&
+            other.href.startsWith(`${href}/`) &&
+            (pathname === other.href || pathname.startsWith(`${other.href}/`)),
+        ))
+    );
+  };
 
   return (
     <>
@@ -77,8 +102,7 @@ export function Sidebar({ role, userName }: SidebarProps) {
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           <ul className="space-y-1">
             {visibleItems.map((item) => {
-              const isActive =
-                pathname === item.href || pathname.startsWith(`${item.href}/`);
+              const isActive = isItemActive(item.href);
 
               return (
                 <li key={item.href}>
@@ -130,8 +154,7 @@ export function Sidebar({ role, userName }: SidebarProps) {
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white px-2 py-2 md:hidden">
         <ul className="flex items-center justify-around gap-1">
           {visibleItems.slice(0, 5).map((item) => {
-            const isActive =
-              pathname === item.href || pathname.startsWith(`${item.href}/`);
+            const isActive = isItemActive(item.href);
             return (
               <li key={item.href} className="min-w-0 flex-1">
                 <Link

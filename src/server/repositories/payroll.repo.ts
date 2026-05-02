@@ -49,12 +49,17 @@ export function getPayslipById(db: PrismaClient, id: string) {
   return db.salarySlip.findUnique({
     where: { id },
     include: {
-      payrollEntry: true,
+      payrollEntry: {
+        include: {
+          payrollPeriod: { select: { name: true, startDate: true, endDate: true } },
+        },
+      },
       employee: {
         include: {
           user: { select: { id: true, loginId: true, email: true, name: true } },
           department: { select: { name: true } },
           designation: { select: { name: true } },
+          company: { select: { name: true, logoUrl: true, code: true } },
         },
       },
       slipDetails: {

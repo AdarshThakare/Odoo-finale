@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import bcrypt from "bcryptjs";
 
-import { type PrismaClient } from "../../../../generated/prisma";
+import { type PrismaClient, type Role } from "../../../../generated/prisma";
 import { sendOnboardingEmail } from "~/server/email";
 import {
   countEmployeesForYear,
@@ -15,6 +15,7 @@ import {
   updateEmployeeProfile,
 } from "~/server/repositories/employee.repo";
 import { syncNewEmployee, syncUserRole } from "~/lib/fga-sync";
+const salaryViewerRoles: Role[] = ["ADMIN", "PAYROLL_OFFICER"];
 
 function initials(value: string) {
   return value
@@ -27,6 +28,18 @@ function initials(value: string) {
 function makeTemporaryPassword() {
   const segment = Math.random().toString(36).slice(2, 8);
   return `EmPay@${segment.toUpperCase()}1`;
+}
+
+function emptyToNull(value: string | undefined) {
+  const trimmed = value?.trim();
+  return trimmed && trimmed.length > 0 ? trimmed : null;
+}
+
+function dateOrNull(value: string | undefined) {
+  const trimmed = value?.trim();
+  if (!trimmed) return null;
+  const date = new Date(`${trimmed}T00:00:00Z`);
+  return Number.isNaN(date.getTime()) ? null : date;
 }
 
 export async function listEmployeesForUser(
@@ -188,6 +201,209 @@ export async function getEmployeeForUser(
   }
 
   return employee;
+}
+
+export async function getMyProfileForUser(db: PrismaClient, userId: string) {
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      loginId: true,
+      name: true,
+      avatarUrl: true,
+      role: true,
+      company: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+          logoUrl: true,
+        },
+      },
+      employee: {
+        select: {
+          id: true,
+          employeeCode: true,
+          avatarUrl: true,
+          resumeUrl: true,
+          firstName: true,
+          lastName: true,
+          dateOfBirth: true,
+          dateOfJoining: true,
+          gender: true,
+          phone: true,
+          address: true,
+          personalEmail: true,
+          nationality: true,
+          maritalStatus: true,
+          emergencyContactName: true,
+          emergencyContactPhone: true,
+          managerName: true,
+          workLocation: true,
+          about: true,
+          jobInterests: true,
+          skills: true,
+          certifications: true,
+          bankName: true,
+          bankAccountNumber: true,
+          bankIfsc: true,
+          panNumber: true,
+          uanNumber: true,
+          department: { select: { name: true } },
+          designation: { select: { name: true } },
+          salaryStructure: {
+            select: {
+              basicSalary: true,
+              hra: true,
+              effectiveFrom: true,
+              isActive: true,
+            },
+          },
+          employeeSalaryComponents: {
+            where: { isActive: true },
+            select: {
+              id: true,
+              amount: true,
+              salaryComponent: {
+                select: {
+                  name: true,
+                  type: true,
+                },
+              },
+            },
+            orderBy: { createdAt: "desc" },
+          },
+        },
+      },
+    },
+  });
+
+  if (!user) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+  }
+
+  const canViewSalary = salaryViewerRoles.includes(user.role);
+  const employee = user.employee;
+
+  return {
+    user: {
+      id: user.id,
+      email: user.email,
+      loginId: user.loginId,
+      name: user.name,
+      avatarUrl: user.avatarUrl,
+      role: user.role,
+    },
+    company: user.company,
+    canViewSalary,
+    employee: employee
+      ? {
+          ...employee,
+          salaryStructure:
+            canViewSalary && employee.salaryStructure
+              ? {
+                  ...employee.salaryStructure,
+                  basicSalary: Number(employee.salaryStructure.basicSalary),
+                  hra: Number(employee.salaryStructure.hra),
+                }
+              : null,
+          employeeSalaryComponents: canViewSalary
+            ? employee.employeeSalaryComponents.map((component) => ({
+                ...component,
+                amount: Number(component.amount),
+              }))
+            : [],
+        }
+      : null,
+  };
+}
+
+export async function updateMyProfileForUser(
+  db: PrismaClient,
+  userId: string,
+  input: {
+    name?: string;
+    phone?: string;
+    avatarUrl?: string;
+    resumeUrl?: string;
+    dateOfBirth?: string;
+    address?: string;
+    personalEmail?: string;
+    nationality?: string;
+    maritalStatus?: string;
+    emergencyContactName?: string;
+    emergencyContactPhone?: string;
+    managerName?: string;
+    workLocation?: string;
+    about?: string;
+    jobInterests?: string;
+    skills?: string;
+    certifications?: string;
+    bankName?: string;
+    bankAccountNumber?: string;
+    bankIfsc?: string;
+    panNumber?: string;
+    uanNumber?: string;
+  },
+) {
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { id: true, employee: { select: { id: true } } },
+  });
+
+  if (!user) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+  }
+
+  if (input.name !== undefined) {
+    await db.user.update({
+      where: { id: user.id },
+      data: {
+        name: input.name.trim(),
+        avatarUrl:
+          input.avatarUrl !== undefined ? emptyToNull(input.avatarUrl) : undefined,
+      },
+    });
+  } else if (input.avatarUrl !== undefined) {
+    await db.user.update({
+      where: { id: user.id },
+      data: { avatarUrl: emptyToNull(input.avatarUrl) },
+    });
+  }
+
+  if (!user.employee) {
+    return getMyProfileForUser(db, userId);
+  }
+
+  await db.employee.update({
+    where: { id: user.employee.id },
+    data: {
+      phone: emptyToNull(input.phone),
+      avatarUrl: emptyToNull(input.avatarUrl),
+      resumeUrl: emptyToNull(input.resumeUrl),
+      dateOfBirth: dateOrNull(input.dateOfBirth),
+      address: emptyToNull(input.address),
+      personalEmail: emptyToNull(input.personalEmail),
+      nationality: emptyToNull(input.nationality),
+      maritalStatus: emptyToNull(input.maritalStatus),
+      emergencyContactName: emptyToNull(input.emergencyContactName),
+      emergencyContactPhone: emptyToNull(input.emergencyContactPhone),
+      managerName: emptyToNull(input.managerName),
+      workLocation: emptyToNull(input.workLocation),
+      about: emptyToNull(input.about),
+      jobInterests: emptyToNull(input.jobInterests),
+      skills: emptyToNull(input.skills),
+      certifications: emptyToNull(input.certifications),
+      bankName: emptyToNull(input.bankName),
+      bankAccountNumber: emptyToNull(input.bankAccountNumber),
+      bankIfsc: emptyToNull(input.bankIfsc),
+      panNumber: emptyToNull(input.panNumber),
+      uanNumber: emptyToNull(input.uanNumber),
+    },
+  });
+
+  return getMyProfileForUser(db, userId);
 }
 
 export async function updateEmployeeForUser(

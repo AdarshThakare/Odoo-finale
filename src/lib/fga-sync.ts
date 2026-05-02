@@ -5,7 +5,7 @@
  * modelled in OpenFGA is created or updated.
  */
 
-import { writeTuple, writeTuples } from "./fga";
+import { deleteTuple, writeTuple, writeTuples } from "./fga";
 
 // ── Company Role ──────────────────────────────────────────────────────────────
 
@@ -15,6 +15,8 @@ const ROLE_RELATION_MAP: Record<string, string> = {
   PAYROLL_OFFICER: "payroll_officer",
   EMPLOYEE: "employee",
 };
+
+const COMPANY_ROLE_RELATIONS = Object.values(ROLE_RELATION_MAP);
 
 /**
  * Write the company-level role tuple for a user.
@@ -29,6 +31,28 @@ export async function syncUserRole(
   if (!relation) return;
 
   await writeTuple(`user:${userId}`, relation, `company:${companyId}`);
+}
+
+/**
+ * Replace the company-level role tuple for a user.
+ * This removes stale role grants before writing the new role.
+ */
+export async function replaceUserRole(
+  userId: string,
+  role: string,
+  companyId: string,
+): Promise<void> {
+  const nextRelation = ROLE_RELATION_MAP[role];
+  if (!nextRelation) return;
+
+  for (const relation of COMPANY_ROLE_RELATIONS) {
+    if (relation === nextRelation) continue;
+    await deleteTuple(`user:${userId}`, relation, `company:${companyId}`).catch(
+      () => undefined,
+    );
+  }
+
+  await syncUserRole(userId, role, companyId);
 }
 
 // ── Employee Profile ──────────────────────────────────────────────────────────
