@@ -6,6 +6,16 @@ import { useEffect, useState } from "react";
 
 import { api } from "~/trpc/react";
 
+function getRoleRank(role: string) {
+  switch (role) {
+    case "ADMIN": return 3;
+    case "HR_OFFICER":
+    case "PAYROLL_OFFICER": return 2;
+    case "EMPLOYEE": return 1;
+    default: return 0;
+  }
+}
+
 export default function EmployeeProfilePage() {
   const params = useParams();
   const employeeId = params.id as string;
@@ -14,6 +24,8 @@ export default function EmployeeProfilePage() {
   const { data: employee, isLoading } = api.employee.getById.useQuery({
     id: employeeId,
   });
+  const { data: me, isLoading: meLoading } = api.auth.me.useQuery();
+
   const departmentsQuery = api.settings.listDepartments.useQuery();
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<
     string | undefined
@@ -106,7 +118,16 @@ export default function EmployeeProfilePage() {
     onError: (error) => setComponentError(error.message),
   });
 
-  if (isLoading) {
+  const viewerRank = me ? getRoleRank(me.role) : 0;
+  const targetRank = employee ? getRoleRank(employee.user.role) : 0;
+  const isAdmin = me?.role === "ADMIN";
+  const isSelf = me?.employee?.id === employeeId;
+
+  const isTargetHigherOrEqual = !isAdmin && viewerRank <= targetRank && !isSelf;
+  const canEditProfile = isAdmin || viewerRank > targetRank || isSelf;
+  const canEditSalary = isAdmin || viewerRank > targetRank;
+
+  if (isLoading || meLoading) {
     return <div className="text-sm text-gray-600">Loading employee...</div>;
   }
 
@@ -180,9 +201,16 @@ export default function EmployeeProfilePage() {
         >
           Back to employees
         </Link>
-        <h1 className="mt-3 text-2xl font-bold text-gray-900">
-          {employee.firstName} {employee.lastName}
-        </h1>
+        <div className="mt-3 flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-gray-900">
+            {employee.firstName} {employee.lastName}
+          </h1>
+          {isTargetHigherOrEqual && (
+            <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-gray-800">
+              View only
+            </span>
+          )}
+        </div>
         <p className="mt-1 text-sm text-gray-500">
           Login ID: {employee.user.loginId}
         </p>
@@ -213,6 +241,7 @@ export default function EmployeeProfilePage() {
             onChange={(value) =>
               setProfileForm((prev) => ({ ...prev, firstName: value }))
             }
+            disabled={!canEditProfile}
           />
           <Field
             label="Last name"
@@ -220,6 +249,7 @@ export default function EmployeeProfilePage() {
             onChange={(value) =>
               setProfileForm((prev) => ({ ...prev, lastName: value }))
             }
+            disabled={!canEditProfile}
           />
           <Field
             label="Phone"
@@ -227,6 +257,7 @@ export default function EmployeeProfilePage() {
             onChange={(value) =>
               setProfileForm((prev) => ({ ...prev, phone: value }))
             }
+            disabled={!canEditProfile}
           />
           <Select
             label="Gender"
@@ -234,6 +265,7 @@ export default function EmployeeProfilePage() {
             onChange={(value) =>
               setProfileForm((prev) => ({ ...prev, gender: value }))
             }
+            disabled={!canEditProfile}
             options={[
               { value: "MALE", label: "Male" },
               { value: "FEMALE", label: "Female" },
@@ -251,6 +283,7 @@ export default function EmployeeProfilePage() {
               }));
               setSelectedDepartmentId(value || undefined);
             }}
+            disabled={!canEditProfile}
             options={(departmentsQuery.data ?? []).map((department) => ({
               value: department.id,
               label: department.name,
@@ -262,6 +295,7 @@ export default function EmployeeProfilePage() {
             onChange={(value) =>
               setProfileForm((prev) => ({ ...prev, designationId: value }))
             }
+            disabled={!canEditProfile}
             options={(designationsQuery.data ?? []).map((designation) => ({
               value: designation.id,
               label: designation.name,
@@ -269,13 +303,15 @@ export default function EmployeeProfilePage() {
           />
 
           <div className="md:col-span-2">
-            <button
-              type="submit"
-              disabled={updateEmployee.isPending}
-              className="rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800 disabled:opacity-60"
-            >
-              {updateEmployee.isPending ? "Saving..." : "Save changes"}
-            </button>
+            {!canEditProfile ? null : (
+              <button
+                type="submit"
+                disabled={updateEmployee.isPending}
+                className="rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800 disabled:opacity-60"
+              >
+                {updateEmployee.isPending ? "Saving..." : "Save changes"}
+              </button>
+            )}
           </div>
         </form>
       </section>
@@ -310,6 +346,7 @@ export default function EmployeeProfilePage() {
             onChange={(value) =>
               setSalaryForm((prev) => ({ ...prev, basicSalary: value }))
             }
+            disabled={!canEditSalary}
           />
           <Field
             label="HRA"
@@ -318,6 +355,7 @@ export default function EmployeeProfilePage() {
             onChange={(value) =>
               setSalaryForm((prev) => ({ ...prev, hra: value }))
             }
+            disabled={!canEditSalary}
           />
           <Field
             label="Effective from"
@@ -326,16 +364,19 @@ export default function EmployeeProfilePage() {
             onChange={(value) =>
               setSalaryForm((prev) => ({ ...prev, effectiveFrom: value }))
             }
+            disabled={!canEditSalary}
           />
 
           <div className="md:col-span-3">
-            <button
-              type="submit"
-              disabled={setSalaryStructure.isPending}
-              className="rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800 disabled:opacity-60"
-            >
-              {setSalaryStructure.isPending ? "Saving..." : "Save salary"}
-            </button>
+            {!canEditSalary ? null : (
+              <button
+                type="submit"
+                disabled={setSalaryStructure.isPending}
+                className="rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800 disabled:opacity-60"
+              >
+                {setSalaryStructure.isPending ? "Saving..." : "Save salary"}
+              </button>
+            )}
           </div>
         </form>
       </section>
@@ -372,6 +413,7 @@ export default function EmployeeProfilePage() {
                 salaryComponentId: value,
               }))
             }
+            disabled={!canEditSalary}
             options={(componentsQuery.data ?? [])
               .filter((component) => component.isActive)
               .map((component) => ({
@@ -386,6 +428,7 @@ export default function EmployeeProfilePage() {
             onChange={(value) =>
               setComponentForm((prev) => ({ ...prev, amount: value }))
             }
+            disabled={!canEditSalary}
           />
           <Field
             label="Effective from"
@@ -394,16 +437,19 @@ export default function EmployeeProfilePage() {
             onChange={(value) =>
               setComponentForm((prev) => ({ ...prev, effectiveFrom: value }))
             }
+            disabled={!canEditSalary}
           />
 
           <div className="md:col-span-3">
-            <button
-              type="submit"
-              disabled={assignComponent.isPending}
-              className="rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800 disabled:opacity-60"
-            >
-              {assignComponent.isPending ? "Assigning..." : "Assign component"}
-            </button>
+            {!canEditSalary ? null : (
+              <button
+                type="submit"
+                disabled={assignComponent.isPending}
+                className="rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800 disabled:opacity-60"
+              >
+                {assignComponent.isPending ? "Assigning..." : "Assign component"}
+              </button>
+            )}
           </div>
         </form>
 
@@ -457,11 +503,13 @@ function Field({
   value,
   onChange,
   type = "text",
+  disabled = false,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   type?: string;
+  disabled?: boolean;
 }) {
   return (
     <div>
@@ -470,7 +518,8 @@ function Field({
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm transition outline-none focus:ring-2 focus:ring-purple-500"
+        disabled={disabled}
+        className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm transition outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-gray-50 disabled:text-gray-500"
       />
     </div>
   );
@@ -481,11 +530,13 @@ function Select({
   value,
   onChange,
   options,
+  disabled = false,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   options: Array<{ value: string; label: string }>;
+  disabled?: boolean;
 }) {
   return (
     <div>
@@ -493,7 +544,8 @@ function Select({
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm transition outline-none focus:ring-2 focus:ring-purple-500"
+        disabled={disabled}
+        className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm transition outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-gray-50 disabled:text-gray-500"
       >
         <option value="">Select</option>
         {options.map((option) => (

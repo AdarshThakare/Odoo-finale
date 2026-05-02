@@ -188,11 +188,11 @@ function formatWeekday(value: Date) {
 
 function formatClock(value: Date | null | undefined) {
   if (!value) return null;
-  return new Intl.DateTimeFormat("en-GB", {
+  return new Intl.DateTimeFormat("en-IN", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
-    timeZone: "UTC",
+    timeZone: "Asia/Kolkata",
   }).format(value);
 }
 
@@ -395,32 +395,42 @@ export async function getAllAttendanceForUser(
     search,
   );
 
-  const rows = employees
-    .map((employee) => {
-      const record = employee.attendanceRecords[0];
-      if (!record) {
-        return null;
-      }
-
-      const workingHours = record.workingHours
-        ? Number(record.workingHours)
-        : null;
-      const status = deriveStatus(record);
-
+  const rows: TeamAttendanceRow[] = employees.map((employee) => {
+    const record = employee.attendanceRecords[0];
+    if (!record) {
+      // Employee has no record today — mark as ABSENT
       return {
         employeeId: employee.id,
         employeeCode: employee.employeeCode,
         name: `${employee.firstName} ${employee.lastName}`,
         department: employee.department.name,
         designation: employee.designation.name,
-        checkIn: formatClock(record.checkIn),
-        checkOut: formatClock(record.checkOut),
-        workingHours: formatHours(workingHours),
-        extraHours: formatHours(deriveExtraHours(workingHours)),
-        status,
+        checkIn: null,
+        checkOut: null,
+        workingHours: null,
+        extraHours: null,
+        status: "ABSENT" as const,
       };
-    })
-    .filter((row): row is TeamAttendanceRow => row !== null);
+    }
+
+    const workingHours = record.workingHours
+      ? Number(record.workingHours)
+      : null;
+    const status = deriveStatus(record);
+
+    return {
+      employeeId: employee.id,
+      employeeCode: employee.employeeCode,
+      name: `${employee.firstName} ${employee.lastName}`,
+      department: employee.department.name,
+      designation: employee.designation.name,
+      checkIn: formatClock(record.checkIn),
+      checkOut: formatClock(record.checkOut),
+      workingHours: formatHours(workingHours),
+      extraHours: formatHours(deriveExtraHours(workingHours)),
+      status,
+    };
+  });
 
   const presentCount = rows.filter(
     (row) => row.status === "PRESENT" || row.status === "HALF_DAY",
@@ -476,19 +486,22 @@ export async function checkInForUser(db: PrismaClient, userId: string) {
     });
   }
 
+  const now = new Date();
+
   if (existing) {
-    return updateAttendanceRecord(db, existing.id, {
-      checkOut: existing.checkOut ?? today,
-      workingHours: existing.workingHours ?? new Prisma.Decimal(0),
-      status: existing.status as "ABSENT" | "PRESENT" | "HALF_DAY" | "ON_LEAVE",
+    // Record exists (e.g. created by a leave system) but has no checkIn yet — update it
+    return db.attendanceRecord.update({
+      where: { id: existing.id },
+      data: { checkIn: now },
+      select: { id: true, date: true, checkIn: true, checkOut: true, workingHours: true, status: true, notes: true },
     });
   }
 
   return createAttendanceRecord(db, {
     employeeId: employee.id,
     date: today,
-    checkIn: new Date(),
-    status: "ABSENT",
+    checkIn: now,
+    status: "ABSENT", // will be updated to PRESENT/HALF_DAY on check-out
   });
 }
 
@@ -538,4 +551,27 @@ export async function checkOutForUser(db: PrismaClient, userId: string) {
     workingHours,
     status,
   });
+}
+
+export async function getTodayAttendanceSummary(
+  db: PrismaClient,
+  userId: string,
+) {
+  const scope = await getCompanyScope(db, userId);
+  const today = startOfUtcDay(new Date());
+
+  const records = await db.attendanceRecord.findMany({
+    where: {
+      date: today,
+      employee: {
+        companyId: scope.companyId,
+      },
+      checkIn: { not: null },
+    },
+    select: {
+      employeeId: true,
+    },
+  });
+
+  return records.map((r) => r.employeeId);
 }
