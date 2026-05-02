@@ -19,7 +19,7 @@ export default async function DashboardLayout({
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar
         role={session.user.role}
-        userName={session.user.name ?? session.user.email ?? "EmPay User"}
+        userName={session.user.name ?? session.user.email ?? "EMPAY User"}
       />
       <main className="min-w-0 flex-1 overflow-y-auto">
         <div className="px-4 pt-20 pb-24 sm:px-6 md:p-8">{children}</div>

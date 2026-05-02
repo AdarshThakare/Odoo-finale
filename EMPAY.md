@@ -1,4 +1,4 @@
-# EmPay — Smart HRMS: Master Spec & Dev Stages
+# EMPAY — Smart HRMS: Master Spec & Dev Stages
 
 > Agent-readable project spec. Read this before writing any code.
 > Stack: Next.js 15 · tRPC v11 · Prisma 7 · PostgreSQL · NextAuth v5 · Tailwind CSS v4 · Zod · Recharts
@@ -32,7 +32,7 @@
 
 ## 1.1 Authentication & Account Creation Flow
 
-EmPay does **not** allow normal employees to self-register. Public sign-up is only for creating a new company and its first Admin.
+EMPAY does **not** allow normal employees to self-register. Public sign-up is only for creating a new company and its first Admin.
 
 **Account creation flow:**
 

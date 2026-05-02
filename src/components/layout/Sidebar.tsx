@@ -5,6 +5,7 @@ import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 
 import { type Role } from "../../../generated/prisma";
+import { BrandLogo } from "~/components/BrandLogo";
 
 interface NavItem {
   label: string;
@@ -96,7 +97,7 @@ export function Sidebar({ role, userName }: SidebarProps) {
     <>
       <aside className="hidden h-screen w-60 flex-col border-r border-gray-200 bg-white md:flex">
         <div className="flex h-16 items-center border-b border-gray-200 px-6">
-          <span className="text-xl font-bold text-purple-700">EmPay</span>
+          <BrandLogo size="sm" />
         </div>
 
         <nav className="flex-1 overflow-y-auto px-3 py-4">
@@ -142,7 +143,7 @@ export function Sidebar({ role, userName }: SidebarProps) {
       </aside>
 
       <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-gray-200 bg-white px-4 md:hidden">
-        <span className="text-lg font-bold text-purple-700">EmPay</span>
+        <BrandLogo size="sm" />
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
           className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700"

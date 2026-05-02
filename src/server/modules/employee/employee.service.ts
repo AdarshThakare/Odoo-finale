@@ -26,7 +26,7 @@ function initials(value: string) {
 
 function makeTemporaryPassword() {
   const segment = Math.random().toString(36).slice(2, 8);
-  return `EmPay@${segment.toUpperCase()}1`;
+  return `EMPAY@${segment.toUpperCase()}1`;
 }
 
 function emptyToNull(value: string | undefined) {
