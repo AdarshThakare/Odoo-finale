@@ -259,12 +259,12 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
-      <div className="mb-7">
+    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6 sm:m-16">
+      <div className="mb-5">
         <p className="text-xs font-semibold tracking-[0.18em] text-purple-700 uppercase">
           Company setup
         </p>
-        <h1 className="mt-3 text-3xl font-bold tracking-normal text-gray-950">
+        <h1 className="mt-2 text-2xl font-bold tracking-normal text-gray-950">
           Create your admin workspace
         </h1>
         <p className="mt-2 text-sm leading-6 text-gray-500">
@@ -281,8 +281,8 @@ export default function RegisterPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="mt-7">
-        <div className="min-h-[330px]">
+      <form onSubmit={handleSubmit} className="mt-5">
+        <div className="min-h-[230px]">
           {step === 0 && (
             <CompanyStep
               values={values}
@@ -310,7 +310,7 @@ export default function RegisterPage() {
           )}
         </div>
 
-        <div className="mt-7 flex items-center justify-between gap-3 border-t border-gray-100 pt-5">
+        <div className="mt-5 flex items-center justify-between gap-3 border-t border-gray-100 pt-4">
           <button
             type="button"
             onClick={handleBack}
@@ -341,7 +341,7 @@ export default function RegisterPage() {
         </div>
       </form>
 
-      <p className="mt-7 text-center text-sm text-gray-500">
+      <p className="mt-5 text-center text-sm text-gray-500">
         Already have an account?{" "}
         <Link
           href="/login"
@@ -356,41 +356,38 @@ export default function RegisterPage() {
 
 function StepIndicator({ currentStep }: { currentStep: number }) {
   return (
-    <ol className="grid grid-cols-3 gap-3">
+    <ol className="grid grid-cols-3">
       {steps.map((stepItem, index) => {
         const isActive = index === currentStep;
         const isComplete = index < currentStep;
 
         return (
-          <li key={stepItem.title}>
-            <div
-              className={`min-h-36 rounded-2xl border p-5 transition ${
-                isActive
-                  ? "border-purple-200 bg-purple-50 shadow-[0_0_0_1px_rgba(168,85,247,0.08)]"
-                  : isComplete
-                    ? "border-purple-200 bg-white"
-                    : "border-gray-200 bg-gray-50/80"
-              }`}
-            >
+          <li key={stepItem.title} className="relative flex flex-col items-center">
+            {index > 0 && (
               <span
-                className={`flex h-14 w-14 items-center justify-center rounded-full text-xl font-bold ${
+                className={`absolute top-5 right-1/2 h-0.5 w-full ${
+                  isActive || isComplete ? "bg-purple-600" : "bg-gray-200"
+                }`}
+                aria-hidden="true"
+              />
+            )}
+            <div className="relative z-10 flex flex-col items-center bg-white px-3">
+              <span
+                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-bold shadow-sm transition ${
                   isActive
-                    ? "bg-purple-700 text-white shadow-sm"
+                    ? "border-purple-700 bg-purple-700 text-white"
                     : isComplete
-                      ? "bg-purple-600 text-white shadow-sm"
-                      : "bg-white text-gray-500 ring-2 ring-gray-200"
+                      ? "border-purple-600 bg-purple-600 text-white"
+                      : "border-gray-200 bg-white text-gray-500"
                 }`}
               >
                 {isComplete ? "✓" : index + 1}
               </span>
               <span
-                className={`mt-5 block text-lg font-bold ${
-                  isActive || isComplete ? "text-gray-700" : "text-gray-500"
+                className={`mt-3 text-base font-bold ${
+                  isActive || isComplete ? "text-gray-950" : "text-gray-500"
                 }`}
               >
-                {stepItem.eyebrow}
-              </span>
-              <span className="mt-1 block text-2xl font-bold text-gray-950">
                 {stepItem.title}
               </span>
             </div>
@@ -448,7 +445,9 @@ function CompanyStep({
               : "border-gray-300"
           }`}
         />
-        <p className="mt-1 text-xs text-gray-500">Optional. PNG or JPG, up to 1MB.</p>
+        <p className="mt-1 text-xs text-gray-500">
+          Optional. PNG or JPG, up to 1MB.
+        </p>
         {logoUploading && (
           <p className="mt-1 text-xs text-gray-500">Uploading logo...</p>
         )}
@@ -578,9 +577,9 @@ function StepShell({
       <p className="text-xs font-semibold tracking-[0.18em] text-purple-700 uppercase">
         {eyebrow}
       </p>
-      <h2 className="mt-2 text-xl font-bold text-gray-950">{title}</h2>
+      <h2 className="mt-1.5 text-lg font-bold text-gray-950">{title}</h2>
       <p className="mt-1 text-sm leading-6 text-gray-500">{description}</p>
-      <div className="mt-6 space-y-5">{children}</div>
+      <div className="mt-4 space-y-4">{children}</div>
     </section>
   );
 }
