@@ -282,7 +282,7 @@ export default function RegisterPage() {
       )}
 
       <form onSubmit={handleSubmit} className="mt-5">
-        <div className="min-h-[230px]">
+        <div className="min-h-57.5">
           {step === 0 && (
             <CompanyStep
               values={values}
