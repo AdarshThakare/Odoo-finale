@@ -8,25 +8,70 @@
 
 ## 1. Roles & Permissions Matrix
 
-| Capability                        | Employee | HR Officer | Payroll Officer | Admin |
-|-----------------------------------|----------|------------|-----------------|-------|
-| View own profile                  | ✅       | ✅         | ✅              | ✅    |
-| Edit own profile                  | ✅       | ✅         | ✅              | ✅    |
-| Create/edit employee profiles     | ❌       | ✅         | ❌              | ✅    |
-| View employee directory           | ✅ (read)| ✅         | ✅              | ✅    |
-| Mark own attendance (check-in/out)| ✅       | ✅         | ✅              | ✅    |
-| View own attendance logs          | ✅       | ✅         | ✅              | ✅    |
-| View ALL attendance records       | ❌       | ✅         | ✅              | ✅    |
-| Apply for leave                   | ✅       | ✅         | ✅              | ✅    |
-| Approve/reject leave requests     | ❌       | ❌         | ✅              | ✅    |
-| Manage leave types & allocations  | ❌       | ✅         | ❌              | ✅    |
-| View own payslip                  | ❌       | ❌         | ❌              | ✅*   |
-| Generate/manage payroll           | ❌       | ❌         | ✅              | ✅    |
-| Manage salary components/structure| ❌       | ❌         | ✅              | ✅    |
-| View dashboard analytics          | own only | HR scope   | payroll scope   | full  |
-| Manage user roles & settings      | ❌       | ❌         | ❌              | ✅    |
+| Capability                         | Employee  | HR Officer | Payroll Officer | Admin |
+| ---------------------------------- | --------- | ---------- | --------------- | ----- |
+| View own profile                   | ✅        | ✅         | ✅              | ✅    |
+| Edit own profile                   | ✅        | ✅         | ✅              | ✅    |
+| Create/edit employee profiles      | ❌        | ✅         | ❌              | ✅    |
+| View employee directory            | ✅ (read) | ✅         | ✅              | ✅    |
+| Mark own attendance (check-in/out) | ✅        | ✅         | ✅              | ✅    |
+| View own attendance logs           | ✅        | ✅         | ✅              | ✅    |
+| View ALL attendance records        | ❌        | ✅         | ✅              | ✅    |
+| Apply for leave                    | ✅        | ✅         | ✅              | ✅    |
+| Approve/reject leave requests      | ❌        | ❌         | ✅              | ✅    |
+| Manage leave types & allocations   | ❌        | ✅         | ❌              | ✅    |
+| View own payslip                   | ❌        | ❌         | ❌              | ✅\*  |
+| Generate/manage payroll            | ❌        | ❌         | ✅              | ✅    |
+| Manage salary components/structure | ❌        | ❌         | ✅              | ✅    |
+| View dashboard analytics           | own only  | HR scope   | payroll scope   | full  |
+| Manage user roles & settings       | ❌        | ❌         | ❌              | ✅    |
 
-*Employees can view their own payslip once generated.
+\*Employees can view their own payslip once generated.
+
+---
+
+## 1.1 Authentication & Account Creation Flow
+
+EmPay does **not** allow normal employees to self-register. Public sign-up is disabled for security and data integrity.
+
+**Account creation flow:**
+
+1. The initial admin is created by the seed/onboarding process.
+2. Admin or HR Officer creates employee accounts from the protected Employees module.
+3. During employee creation, the system auto-generates:
+   - `loginId`
+   - `employeeCode`
+   - temporary password
+4. The employee receives the Login ID and temporary password through email or an Admin/HR handoff.
+5. The employee signs in using either Login ID or email plus password.
+6. Employees with generated passwords are marked `mustChangePassword=true` and should be routed to password management before normal usage once that screen exists.
+
+**Login ID format:**
+
+```txt
+[First two letters of first name][First two letters of last name][Joining year][Serial number for that year]
+```
+
+Example:
+
+```txt
+SAKA20260001
+```
+
+Meaning:
+
+```txt
+SAKA = first two letters of first name + first two letters of last name
+2026 = year of joining
+0001 = serial number for that joining year
+```
+
+**Role assignment rules:**
+
+- `ADMIN` can create users for all roles.
+- `HR_OFFICER` can create employee profiles and employee accounts.
+- Public `/register` must not create accounts.
+- `PAYROLL_OFFICER` and `EMPLOYEE` cannot create users.
 
 ---
 
@@ -38,16 +83,23 @@
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
+  loginId       String?   @unique
   passwordHash  String
+  name          String?
   role          Role      @default(EMPLOYEE)
   isActive      Boolean   @default(true)
-  emailVerified DateTime?
+  mustChangePassword Boolean @default(false)
+  temporaryPasswordIssuedAt DateTime?
+  lastPasswordChangedAt DateTime?
+  companyId     String?
+  company       Company?  @relation(fields: [companyId], references: [id])
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   employee      Employee?
-  sessions      Session[]
-  accounts      Account[]
+
+  @@index([email])
+  @@index([loginId])
 }
 
 enum Role {
@@ -61,10 +113,26 @@ enum Role {
 ### 2.2 Employee Profile
 
 ```prisma
+model Company {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  code      String   @unique
+  logoUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users       User[]
+  departments Department[]
+  employees   Employee[]
+}
+
 model Department {
   id          String        @id @default(cuid())
   name        String        @unique
+  companyId   String?
+  company     Company?      @relation(fields: [companyId], references: [id])
   createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   employees   Employee[]
   designations Designation[]
 }
@@ -83,6 +151,8 @@ model Employee {
   employeeCode          String      @unique  // EMP-001, auto-generated
   userId                String      @unique
   user                  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyId             String?
+  company               Company?    @relation(fields: [companyId], references: [id])
   firstName             String
   lastName              String
   dateOfBirth           DateTime?
@@ -146,6 +216,7 @@ enum AttendanceStatus {
 ```
 
 **Status derivation logic (in `attendance.service.ts`):**
+
 - On check-in: create record with status=ABSENT, checkIn=now
 - On check-out: compute `workingHours = (checkOut - checkIn) / 3600`
   - `>= 8h` → PRESENT
@@ -423,11 +494,11 @@ For each employee in the payroll period:
 ```
 
 **PT Seed Data (Indian standard):**
-| Monthly Gross     | Monthly PT |
+| Monthly Gross | Monthly PT |
 |-------------------|------------|
-| 0 – 10,000        | ₹0         |
-| 10,001 – 15,000   | ₹150       |
-| 15,001+           | ₹200       |
+| 0 – 10,000 | ₹0 |
+| 10,001 – 15,000 | ₹150 |
+| 15,001+ | ₹200 |
 
 ---
 
@@ -526,72 +597,79 @@ src/
 ## 5. tRPC API Surface
 
 ### auth router
-| Procedure       | Type     | Who         | Description                        |
-|-----------------|----------|-------------|------------------------------------|
-| register        | mutation | public      | Create user + employee shell       |
-| login           | mutation | public      | Credentials sign-in                |
-| me              | query    | authed      | Current user + role                |
-| updateProfile   | mutation | authed      | Edit own profile                   |
+
+| Procedure     | Type     | Who    | Description                  |
+| ------------- | -------- | ------ | ---------------------------- |
+| register      | mutation | public | Create user + employee shell |
+| login         | mutation | public | Credentials sign-in          |
+| me            | query    | authed | Current user + role          |
+| updateProfile | mutation | authed | Edit own profile             |
 
 ### employees router
-| Procedure          | Type     | Who              | Description                   |
-|--------------------|----------|------------------|-------------------------------|
-| list               | query    | HR+              | All employees (paginated)     |
-| getById            | query    | authed           | Single employee profile       |
-| create             | mutation | HR_OFFICER/ADMIN | Create employee               |
-| update             | mutation | HR_OFFICER/ADMIN | Update employee profile       |
-| updateRole         | mutation | ADMIN            | Change user role              |
-| deactivate         | mutation | ADMIN            | Soft-delete user              |
+
+| Procedure  | Type     | Who              | Description               |
+| ---------- | -------- | ---------------- | ------------------------- |
+| list       | query    | HR+              | All employees (paginated) |
+| getById    | query    | authed           | Single employee profile   |
+| create     | mutation | HR_OFFICER/ADMIN | Create employee           |
+| update     | mutation | HR_OFFICER/ADMIN | Update employee profile   |
+| updateRole | mutation | ADMIN            | Change user role          |
+| deactivate | mutation | ADMIN            | Soft-delete user          |
 
 ### attendance router
-| Procedure          | Type     | Who              | Description                   |
-|--------------------|----------|------------------|-------------------------------|
-| checkIn            | mutation | authed           | Log check-in timestamp        |
-| checkOut           | mutation | authed           | Log check-out, compute hours  |
-| getMyLogs          | query    | authed           | Own attendance (date range)   |
-| getAllLogs          | query    | HR+/PAYROLL+     | All employees (date range)    |
-| getMonthSummary    | query    | authed           | Monthly attendance summary    |
+
+| Procedure       | Type     | Who          | Description                  |
+| --------------- | -------- | ------------ | ---------------------------- |
+| checkIn         | mutation | authed       | Log check-in timestamp       |
+| checkOut        | mutation | authed       | Log check-out, compute hours |
+| getMyLogs       | query    | authed       | Own attendance (date range)  |
+| getAllLogs      | query    | HR+/PAYROLL+ | All employees (date range)   |
+| getMonthSummary | query    | authed       | Monthly attendance summary   |
 
 ### leave router
-| Procedure             | Type     | Who              | Description                    |
-|-----------------------|----------|------------------|--------------------------------|
-| listTypes             | query    | authed           | All active leave types         |
-| createType            | mutation | HR/ADMIN         | Add leave type                 |
-| allocate              | mutation | HR/ADMIN         | Allocate leave to employee     |
-| getBalance            | query    | authed           | Remaining leave balance        |
-| apply                 | mutation | authed           | Submit leave application       |
-| getMyApplications     | query    | authed           | Own leave history              |
-| getPendingApprovals   | query    | PAYROLL/ADMIN    | All pending requests           |
-| approve               | mutation | PAYROLL/ADMIN    | Approve leave                  |
-| reject                | mutation | PAYROLL/ADMIN    | Reject with reason             |
-| cancel                | mutation | authed (owner)   | Cancel own pending leave       |
+
+| Procedure           | Type     | Who            | Description                |
+| ------------------- | -------- | -------------- | -------------------------- |
+| listTypes           | query    | authed         | All active leave types     |
+| createType          | mutation | HR/ADMIN       | Add leave type             |
+| allocate            | mutation | HR/ADMIN       | Allocate leave to employee |
+| getBalance          | query    | authed         | Remaining leave balance    |
+| apply               | mutation | authed         | Submit leave application   |
+| getMyApplications   | query    | authed         | Own leave history          |
+| getPendingApprovals | query    | PAYROLL/ADMIN  | All pending requests       |
+| approve             | mutation | PAYROLL/ADMIN  | Approve leave              |
+| reject              | mutation | PAYROLL/ADMIN  | Reject with reason         |
+| cancel              | mutation | authed (owner) | Cancel own pending leave   |
 
 ### payroll router
-| Procedure             | Type     | Who              | Description                    |
-|-----------------------|----------|------------------|--------------------------------|
-| listComponents        | query    | PAYROLL/ADMIN    | Salary component catalogue     |
-| createComponent       | mutation | PAYROLL/ADMIN    | Add component                  |
-| setSalaryStructure    | mutation | PAYROLL/ADMIN    | Set basic + HRA for employee   |
-| assignComponent       | mutation | PAYROLL/ADMIN    | Add component to employee      |
-| listPeriods           | query    | PAYROLL/ADMIN    | Payroll period list            |
-| createPeriod          | mutation | PAYROLL/ADMIN    | Create payroll period          |
-| runPayroll            | mutation | PAYROLL/ADMIN    | Generate all slips for period  |
-| getPayrollEntry       | query    | PAYROLL/ADMIN    | Payrun detail + all slips      |
-| getMyPayslip          | query    | authed           | Own payslip for a period       |
+
+| Procedure          | Type     | Who           | Description                   |
+| ------------------ | -------- | ------------- | ----------------------------- |
+| listComponents     | query    | PAYROLL/ADMIN | Salary component catalogue    |
+| createComponent    | mutation | PAYROLL/ADMIN | Add component                 |
+| setSalaryStructure | mutation | PAYROLL/ADMIN | Set basic + HRA for employee  |
+| assignComponent    | mutation | PAYROLL/ADMIN | Add component to employee     |
+| listPeriods        | query    | PAYROLL/ADMIN | Payroll period list           |
+| createPeriod       | mutation | PAYROLL/ADMIN | Create payroll period         |
+| runPayroll         | mutation | PAYROLL/ADMIN | Generate all slips for period |
+| getPayrollEntry    | query    | PAYROLL/ADMIN | Payrun detail + all slips     |
+| getMyPayslip       | query    | authed        | Own payslip for a period      |
 
 ### dashboard router
-| Procedure             | Type     | Who              | Description                    |
-|-----------------------|----------|------------------|--------------------------------|
-| getStats              | query    | authed           | Role-scoped summary cards      |
-| getAttendanceTrend    | query    | HR+/ADMIN        | Monthly attendance chart data  |
-| getLeaveDistribution  | query    | HR+/ADMIN        | Leave by type chart data       |
-| getPayrollTrend       | query    | PAYROLL/ADMIN    | Monthly payroll cost chart     |
+
+| Procedure            | Type  | Who           | Description                   |
+| -------------------- | ----- | ------------- | ----------------------------- |
+| getStats             | query | authed        | Role-scoped summary cards     |
+| getAttendanceTrend   | query | HR+/ADMIN     | Monthly attendance chart data |
+| getLeaveDistribution | query | HR+/ADMIN     | Leave by type chart data      |
+| getPayrollTrend      | query | PAYROLL/ADMIN | Monthly payroll cost chart    |
 
 ---
 
 ## 6. Dev Stages
 
 ### Stage 0 — Foundation (Do First)
+
 **Goal:** Runnable app with auth, DB, and role-based routing.
 
 - [ ] Update `prisma/schema.prisma` with full schema (Sections 2.1–2.5 above)
@@ -606,6 +684,7 @@ src/
 ---
 
 ### Stage 1 — Employee & Settings Management
+
 **Goal:** HR Officer can manage the workforce. Admin can configure the system.
 
 - [ ] `employees` tRPC router (list, getById, create, update)
@@ -622,6 +701,7 @@ src/
 ---
 
 ### Stage 2 — Attendance Module
+
 **Goal:** Employees mark check-in/out; HR can monitor attendance.
 
 - [ ] `attendance` tRPC router (checkIn, checkOut, getMyLogs, getAllLogs, getMonthSummary)
@@ -634,6 +714,7 @@ src/
 ---
 
 ### Stage 3 — Leave Management
+
 **Goal:** Full leave lifecycle from application to approval to ledger.
 
 - [ ] `leave` tRPC router (full surface — see Section 5)
@@ -653,6 +734,7 @@ src/
 ---
 
 ### Stage 4 — Payroll Module
+
 **Goal:** Payroll Officer runs monthly payroll; employees see payslips.
 
 - [ ] `payroll` tRPC router (full surface — see Section 5)
@@ -669,6 +751,7 @@ src/
 ---
 
 ### Stage 5 — Dashboard & Analytics
+
 **Goal:** Role-scoped dashboards with summary cards + Recharts charts.
 
 - [ ] `dashboard` tRPC router (getStats, getAttendanceTrend, getLeaveDistribution, getPayrollTrend)
@@ -687,6 +770,7 @@ src/
 ---
 
 ### Stage 6 — Polish & Hardening
+
 **Goal:** Production-ready quality for demo.
 
 - [ ] Consistent Tailwind design system (color palette, spacing, typography)
@@ -729,5 +813,6 @@ src/
 - **Sidebar width:** 240px fixed
 
 Status badge colors:
+
 - PENDING → amber · APPROVED → green · REJECTED → red · CANCELLED → gray
 - PRESENT → green · HALF_DAY → amber · ABSENT → red · ON_LEAVE → blue
