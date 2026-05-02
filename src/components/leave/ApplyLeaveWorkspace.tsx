@@ -27,11 +27,51 @@ type FieldErrors = Partial<
   Record<keyof z.infer<typeof applySchema>, string>
 >;
 
+function toUtcDate(value: string) {
+  if (!value) return null;
+  const date = new Date(`${value}T00:00:00Z`);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function calculateLeaveDaysClient(
+  fromDate: string,
+  toDate: string,
+  isHalfDay: boolean,
+  halfDayDate?: string,
+) {
+  const from = toUtcDate(fromDate);
+  const to = toUtcDate(toDate);
+  if (!from || !to || from > to) return 0;
+  let count = 0;
+  const cursor = new Date(from);
+  while (cursor <= to) {
+    const day = cursor.getUTCDay();
+    if (day !== 0 && day !== 6) count += 1;
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+
+  if (!isHalfDay || !halfDayDate) return count;
+
+  const halfDay = toUtcDate(halfDayDate);
+  if (!halfDay) return count;
+  const halfDayWeekday = halfDay.getUTCDay();
+  if (halfDayWeekday === 0 || halfDayWeekday === 6) return count;
+
+  const inRange = halfDay >= from && halfDay <= to;
+  return inRange ? Math.max(0, count - 0.5) : count + 0.5;
+}
+
 export function ApplyLeaveWorkspace({ balances }: { balances: Balance[] }) {
   const router = useRouter();
   const [errors, setErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState("");
   const [isHalfDay, setIsHalfDay] = useState(false);
+  const [formState, setFormState] = useState({
+    leaveTypeId: "",
+    fromDate: "",
+    toDate: "",
+    halfDayDate: "",
+  });
 
   const apply = api.leave.applyForLeave.useMutation({
     onSuccess: () => {
@@ -40,6 +80,22 @@ export function ApplyLeaveWorkspace({ balances }: { balances: Balance[] }) {
     },
     onError: (error) => setServerError(error.message),
   });
+
+  const selectedBalance = balances.find(
+    (balance) => balance.leaveTypeId === formState.leaveTypeId,
+  );
+  const requestedDays = calculateLeaveDaysClient(
+    formState.fromDate,
+    formState.toDate,
+    isHalfDay,
+    formState.halfDayDate,
+  );
+  const remainingDays = selectedBalance?.remainingDays ?? 0;
+  const showRequested =
+    formState.leaveTypeId.length > 0 &&
+    formState.fromDate.length > 0 &&
+    formState.toDate.length > 0;
+  const isOverLimit = showRequested && requestedDays > remainingDays;
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -70,6 +126,27 @@ export function ApplyLeaveWorkspace({ balances }: { balances: Balance[] }) {
     }
 
     setErrors({});
+
+    const selected = balances.find(
+      (balance) => balance.leaveTypeId === result.data.leaveTypeId,
+    );
+    if (!selected) {
+      setErrors({ leaveTypeId: "No allocation found for this leave type" });
+      return;
+    }
+    const requested = calculateLeaveDaysClient(
+      result.data.fromDate,
+      result.data.toDate,
+      result.data.isHalfDay,
+      result.data.halfDayDate,
+    );
+    if (requested > selected.remainingDays) {
+      setErrors({
+        toDate: `Requested ${requested} days exceeds remaining ${selected.remainingDays} days`,
+      });
+      return;
+    }
+
     apply.mutate(result.data);
   }
 
@@ -115,6 +192,13 @@ export function ApplyLeaveWorkspace({ balances }: { balances: Balance[] }) {
             id="leaveTypeId"
             name="leaveTypeId"
             className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-purple-500"
+            value={formState.leaveTypeId}
+            onChange={(event) =>
+              setFormState((prev) => ({
+                ...prev,
+                leaveTypeId: event.target.value,
+              }))
+            }
           >
             <option value="">Select leave type</option>
             {balances.map((balance) => (
@@ -128,8 +212,36 @@ export function ApplyLeaveWorkspace({ balances }: { balances: Balance[] }) {
           )}
         </div>
 
-        <Field label="From date" id="fromDate" type="date" error={errors.fromDate} />
-        <Field label="To date" id="toDate" type="date" error={errors.toDate} />
+        <Field
+          label="From date"
+          id="fromDate"
+          type="date"
+          error={errors.fromDate}
+          value={formState.fromDate}
+          onChange={(event) =>
+            setFormState((prev) => ({ ...prev, fromDate: event.target.value }))
+          }
+        />
+        <Field
+          label="To date"
+          id="toDate"
+          type="date"
+          error={errors.toDate}
+          value={formState.toDate}
+          onChange={(event) =>
+            setFormState((prev) => ({ ...prev, toDate: event.target.value }))
+          }
+        />
+
+        {showRequested ? (
+          <div
+            className={`md:col-span-2 text-xs ${
+              isOverLimit ? "text-red-600" : "text-gray-500"
+            }`}
+          >
+            Requested {requestedDays} days. {remainingDays} remaining.
+          </div>
+        ) : null}
 
         <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
           <input
@@ -147,6 +259,13 @@ export function ApplyLeaveWorkspace({ balances }: { balances: Balance[] }) {
             id="halfDayDate"
             type="date"
             error={errors.halfDayDate}
+            value={formState.halfDayDate}
+            onChange={(event) =>
+              setFormState((prev) => ({
+                ...prev,
+                halfDayDate: event.target.value,
+              }))
+            }
           />
         )}
 
@@ -171,7 +290,7 @@ export function ApplyLeaveWorkspace({ balances }: { balances: Balance[] }) {
         <div className="md:col-span-2">
           <button
             type="submit"
-            disabled={apply.isPending || balances.length === 0}
+            disabled={apply.isPending || balances.length === 0 || isOverLimit}
             className="rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800 disabled:opacity-60"
           >
             {apply.isPending ? "Submitting..." : "Submit request"}
@@ -187,11 +306,15 @@ function Field({
   label,
   type,
   error,
+  value,
+  onChange,
 }: {
   id: string;
   label: string;
   type: string;
   error?: string;
+  value?: string;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
     <div>
@@ -202,6 +325,8 @@ function Field({
         id={id}
         name={id}
         type={type}
+        value={value}
+        onChange={onChange}
         className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-purple-500"
       />
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
