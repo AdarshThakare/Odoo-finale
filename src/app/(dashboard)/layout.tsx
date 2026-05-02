@@ -12,7 +12,7 @@ export default async function DashboardLayout({
 
   if (!session?.user) redirect("/login");
   if (session.user.mustChangePassword) {
-    redirect("/dashboard/security/change-password");
+    redirect("/change-password");
   }
 
   return (
@@ -27,3 +27,4 @@ export default async function DashboardLayout({
     </div>
   );
 }
+
