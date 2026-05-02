@@ -1,74 +1,351 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-    provider = "prisma-client-js"
-    output   = "../generated/prisma"
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
 }
 
 datasource db {
-    provider = "postgresql"
-    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+  provider = "postgresql"
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+// ─── Enums ────────────────────────────────────────────────────────────────────
 
-    createdBy   User   @relation(fields: [createdById], references: [id])
-    createdById String
-
-    @@index([name])
+enum Role {
+  ADMIN
+  HR_OFFICER
+  PAYROLL_OFFICER
+  EMPLOYEE
 }
 
-// Necessary for Next auth
-model Account {
-    id                       String  @id @default(cuid())
-    userId                   String
-    type                     String
-    provider                 String
-    providerAccountId        String
-    refresh_token            String? // @db.Text
-    access_token             String? // @db.Text
-    expires_at               Int?
-    token_type               String?
-    scope                    String?
-    id_token                 String? // @db.Text
-    session_state            String?
-    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    refresh_token_expires_in Int?
-
-    @@unique([provider, providerAccountId])
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
 }
 
-model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+enum AttendanceStatus {
+  PRESENT
+  HALF_DAY
+  ABSENT
+  ON_LEAVE
 }
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum LedgerTransaction {
+  ALLOCATION
+  USAGE
+  CANCELLATION
+}
+
+enum ComponentType {
+  EARNING
+  DEDUCTION
+}
+
+enum PeriodStatus {
+  DRAFT
+  PROCESSING
+  COMPLETED
+}
+
+enum EntryStatus {
+  DRAFT
+  SUBMITTED
+  CANCELLED
+}
+
+enum SlipStatus {
+  DRAFT
+  SUBMITTED
+  CANCELLED
+}
+
+// ─── Auth & Identity ──────────────────────────────────────────────────────────
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    posts         Post[]
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  name          String?
+  role          Role      @default(EMPLOYEE)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  employee      Employee?
+
+  @@index([email])
 }
 
-model VerificationToken {
-    identifier String
-    token      String
-    expires    DateTime
+// ─── Org Structure ────────────────────────────────────────────────────────────
 
-    @@id([identifier, token])
+model Department {
+  id          String        @id @default(cuid())
+  name        String        @unique
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  employees    Employee[]
+  designations Designation[]
+}
+
+model Designation {
+  id           String      @id @default(cuid())
+  name         String
+  departmentId String
+  department   Department  @relation(fields: [departmentId], references: [id])
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  employees    Employee[]
+
+  @@unique([name, departmentId])
+}
+
+// ─── Employee Profile ─────────────────────────────────────────────────────────
+
+model Employee {
+  id                    String      @id @default(cuid())
+  employeeCode          String      @unique
+  userId                String      @unique
+  user                  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName             String
+  lastName              String
+  dateOfBirth           DateTime?
+  dateOfJoining         DateTime
+  gender                Gender
+  phone                 String?
+  address               String?
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  bankAccountNumber     String?
+  bankIfsc              String?
+  departmentId          String
+  department            Department  @relation(fields: [departmentId], references: [id])
+  designationId         String
+  designation           Designation @relation(fields: [designationId], references: [id])
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  attendanceRecords        AttendanceRecord[]
+  leaveApplications        LeaveApplication[]
+  leaveAllocations         LeaveAllocation[]
+  salaryStructure          SalaryStructure?
+  employeeSalaryComponents EmployeeSalaryComponent[]
+  salarySlips              SalarySlip[]
+
+  @@index([employeeCode])
+  @@index([departmentId])
+}
+
+// ─── Attendance ───────────────────────────────────────────────────────────────
+
+model AttendanceRecord {
+  id           String           @id @default(cuid())
+  employeeId   String
+  employee     Employee         @relation(fields: [employeeId], references: [id])
+  date         DateTime         @db.Date
+  checkIn      DateTime?
+  checkOut     DateTime?
+  workingHours Decimal?         @db.Decimal(5, 2)
+  status       AttendanceStatus @default(ABSENT)
+  notes        String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@unique([employeeId, date])
+  @@index([date])
+  @@index([employeeId, date])
+}
+
+// ─── Leave Management ─────────────────────────────────────────────────────────
+
+model LeaveType {
+  id             String    @id @default(cuid())
+  name           String    @unique
+  maxDaysPerYear Int
+  isPaid         Boolean   @default(true)
+  carryForward   Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  allocations  LeaveAllocation[]
+  applications LeaveApplication[]
+  ledgerEntries LeaveLedgerEntry[]
+}
+
+model LeaveAllocation {
+  id          String    @id @default(cuid())
+  employeeId  String
+  employee    Employee  @relation(fields: [employeeId], references: [id])
+  leaveTypeId String
+  leaveType   LeaveType @relation(fields: [leaveTypeId], references: [id])
+  year        Int
+  totalDays   Int
+  usedDays    Decimal   @default(0) @db.Decimal(5, 2)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([employeeId, leaveTypeId, year])
+}
+
+model LeaveApplication {
+  id              String      @id @default(cuid())
+  employeeId      String
+  employee        Employee    @relation(fields: [employeeId], references: [id])
+  leaveTypeId     String
+  leaveType       LeaveType   @relation(fields: [leaveTypeId], references: [id])
+  fromDate        DateTime    @db.Date
+  toDate          DateTime    @db.Date
+  totalDays       Decimal     @db.Decimal(5, 2)
+  isHalfDay       Boolean     @default(false)
+  halfDayDate     DateTime?   @db.Date
+  reason          String
+  status          LeaveStatus @default(PENDING)
+  approvedById    String?
+  approvedAt      DateTime?
+  rejectionReason String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  ledgerEntries LeaveLedgerEntry[]
+
+  @@index([employeeId, status])
+}
+
+model LeaveLedgerEntry {
+  id                 String            @id @default(cuid())
+  employeeId         String
+  leaveTypeId        String
+  leaveType          LeaveType         @relation(fields: [leaveTypeId], references: [id])
+  leaveApplicationId String?
+  leaveApplication   LeaveApplication? @relation(fields: [leaveApplicationId], references: [id])
+  transactionType    LedgerTransaction
+  leaves             Decimal           @db.Decimal(5, 2)
+  fromDate           DateTime          @db.Date
+  toDate             DateTime          @db.Date
+  createdAt          DateTime          @default(now())
+
+  @@index([employeeId, leaveTypeId])
+}
+
+// ─── Payroll ──────────────────────────────────────────────────────────────────
+
+model SalaryStructure {
+  id            String   @id @default(cuid())
+  employeeId    String   @unique
+  employee      Employee @relation(fields: [employeeId], references: [id])
+  basicSalary   Decimal  @db.Decimal(12, 2)
+  hra           Decimal  @db.Decimal(12, 2)
+  effectiveFrom DateTime @db.Date
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model SalaryComponent {
+  id       String        @id @default(cuid())
+  name     String        @unique
+  type     ComponentType
+  isActive Boolean       @default(true)
+  createdAt DateTime     @default(now())
+
+  employeeComponents EmployeeSalaryComponent[]
+  slipDetails        SalarySlipDetail[]
+}
+
+model EmployeeSalaryComponent {
+  id                String          @id @default(cuid())
+  employeeId        String
+  employee          Employee        @relation(fields: [employeeId], references: [id])
+  salaryComponentId String
+  salaryComponent   SalaryComponent @relation(fields: [salaryComponentId], references: [id])
+  amount            Decimal         @db.Decimal(12, 2)
+  effectiveFrom     DateTime        @db.Date
+  isActive          Boolean         @default(true)
+  createdAt         DateTime        @default(now())
+
+  @@unique([employeeId, salaryComponentId])
+}
+
+model ProfessionalTaxSlab {
+  id         String   @id @default(cuid())
+  minSalary  Decimal  @db.Decimal(12, 2)
+  maxSalary  Decimal? @db.Decimal(12, 2)
+  monthlyTax Decimal  @db.Decimal(8, 2)
+}
+
+model PayrollPeriod {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  startDate   DateTime     @db.Date
+  endDate     DateTime     @db.Date
+  status      PeriodStatus @default(DRAFT)
+  createdById String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  payrollEntries PayrollEntry[]
+}
+
+model PayrollEntry {
+  id              String        @id @default(cuid())
+  payrollPeriodId String
+  payrollPeriod   PayrollPeriod @relation(fields: [payrollPeriodId], references: [id])
+  status          EntryStatus   @default(DRAFT)
+  totalGross      Decimal       @db.Decimal(14, 2)
+  totalDeductions Decimal       @db.Decimal(14, 2)
+  totalNet        Decimal       @db.Decimal(14, 2)
+  paymentDate     DateTime?     @db.Date
+  createdById     String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  salarySlips SalarySlip[]
+}
+
+model SalarySlip {
+  id              String       @id @default(cuid())
+  payrollEntryId  String
+  payrollEntry    PayrollEntry @relation(fields: [payrollEntryId], references: [id])
+  employeeId      String
+  employee        Employee     @relation(fields: [employeeId], references: [id])
+  payrollPeriodId String
+
+  basicSalary      Decimal @db.Decimal(12, 2)
+  hra              Decimal @db.Decimal(12, 2)
+  totalEarnings    Decimal @db.Decimal(12, 2)
+  grossSalary      Decimal @db.Decimal(12, 2)
+  pfEmployee       Decimal @db.Decimal(10, 2)
+  pfEmployer       Decimal @db.Decimal(10, 2)
+  professionalTax  Decimal @db.Decimal(8, 2)
+  totalDeductions  Decimal @db.Decimal(12, 2)
+  netSalary        Decimal @db.Decimal(12, 2)
+
+  workingDays      Int
+  totalWorkingDays Int
+  paidLeaveDays    Decimal @db.Decimal(5, 2)
+
+  status    SlipStatus @default(DRAFT)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  slipDetails SalarySlipDetail[]
+
+  @@unique([employeeId, payrollPeriodId])
+}
+
+model SalarySlipDetail {
+  id                String          @id @default(cuid())
+  salarySlipId      String
+  salarySlip        SalarySlip      @relation(fields: [salarySlipId], references: [id])
+  salaryComponentId String
+  salaryComponent   SalaryComponent @relation(fields: [salaryComponentId], references: [id])
+  amount            Decimal         @db.Decimal(12, 2)
+  type              ComponentType
 }

@@ -120,49 +120,205 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.PostScalarFieldEnum = {
+exports.Prisma.UserScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  passwordHash: 'passwordHash',
+  name: 'name',
+  role: 'role',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DepartmentScalarFieldEnum = {
   id: 'id',
   name: 'name',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  createdById: 'createdById'
+  updatedAt: 'updatedAt'
 };
 
-exports.Prisma.AccountScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  type: 'type',
-  provider: 'provider',
-  providerAccountId: 'providerAccountId',
-  refresh_token: 'refresh_token',
-  access_token: 'access_token',
-  expires_at: 'expires_at',
-  token_type: 'token_type',
-  scope: 'scope',
-  id_token: 'id_token',
-  session_state: 'session_state',
-  refresh_token_expires_in: 'refresh_token_expires_in'
-};
-
-exports.Prisma.SessionScalarFieldEnum = {
-  id: 'id',
-  sessionToken: 'sessionToken',
-  userId: 'userId',
-  expires: 'expires'
-};
-
-exports.Prisma.UserScalarFieldEnum = {
+exports.Prisma.DesignationScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  email: 'email',
-  emailVerified: 'emailVerified',
-  image: 'image'
+  departmentId: 'departmentId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
-exports.Prisma.VerificationTokenScalarFieldEnum = {
-  identifier: 'identifier',
-  token: 'token',
-  expires: 'expires'
+exports.Prisma.EmployeeScalarFieldEnum = {
+  id: 'id',
+  employeeCode: 'employeeCode',
+  userId: 'userId',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  dateOfBirth: 'dateOfBirth',
+  dateOfJoining: 'dateOfJoining',
+  gender: 'gender',
+  phone: 'phone',
+  address: 'address',
+  emergencyContactName: 'emergencyContactName',
+  emergencyContactPhone: 'emergencyContactPhone',
+  bankAccountNumber: 'bankAccountNumber',
+  bankIfsc: 'bankIfsc',
+  departmentId: 'departmentId',
+  designationId: 'designationId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AttendanceRecordScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  date: 'date',
+  checkIn: 'checkIn',
+  checkOut: 'checkOut',
+  workingHours: 'workingHours',
+  status: 'status',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LeaveTypeScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  maxDaysPerYear: 'maxDaysPerYear',
+  isPaid: 'isPaid',
+  carryForward: 'carryForward',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LeaveAllocationScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  leaveTypeId: 'leaveTypeId',
+  year: 'year',
+  totalDays: 'totalDays',
+  usedDays: 'usedDays',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LeaveApplicationScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  leaveTypeId: 'leaveTypeId',
+  fromDate: 'fromDate',
+  toDate: 'toDate',
+  totalDays: 'totalDays',
+  isHalfDay: 'isHalfDay',
+  halfDayDate: 'halfDayDate',
+  reason: 'reason',
+  status: 'status',
+  approvedById: 'approvedById',
+  approvedAt: 'approvedAt',
+  rejectionReason: 'rejectionReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LeaveLedgerEntryScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  leaveTypeId: 'leaveTypeId',
+  leaveApplicationId: 'leaveApplicationId',
+  transactionType: 'transactionType',
+  leaves: 'leaves',
+  fromDate: 'fromDate',
+  toDate: 'toDate',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.SalaryStructureScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  basicSalary: 'basicSalary',
+  hra: 'hra',
+  effectiveFrom: 'effectiveFrom',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SalaryComponentScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  type: 'type',
+  isActive: 'isActive',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.EmployeeSalaryComponentScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  salaryComponentId: 'salaryComponentId',
+  amount: 'amount',
+  effectiveFrom: 'effectiveFrom',
+  isActive: 'isActive',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ProfessionalTaxSlabScalarFieldEnum = {
+  id: 'id',
+  minSalary: 'minSalary',
+  maxSalary: 'maxSalary',
+  monthlyTax: 'monthlyTax'
+};
+
+exports.Prisma.PayrollPeriodScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  status: 'status',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PayrollEntryScalarFieldEnum = {
+  id: 'id',
+  payrollPeriodId: 'payrollPeriodId',
+  status: 'status',
+  totalGross: 'totalGross',
+  totalDeductions: 'totalDeductions',
+  totalNet: 'totalNet',
+  paymentDate: 'paymentDate',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SalarySlipScalarFieldEnum = {
+  id: 'id',
+  payrollEntryId: 'payrollEntryId',
+  employeeId: 'employeeId',
+  payrollPeriodId: 'payrollPeriodId',
+  basicSalary: 'basicSalary',
+  hra: 'hra',
+  totalEarnings: 'totalEarnings',
+  grossSalary: 'grossSalary',
+  pfEmployee: 'pfEmployee',
+  pfEmployer: 'pfEmployer',
+  professionalTax: 'professionalTax',
+  totalDeductions: 'totalDeductions',
+  netSalary: 'netSalary',
+  workingDays: 'workingDays',
+  totalWorkingDays: 'totalWorkingDays',
+  paidLeaveDays: 'paidLeaveDays',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SalarySlipDetailScalarFieldEnum = {
+  id: 'id',
+  salarySlipId: 'salarySlipId',
+  salaryComponentId: 'salaryComponentId',
+  amount: 'amount',
+  type: 'type'
 };
 
 exports.Prisma.SortOrder = {
@@ -179,14 +335,80 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.Role = exports.$Enums.Role = {
+  ADMIN: 'ADMIN',
+  HR_OFFICER: 'HR_OFFICER',
+  PAYROLL_OFFICER: 'PAYROLL_OFFICER',
+  EMPLOYEE: 'EMPLOYEE'
+};
 
+exports.Gender = exports.$Enums.Gender = {
+  MALE: 'MALE',
+  FEMALE: 'FEMALE',
+  OTHER: 'OTHER'
+};
+
+exports.AttendanceStatus = exports.$Enums.AttendanceStatus = {
+  PRESENT: 'PRESENT',
+  HALF_DAY: 'HALF_DAY',
+  ABSENT: 'ABSENT',
+  ON_LEAVE: 'ON_LEAVE'
+};
+
+exports.LeaveStatus = exports.$Enums.LeaveStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.LedgerTransaction = exports.$Enums.LedgerTransaction = {
+  ALLOCATION: 'ALLOCATION',
+  USAGE: 'USAGE',
+  CANCELLATION: 'CANCELLATION'
+};
+
+exports.ComponentType = exports.$Enums.ComponentType = {
+  EARNING: 'EARNING',
+  DEDUCTION: 'DEDUCTION'
+};
+
+exports.PeriodStatus = exports.$Enums.PeriodStatus = {
+  DRAFT: 'DRAFT',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED'
+};
+
+exports.EntryStatus = exports.$Enums.EntryStatus = {
+  DRAFT: 'DRAFT',
+  SUBMITTED: 'SUBMITTED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.SlipStatus = exports.$Enums.SlipStatus = {
+  DRAFT: 'DRAFT',
+  SUBMITTED: 'SUBMITTED',
+  CANCELLED: 'CANCELLED'
+};
 
 exports.Prisma.ModelName = {
-  Post: 'Post',
-  Account: 'Account',
-  Session: 'Session',
   User: 'User',
-  VerificationToken: 'VerificationToken'
+  Department: 'Department',
+  Designation: 'Designation',
+  Employee: 'Employee',
+  AttendanceRecord: 'AttendanceRecord',
+  LeaveType: 'LeaveType',
+  LeaveAllocation: 'LeaveAllocation',
+  LeaveApplication: 'LeaveApplication',
+  LeaveLedgerEntry: 'LeaveLedgerEntry',
+  SalaryStructure: 'SalaryStructure',
+  SalaryComponent: 'SalaryComponent',
+  EmployeeSalaryComponent: 'EmployeeSalaryComponent',
+  ProfessionalTaxSlab: 'ProfessionalTaxSlab',
+  PayrollPeriod: 'PayrollPeriod',
+  PayrollEntry: 'PayrollEntry',
+  SalarySlip: 'SalarySlip',
+  SalarySlipDetail: 'SalarySlipDetail'
 };
 
 /**
