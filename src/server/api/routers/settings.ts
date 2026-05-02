@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, roleProcedure } from "~/server/api/trpc";
+import { type PrismaClient } from "../../../../generated/prisma";
 
 const adminRoles = ["ADMIN"] as const;
 const managerRoles = ["ADMIN", "HR_OFFICER"] as const;
@@ -15,7 +16,10 @@ const designationSchema = z.object({
   name: z.string().min(2, "Designation name is required"),
 });
 
-async function getCompanyId(ctx: { db: typeof import("~/server/db").db; session: { user: { id: string } } }) {
+async function getCompanyId(ctx: {
+  db: PrismaClient;
+  session: { user: { id: string } };
+}) {
   const user = await ctx.db.user.findUnique({
     where: { id: ctx.session.user.id },
     select: { companyId: true },
@@ -86,7 +90,10 @@ export const settingsRouter = createTRPCRouter({
       });
 
       if (!department) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Department not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Department not found",
+        });
       }
 
       const existing = await ctx.db.department.findFirst({
@@ -119,7 +126,10 @@ export const settingsRouter = createTRPCRouter({
       });
 
       if (!department) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Department not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Department not found",
+        });
       }
 
       const employeeCount = await ctx.db.employee.count({

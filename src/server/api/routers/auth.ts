@@ -2,7 +2,11 @@ import { TRPCError } from "@trpc/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 
 const bootstrapSchema = z
   .object({
@@ -33,7 +37,7 @@ function initials(value: string) {
 function splitName(value: string) {
   const parts = value.trim().split(/\s+/).filter(Boolean);
   const firstName = parts[0] ?? "";
-  const lastName = parts.length > 1 ? parts[parts.length - 1] : firstName;
+  const lastName = parts.length > 1 ? (parts.at(-1) ?? firstName) : firstName;
   return { firstName, lastName };
 }
 
@@ -45,13 +49,14 @@ function baseCompanyCode(value: string) {
     .filter(Boolean);
 
   if (words.length >= 2) {
-    return `${words[0][0] ?? ""}${words[1][0] ?? ""}`
-      .toUpperCase()
-      .padEnd(2, "X");
+    const first = words[0]?.[0] ?? "";
+    const second = words[1]?.[0] ?? "";
+    return `${first}${second}`.toUpperCase().padEnd(2, "X");
   }
 
-  if (words.length === 1) {
-    return words[0].slice(0, 2).toUpperCase().padEnd(2, "X");
+  const [word] = words;
+  if (word) {
+    return word.slice(0, 2).toUpperCase().padEnd(2, "X");
   }
 
   return "CO";

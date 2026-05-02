@@ -1,0 +1,24 @@
+import { redirect } from "next/navigation";
+
+import { ApprovalsWorkspace } from "~/components/leave/ApprovalsWorkspace";
+import { auth } from "~/server/auth";
+import { api } from "~/trpc/server";
+
+export default async function LeaveApprovalsPage() {
+  const session = await auth();
+  if (!session?.user) redirect("/login");
+  if (session.user.mustChangePassword) {
+    redirect("/dashboard/security/change-password");
+  }
+
+  if (!["ADMIN", "PAYROLL_OFFICER"].includes(session.user.role)) {
+    redirect("/dashboard/leave");
+  }
+
+  const [pending, all] = await Promise.all([
+    api.leave.getPendingApprovals(),
+    api.leave.getAllApprovals(),
+  ]);
+
+  return <ApprovalsWorkspace pending={pending} all={all} />;
+}
