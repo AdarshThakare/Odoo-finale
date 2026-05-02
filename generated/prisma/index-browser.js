@@ -123,10 +123,24 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
+  loginId: 'loginId',
   passwordHash: 'passwordHash',
   name: 'name',
   role: 'role',
   isActive: 'isActive',
+  mustChangePassword: 'mustChangePassword',
+  temporaryPasswordIssuedAt: 'temporaryPasswordIssuedAt',
+  lastPasswordChangedAt: 'lastPasswordChangedAt',
+  companyId: 'companyId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CompanyScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  code: 'code',
+  logoUrl: 'logoUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -134,6 +148,7 @@ exports.Prisma.UserScalarFieldEnum = {
 exports.Prisma.DepartmentScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  companyId: 'companyId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -150,6 +165,7 @@ exports.Prisma.EmployeeScalarFieldEnum = {
   id: 'id',
   employeeCode: 'employeeCode',
   userId: 'userId',
+  companyId: 'companyId',
   firstName: 'firstName',
   lastName: 'lastName',
   dateOfBirth: 'dateOfBirth',
@@ -393,6 +409,7 @@ exports.SlipStatus = exports.$Enums.SlipStatus = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  Company: 'Company',
   Department: 'Department',
   Designation: 'Designation',
   Employee: 'Employee',

@@ -1,17 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
 
 const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  identifier: z.string().min(1, "Login ID or email is required"),
   password: z.string().min(1, "Password is required"),
 });
 
-type FieldErrors = Partial<Record<"email" | "password", string>>;
+type FieldErrors = Partial<Record<"identifier" | "password", string>>;
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,7 +24,7 @@ export default function LoginPage() {
 
     const formData = new FormData(event.currentTarget);
     const result = loginSchema.safeParse({
-      email: formData.get("email"),
+      identifier: formData.get("identifier"),
       password: formData.get("password"),
     });
 
@@ -43,7 +42,7 @@ export default function LoginPage() {
     setLoading(true);
 
     const response = await signIn("credentials", {
-      email: result.data.email,
+      identifier: result.data.identifier,
       password: result.data.password,
       redirect: false,
     });
@@ -51,7 +50,7 @@ export default function LoginPage() {
     setLoading(false);
 
     if (response?.error) {
-      setServerError("Invalid email or password");
+      setServerError("Invalid login ID, email, or password");
       return;
     }
 
@@ -73,22 +72,22 @@ export default function LoginPage() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label
-            htmlFor="email"
+            htmlFor="identifier"
             className="block text-sm font-medium text-gray-700"
           >
-            Email address
+            Login ID or email
           </label>
           <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
+            id="identifier"
+            name="identifier"
+            type="text"
+            autoComplete="username"
             className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm shadow-sm transition outline-none focus:ring-2 focus:ring-purple-500 ${
-              errors.email ? "border-red-400 bg-red-50" : "border-gray-300"
+              errors.identifier ? "border-red-400 bg-red-50" : "border-gray-300"
             }`}
           />
-          {errors.email && (
-            <p className="mt-1 text-xs text-red-600">{errors.email}</p>
+          {errors.identifier && (
+            <p className="mt-1 text-xs text-red-600">{errors.identifier}</p>
           )}
         </div>
 
@@ -123,13 +122,7 @@ export default function LoginPage() {
       </form>
 
       <p className="mt-6 text-center text-sm text-gray-500">
-        Don&apos;t have an account?{" "}
-        <Link
-          href="/register"
-          className="font-medium text-purple-700 hover:underline"
-        >
-          Create one
-        </Link>
+        Accounts are created by HR or Admin.
       </p>
     </div>
   );
