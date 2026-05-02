@@ -8,9 +8,12 @@ services:
     environment:
       - OPENFGA_DATASTORE_ENGINE=memory
       - OPENFGA_LOG_FORMAT=json
+      - OPENFGA_PLAYGROUND_ENABLED=true
+      - OPENFGA_PLAYGROUND_PORT=3001
     ports:
       - "8080:8080" # http
       - "8081:8081" # grpc
+      - "3001:3001" # playground
     networks:
       - fga
 

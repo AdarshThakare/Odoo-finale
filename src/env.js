@@ -13,9 +13,9 @@ export const env = createEnv({
     EMAIL_FROM: z.string().optional(),
     APP_URL: z.string().url().optional(),
     NEXTAUTH_URL: z.string().url().optional(),
-    CLOUDINARY_NAME: z.string(),
-    CLOUDINARY_API_KEY: z.string(),
-    CLOUDINARY_API_SECRET: z.string(),
+    CLOUDINARY_NAME: z.string().optional(),
+    CLOUDINARY_API_KEY: z.string().optional(),
+    CLOUDINARY_API_SECRET: z.string().optional(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
