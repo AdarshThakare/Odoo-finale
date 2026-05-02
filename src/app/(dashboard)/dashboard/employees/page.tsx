@@ -12,6 +12,7 @@ import {
   type TablerIcon,
 } from "@tabler/icons-react";
 
+import { auth } from "~/server/auth";
 import { api } from "~/trpc/server";
 
 export default async function EmployeesPage({
@@ -22,6 +23,10 @@ export default async function EmployeesPage({
   const params = await searchParams;
   const departmentId = params?.departmentId ?? undefined;
   const search = params?.q?.trim() ?? undefined;
+  
+  const session = await auth();
+  const canManageEmployees =
+    session?.user?.role === "ADMIN" || session?.user?.role === "HR_OFFICER";
 
   const [employees, departments, todayAttendance] = await Promise.all([
     api.employee.list({ departmentId, search }),
@@ -55,13 +60,15 @@ export default async function EmployeesPage({
               <span className="text-gray-600">Absent</span>
             </div>
           </div>
-          <Link
-            href="/dashboard/employees/new"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-purple-700 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-800 focus:ring-4 focus:ring-purple-100 focus:outline-none"
-          >
-            <IconPlus size={18} stroke={2} aria-hidden="true" />
-            New
-          </Link>
+          {canManageEmployees && (
+            <Link
+              href="/dashboard/employees/new"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-purple-700 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-800 focus:ring-4 focus:ring-purple-100 focus:outline-none"
+            >
+              <IconPlus size={18} stroke={2} aria-hidden="true" />
+              New
+            </Link>
+          )}
         </div>
       </div>
 

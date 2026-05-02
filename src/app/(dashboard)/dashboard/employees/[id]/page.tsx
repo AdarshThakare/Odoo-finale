@@ -121,11 +121,17 @@ export default function EmployeeProfilePage() {
   const viewerRank = me ? getRoleRank(me.role) : 0;
   const targetRank = employee ? getRoleRank(employee.user.role) : 0;
   const isAdmin = me?.role === "ADMIN";
+  const isHrOfficer = me?.role === "HR_OFFICER";
+  const isPayrollOfficer = me?.role === "PAYROLL_OFFICER";
   const isSelf = me?.employee?.id === employeeId;
 
+  const hasProfileEditCapability = isAdmin || isHrOfficer;
+  const hasSalaryEditCapability = isAdmin || isPayrollOfficer;
+  const passesRankCheck = isAdmin || viewerRank > targetRank;
+
   const isTargetHigherOrEqual = !isAdmin && viewerRank <= targetRank && !isSelf;
-  const canEditProfile = isAdmin || viewerRank > targetRank || isSelf;
-  const canEditSalary = isAdmin || viewerRank > targetRank;
+  const canEditProfile = hasProfileEditCapability && (passesRankCheck || isSelf);
+  const canEditSalary = hasSalaryEditCapability && passesRankCheck;
 
   if (isLoading || meLoading) {
     return <div className="text-sm text-gray-600">Loading employee...</div>;
