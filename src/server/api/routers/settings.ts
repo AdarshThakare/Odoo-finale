@@ -2,10 +2,9 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { type Role } from "../../../../generated/prisma";
-import { replaceUserRole } from "~/lib/fga-sync";
 import {
   createTRPCRouter,
-  fgaCompanyProcedure,
+  companyPermissionProcedure,
 } from "~/server/api/trpc";
 
 const departmentSchema = z.object({
@@ -37,7 +36,7 @@ export const settingsRouter = createTRPCRouter({
   /**
    * List users in the current company for Admin User Settings.
    */
-  listUsers: fgaCompanyProcedure("can_manage_settings").query(async ({ ctx }) => {
+  listUsers: companyPermissionProcedure("can_manage_settings").query(async ({ ctx }) => {
     requireAdmin(ctx.session.user.role);
 
     return ctx.db.user.findMany({
@@ -67,7 +66,7 @@ export const settingsRouter = createTRPCRouter({
   /**
    * Update a user's company role.
    */
-  updateUserRole: fgaCompanyProcedure("can_manage_settings")
+  updateUserRole: companyPermissionProcedure("can_manage_settings")
     .input(
       z.object({
         userId: z.string().min(1, "User is required"),
@@ -106,20 +105,14 @@ export const settingsRouter = createTRPCRouter({
         },
       });
 
-      try {
-        await replaceUserRole(updated.id, input.role, ctx.companyId);
-      } catch (error) {
-        console.warn("[FGA] Failed to replace user role tuple:", error);
-      }
-
       return updated;
     }),
 
   /**
    * List all departments.
-   * FGA: can_view_employee_directory on company:{companyId}
+   * RBAC: can_view_employee_directory on company:{companyId}
    */
-  listDepartments: fgaCompanyProcedure("can_view_employee_directory").query(
+  listDepartments: companyPermissionProcedure("can_view_employee_directory").query(
     async ({ ctx }) => {
       return ctx.db.department.findMany({
         where: { companyId: ctx.companyId },
@@ -137,9 +130,9 @@ export const settingsRouter = createTRPCRouter({
 
   /**
    * Create a department.
-   * FGA: can_manage_settings on company:{companyId}
+   * RBAC: can_manage_settings on company:{companyId}
    */
-  createDepartment: fgaCompanyProcedure("can_manage_settings")
+  createDepartment: companyPermissionProcedure("can_manage_settings")
     .input(departmentSchema)
     .mutation(async ({ ctx, input }) => {
       const existing = await ctx.db.department.findFirst({
@@ -162,9 +155,9 @@ export const settingsRouter = createTRPCRouter({
 
   /**
    * Update a department.
-   * FGA: can_manage_settings on company:{companyId}
+   * RBAC: can_manage_settings on company:{companyId}
    */
-  updateDepartment: fgaCompanyProcedure("can_manage_settings")
+  updateDepartment: companyPermissionProcedure("can_manage_settings")
     .input(
       z.object({
         id: z.string().min(1, "Department is required"),
@@ -205,9 +198,9 @@ export const settingsRouter = createTRPCRouter({
 
   /**
    * Delete a department.
-   * FGA: can_manage_settings on company:{companyId}
+   * RBAC: can_manage_settings on company:{companyId}
    */
-  deleteDepartment: fgaCompanyProcedure("can_manage_settings")
+  deleteDepartment: companyPermissionProcedure("can_manage_settings")
     .input(z.object({ id: z.string().min(1, "Department is required") }))
     .mutation(async ({ ctx, input }) => {
       const department = await ctx.db.department.findFirst({
@@ -250,9 +243,9 @@ export const settingsRouter = createTRPCRouter({
 
   /**
    * List all designations.
-   * FGA: can_view_employee_directory on company:{companyId}
+   * RBAC: can_view_employee_directory on company:{companyId}
    */
-  listDesignations: fgaCompanyProcedure("can_view_employee_directory")
+  listDesignations: companyPermissionProcedure("can_view_employee_directory")
     .input(z.object({ departmentId: z.string().optional() }).optional())
     .query(async ({ ctx, input }) => {
       const departmentFilter = input?.departmentId
@@ -276,9 +269,9 @@ export const settingsRouter = createTRPCRouter({
 
   /**
    * Create a designation.
-   * FGA: can_manage_settings on company:{companyId}
+   * RBAC: can_manage_settings on company:{companyId}
    */
-  createDesignation: fgaCompanyProcedure("can_manage_settings")
+  createDesignation: companyPermissionProcedure("can_manage_settings")
     .input(designationSchema)
     .mutation(async ({ ctx, input }) => {
       const department = await ctx.db.department.findFirst({
@@ -316,9 +309,9 @@ export const settingsRouter = createTRPCRouter({
 
   /**
    * Update a designation.
-   * FGA: can_manage_settings on company:{companyId}
+   * RBAC: can_manage_settings on company:{companyId}
    */
-  updateDesignation: fgaCompanyProcedure("can_manage_settings")
+  updateDesignation: companyPermissionProcedure("can_manage_settings")
     .input(
       z.object({
         id: z.string().min(1, "Designation is required"),
@@ -362,9 +355,9 @@ export const settingsRouter = createTRPCRouter({
 
   /**
    * Delete a designation.
-   * FGA: can_manage_settings on company:{companyId}
+   * RBAC: can_manage_settings on company:{companyId}
    */
-  deleteDesignation: fgaCompanyProcedure("can_manage_settings")
+  deleteDesignation: companyPermissionProcedure("can_manage_settings")
     .input(z.object({ id: z.string().min(1, "Designation is required") }))
     .mutation(async ({ ctx, input }) => {
       const designation = await ctx.db.designation.findFirst({

@@ -3,10 +3,11 @@ import { z } from "zod";
 
 import {
   createTRPCRouter,
-  fgaCompanyProcedure,
+  companyPermissionProcedure,
+  hasPermission,
   protectedProcedure,
+  requirePermission,
 } from "~/server/api/trpc";
-import { checkAccess } from "~/lib/fga";
 import { type PrismaClient } from "../../../../generated/prisma";
 import {
   createPeriod,
@@ -66,9 +67,9 @@ async function getCompanyId(ctx: {
 export const payrollRouter = createTRPCRouter({
   /**
    * List all salary components.
-   * FGA: can_manage_payroll on company:{companyId}
+   * RBAC: can_manage_payroll on company:{companyId}
    */
-  listComponents: fgaCompanyProcedure("can_manage_payroll").query(
+  listComponents: companyPermissionProcedure("can_manage_payroll").query(
     async ({ ctx }) => {
       return ctx.db.salaryComponent.findMany({
         orderBy: { name: "asc" },
@@ -79,9 +80,9 @@ export const payrollRouter = createTRPCRouter({
 
   /**
    * Create a salary component.
-   * FGA: can_manage_payroll on company:{companyId}
+   * RBAC: can_manage_payroll on company:{companyId}
    */
-  createComponent: fgaCompanyProcedure("can_manage_payroll")
+  createComponent: companyPermissionProcedure("can_manage_payroll")
     .input(componentSchema)
     .mutation(async ({ ctx, input }) => {
       const existing = await ctx.db.salaryComponent.findUnique({
@@ -104,9 +105,9 @@ export const payrollRouter = createTRPCRouter({
 
   /**
    * Update a salary component.
-   * FGA: can_manage_payroll on company:{companyId}
+   * RBAC: can_manage_payroll on company:{companyId}
    */
-  updateComponent: fgaCompanyProcedure("can_manage_payroll")
+  updateComponent: companyPermissionProcedure("can_manage_payroll")
     .input(
       z.object({
         id: z.string().min(1, "Component is required"),
@@ -155,25 +156,12 @@ export const payrollRouter = createTRPCRouter({
 
   /**
    * Set an employee's salary structure.
-   * FGA: can_edit_salary on employee_profile:{employeeId}
+   * RBAC: can_edit_salary on employee_profile:{employeeId}
    */
   setSalaryStructure: protectedProcedure
     .input(salaryStructureSchema)
     .mutation(async ({ ctx, input }) => {
-      // Resource-level FGA check: can the user edit this employee's salary?
-      const allowed = await checkAccess(
-        ctx.session.user.id,
-        "can_edit_salary",
-        "employee_profile",
-        input.employeeId,
-      );
-
-      if (!allowed) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "You do not have permission to edit this employee's salary",
-        });
-      }
+      requirePermission(ctx.session.user.role, "can_edit_salary");
 
       const companyId = await getCompanyId(ctx);
       const employee = await ctx.db.employee.findFirst({
@@ -215,25 +203,12 @@ export const payrollRouter = createTRPCRouter({
 
   /**
    * Assign a salary component to an employee.
-   * FGA: can_edit_salary on employee_profile:{employeeId}
+   * RBAC: can_edit_salary on employee_profile:{employeeId}
    */
   assignComponent: protectedProcedure
     .input(assignComponentSchema)
     .mutation(async ({ ctx, input }) => {
-      // Resource-level FGA check
-      const allowed = await checkAccess(
-        ctx.session.user.id,
-        "can_edit_salary",
-        "employee_profile",
-        input.employeeId,
-      );
-
-      if (!allowed) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "You do not have permission to edit this employee's salary",
-        });
-      }
+      requirePermission(ctx.session.user.role, "can_edit_salary");
 
       const companyId = await getCompanyId(ctx);
       const employee = await ctx.db.employee.findFirst({
@@ -291,17 +266,17 @@ export const payrollRouter = createTRPCRouter({
 
   /**
    * List all payroll periods.
-   * FGA: can_manage_payroll on company:{companyId}
+   * RBAC: can_manage_payroll on company:{companyId}
    */
-  listPeriods: fgaCompanyProcedure("can_manage_payroll").query(({ ctx }) =>
+  listPeriods: companyPermissionProcedure("can_manage_payroll").query(({ ctx }) =>
     listPeriods(ctx.db, ctx.session.user.id),
   ),
 
   /**
    * Create a payroll period.
-   * FGA: can_manage_payroll on company:{companyId}
+   * RBAC: can_manage_payroll on company:{companyId}
    */
-  createPeriod: fgaCompanyProcedure("can_manage_payroll")
+  createPeriod: companyPermissionProcedure("can_manage_payroll")
     .input(periodSchema)
     .mutation(({ ctx, input }) =>
       createPeriod(ctx.db, ctx.session.user.id, input),
@@ -309,9 +284,9 @@ export const payrollRouter = createTRPCRouter({
 
   /**
    * Run payroll for a period.
-   * FGA: can_manage_payroll on company:{companyId}
+   * RBAC: can_manage_payroll on company:{companyId}
    */
-  runPayroll: fgaCompanyProcedure("can_manage_payroll")
+  runPayroll: companyPermissionProcedure("can_manage_payroll")
     .input(z.object({ periodId: z.string().min(1, "Period is required") }))
     .mutation(({ ctx, input }) =>
       runPayroll(ctx.db, ctx.session.user.id, input.periodId),
@@ -319,9 +294,9 @@ export const payrollRouter = createTRPCRouter({
 
   /**
    * Get payroll entry details for a period.
-   * FGA: can_view_reports on company:{companyId}
+   * RBAC: can_view_reports on company:{companyId}
    */
-  getPayrollEntry: fgaCompanyProcedure("can_view_reports")
+  getPayrollEntry: companyPermissionProcedure("can_view_reports")
     .input(z.object({ periodId: z.string().min(1, "Period is required") }))
     .query(({ ctx, input }) =>
       getPayrollEntry(ctx.db, ctx.session.user.id, input.periodId),
@@ -329,37 +304,22 @@ export const payrollRouter = createTRPCRouter({
 
   /**
    * Get a specific payslip.
-   * FGA: can_view on salary_slip:{slipId}
+   * RBAC: can_view on salary_slip:{slipId}
    */
   getPayslip: protectedProcedure
     .input(z.object({ id: z.string().min(1, "Payslip is required") }))
     .query(async ({ ctx, input }) => {
-      const allowed = await checkAccess(
-        ctx.session.user.id,
-        "can_view",
-        "salary_slip",
-        input.id,
-      );
-
-      if (!allowed) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "You do not have permission to view this payslip",
-        });
-      }
-
       return getPayslipForUser(
         ctx.db,
         ctx.session.user.id,
         input.id,
-        // FGA already verified access — pass true for admin-level view
-        true,
+        hasPermission(ctx.session.user.role, "can_view_all_payslips"),
       );
     }),
 
   /**
    * List the current user's own payslips.
-   * Self-service — no FGA check needed.
+   * Self-service — no RBAC check needed.
    */
   listMyPayslips: protectedProcedure.query(({ ctx }) =>
     listMyPayslips(ctx.db, ctx.session.user.id),
@@ -367,9 +327,9 @@ export const payrollRouter = createTRPCRouter({
 
   /**
    * Get salary statement for a specific employee and year.
-   * FGA: can_manage_payroll on company:{companyId}
+   * RBAC: can_manage_payroll on company:{companyId}
    */
-  getSalaryStatement: fgaCompanyProcedure("can_manage_payroll")
+  getSalaryStatement: companyPermissionProcedure("can_manage_payroll")
     .input(
       z.object({
         employeeId: z.string().min(1, "Employee is required"),
