@@ -15,6 +15,7 @@ declare module "next-auth" {
     user: {
       id: string;
       role: Role;
+      mustChangePassword: boolean;
     } & DefaultSession["user"];
   }
 }
@@ -65,6 +66,7 @@ export const authConfig = {
           email: user.email,
           name: user.name,
           role: user.role,
+          mustChangePassword: user.mustChangePassword,
         };
       },
     }),
@@ -75,12 +77,16 @@ export const authConfig = {
       if (user) {
         token.id = user.id;
         token.role = (user as { role: Role }).role;
+        token.mustChangePassword = (
+          user as { mustChangePassword: boolean }
+        ).mustChangePassword;
       }
       return token;
     },
     session({ session, token }) {
       session.user.id = token.id as string;
       session.user.role = token.role as Role;
+      session.user.mustChangePassword = token.mustChangePassword as boolean;
       return session;
     },
   },

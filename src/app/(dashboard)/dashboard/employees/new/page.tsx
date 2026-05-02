@@ -28,11 +28,17 @@ export default function NewEmployeePage() {
   const [createdCredentials, setCreatedCredentials] = useState<{
     loginId: string;
     temporaryPassword: string;
+    emailSent: boolean;
+    emailError?: string;
   } | null>(null);
 
   const createEmployee = api.employee.create.useMutation({
     onSuccess: (result) => {
-      setCreatedCredentials(result.credentials);
+      setCreatedCredentials({
+        ...result.credentials,
+        emailSent: result.email.sent,
+        emailError: result.email.error,
+      });
       setServerError("");
     },
     onError: (error) => setServerError(error.message),
@@ -109,6 +115,12 @@ export default function NewEmployeePage() {
             <span className="font-mono">
               {createdCredentials.temporaryPassword}
             </span>
+          </p>
+          <p className="mt-2">
+            Email:{" "}
+            {createdCredentials.emailSent
+              ? "Onboarding email sent"
+              : `Not sent${createdCredentials.emailError ? ` - ${createdCredentials.emailError}` : ""}`}
           </p>
         </div>
       )}
