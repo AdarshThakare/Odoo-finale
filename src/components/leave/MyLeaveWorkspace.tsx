@@ -215,9 +215,15 @@ export function MyLeaveWorkspace({
                         <button
                           type="button"
                           disabled={cancel.isPending}
-                          onClick={() =>
-                            cancel.mutate({ applicationId: application.id })
-                          }
+                          onClick={() => {
+                            if (
+                              window.confirm(
+                                "Cancel this leave application?",
+                              )
+                            ) {
+                              cancel.mutate({ applicationId: application.id });
+                            }
+                          }}
                           className="text-sm font-semibold text-red-600 hover:text-red-700 disabled:opacity-50"
                         >
                           Cancel
