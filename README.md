@@ -1,6 +1,6 @@
-# EmPay HRMS
+# EMPAY HRMS
 
-EmPay is a role-based Human Resource Management System built with Next.js, tRPC, Prisma, PostgreSQL, NextAuth, Tailwind CSS, and Recharts.
+EMPAY is a role-based Human Resource Management System built with Next.js, tRPC, Prisma, PostgreSQL, NextAuth, Tailwind CSS, and Recharts.
 
 ## Setup
 

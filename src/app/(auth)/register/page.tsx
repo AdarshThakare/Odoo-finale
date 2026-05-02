@@ -7,35 +7,58 @@ import { z } from "zod";
 
 import { api } from "~/trpc/react";
 
-const bootstrapSchema = z
-  .object({
-    companyName: z.string().min(2, "Company name is required"),
-    adminName: z.string().min(2, "Admin name is required"),
-    email: z.string().email("Invalid email address"),
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number"),
-    confirmPassword: z.string(),
-    companyLogoUrl: z.string().url("Invalid logo URL").optional(),
+const bootstrapFieldsSchema = z.object({
+  companyName: z.string().min(2, "Company name is required"),
+  adminName: z.string().min(2, "Admin name is required"),
+  email: z.string().email("Invalid email address"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number"),
+  confirmPassword: z.string(),
+  companyLogoUrl: z.string().url("Invalid logo URL").optional(),
+});
+
+const bootstrapSchema = bootstrapFieldsSchema.refine(
+  (data) => data.password === data.confirmPassword,
+  {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  },
+);
+
+const securityStepSchema = bootstrapFieldsSchema
+  .pick({
+    password: true,
+    confirmPassword: true,
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
 
-type FieldErrors = Partial<
-  Record<
-    | "companyName"
-    | "adminName"
-    | "email"
-    | "password"
-    | "confirmPassword"
-    | "companyLogoUrl",
-    string
-  >
->;
+const steps = [
+  {
+    title: "Company",
+    eyebrow: "Step 1",
+    description: "Add your organization details.",
+  },
+  {
+    title: "Admin",
+    eyebrow: "Step 2",
+    description: "Create the first administrator.",
+  },
+  {
+    title: "Security",
+    eyebrow: "Step 3",
+    description: "Set the password and confirm setup.",
+  },
+] as const;
+
+type FormValues = z.infer<typeof bootstrapFieldsSchema>;
+type FieldName = keyof FormValues;
+type FieldErrors = Partial<Record<FieldName, string>>;
 
 const MAX_LOGO_BYTES = 1024 * 1024;
 
@@ -49,11 +72,21 @@ function isLogoUploadResponse(value: unknown): value is LogoUploadResponse {
   );
 }
 
+const initialValues: FormValues = {
+  companyName: "",
+  adminName: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+  companyLogoUrl: undefined,
+};
+
 export default function RegisterPage() {
   const router = useRouter();
+  const [step, setStep] = useState(0);
+  const [values, setValues] = useState<FormValues>(initialValues);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState("");
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoUploading, setLogoUploading] = useState(false);
 
   const bootstrapAdmin = api.auth.bootstrapAdmin.useMutation({
@@ -64,10 +97,86 @@ export default function RegisterPage() {
     onError: (error) => setServerError(error.message),
   });
 
+  function setField(field: FieldName, value: string | undefined) {
+    setValues((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
+  }
+
+  function collectErrors(issues: z.ZodIssue[]) {
+    const nextErrors: FieldErrors = {};
+    issues.forEach((issue) => {
+      const field = issue.path[0] as FieldName | undefined;
+      if (field) nextErrors[field] = issue.message;
+    });
+    return nextErrors;
+  }
+
+  function validateStep(stepIndex: number) {
+    if (stepIndex === 0) {
+      if (logoUploading) {
+        setServerError("Please wait for the logo upload to finish");
+        return false;
+      }
+
+      const result = bootstrapFieldsSchema
+        .pick({ companyName: true, companyLogoUrl: true })
+        .safeParse({
+          companyName: values.companyName,
+          companyLogoUrl: values.companyLogoUrl,
+        });
+
+      if (!result.success) {
+        setErrors(collectErrors(result.error.issues));
+        return false;
+      }
+    }
+
+    if (stepIndex === 1) {
+      const result = bootstrapFieldsSchema
+        .pick({ adminName: true, email: true })
+        .safeParse({
+          adminName: values.adminName,
+          email: values.email,
+        });
+
+      if (!result.success) {
+        setErrors(collectErrors(result.error.issues));
+        return false;
+      }
+    }
+
+    if (stepIndex === 2) {
+      const result = securityStepSchema.safeParse({
+        password: values.password,
+        confirmPassword: values.confirmPassword,
+      });
+
+      if (!result.success) {
+        setErrors(collectErrors(result.error.issues));
+        return false;
+      }
+    }
+
+    setErrors({});
+    setServerError("");
+    return true;
+  }
+
+  function handleNext() {
+    if (!validateStep(step)) return;
+    setStep((current) => Math.min(current + 1, steps.length - 1));
+  }
+
+  function handleBack() {
+    setErrors({});
+    setServerError("");
+    setStep((current) => Math.max(current - 1, 0));
+  }
+
   async function handleLogoChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.currentTarget.files?.[0];
     if (!file) {
-      setLogoUrl(null);
+      setField("companyLogoUrl", undefined);
       return;
     }
 
@@ -76,15 +185,12 @@ export default function RegisterPage() {
         ...prev,
         companyLogoUrl: "Logo must be under 1MB",
       }));
-      setLogoUrl(null);
+      setField("companyLogoUrl", undefined);
       return;
     }
 
     setLogoUploading(true);
-    setErrors((prev) => ({
-      ...prev,
-      companyLogoUrl: undefined,
-    }));
+    setErrors((prev) => ({ ...prev, companyLogoUrl: undefined }));
 
     try {
       const formData = new FormData();
@@ -109,9 +215,9 @@ export default function RegisterPage() {
         throw new Error("Logo upload failed");
       }
 
-      setLogoUrl(payload.url);
+      setField("companyLogoUrl", payload.url);
     } catch (error) {
-      setLogoUrl(null);
+      setField("companyLogoUrl", undefined);
       setErrors((prev) => ({
         ...prev,
         companyLogoUrl:
@@ -131,23 +237,20 @@ export default function RegisterPage() {
       return;
     }
 
-    const formData = new FormData(event.currentTarget);
-    const result = bootstrapSchema.safeParse({
-      companyName: formData.get("companyName"),
-      adminName: formData.get("adminName"),
-      email: formData.get("email"),
-      password: formData.get("password"),
-      confirmPassword: formData.get("confirmPassword"),
-      companyLogoUrl: logoUrl ?? undefined,
-    });
+    const result = bootstrapSchema.safeParse(values);
 
     if (!result.success) {
-      const fieldErrors: FieldErrors = {};
-      result.error.issues.forEach((issue) => {
-        const field = issue.path[0] as keyof FieldErrors;
-        fieldErrors[field] = issue.message;
-      });
-      setErrors(fieldErrors);
+      setErrors(collectErrors(result.error.issues));
+      const firstInvalidStep = result.error.issues.some((issue) =>
+        ["companyName", "companyLogoUrl"].includes(String(issue.path[0])),
+      )
+        ? 0
+        : result.error.issues.some((issue) =>
+              ["adminName", "email"].includes(String(issue.path[0])),
+            )
+          ? 1
+          : 2;
+      setStep(firstInvalidStep);
       return;
     }
 
@@ -156,88 +259,94 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="rounded-xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
-      <h2 className="mb-2 text-xl font-semibold text-gray-900">
-        Set up your company
-      </h2>
-      <p className="mb-6 text-sm text-gray-600">
-        Create the first admin account for your organization.
-      </p>
+    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+      <div className="mb-7">
+        <p className="text-xs font-semibold tracking-[0.18em] text-purple-700 uppercase">
+          Company setup
+        </p>
+        <h1 className="mt-3 text-3xl font-bold tracking-normal text-gray-950">
+          Create your admin workspace
+        </h1>
+        <p className="mt-2 text-sm leading-6 text-gray-500">
+          A guided setup for your company profile, admin account, and secure
+          password.
+        </p>
+      </div>
+
+      <StepIndicator currentStep={step} />
 
       {serverError && (
-        <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mt-6 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
           {serverError}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Field
-          label="Company name"
-          id="companyName"
-          error={errors.companyName}
-        />
-        <div>
-          <label
-            htmlFor="companyLogo"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Company logo (optional)
-          </label>
-          <input
-            id="companyLogo"
-            name="companyLogo"
-            type="file"
-            accept="image/*"
-            onChange={handleLogoChange}
-            className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm shadow-sm transition outline-none focus:ring-2 focus:ring-purple-500 ${
-              errors.companyLogoUrl
-                ? "border-red-400 bg-red-50"
-                : "border-gray-300"
-            }`}
-          />
-          <p className="mt-1 text-xs text-gray-500">PNG or JPG, up to 1MB.</p>
-          {logoUploading && (
-            <p className="mt-1 text-xs text-gray-500">Uploading logo...</p>
+      <form onSubmit={handleSubmit} className="mt-7">
+        <div className="min-h-[330px]">
+          {step === 0 && (
+            <CompanyStep
+              values={values}
+              errors={errors}
+              logoUploading={logoUploading}
+              onFieldChange={setField}
+              onLogoChange={handleLogoChange}
+            />
           )}
-          {logoUrl && !logoUploading && (
-            <p className="mt-1 text-xs text-green-600">Logo uploaded.</p>
+
+          {step === 1 && (
+            <AdminStep
+              values={values}
+              errors={errors}
+              onFieldChange={setField}
+            />
           )}
-          {errors.companyLogoUrl && (
-            <p className="mt-1 text-xs text-red-600">{errors.companyLogoUrl}</p>
+
+          {step === 2 && (
+            <SecurityStep
+              values={values}
+              errors={errors}
+              onFieldChange={setField}
+            />
           )}
         </div>
-        <Field label="Admin name" id="adminName" error={errors.adminName} />
-        <Field
-          label="Work email"
-          id="email"
-          type="email"
-          error={errors.email}
-        />
-        <Field
-          label="Password"
-          id="password"
-          type="password"
-          error={errors.password}
-        />
-        <Field
-          label="Confirm password"
-          id="confirmPassword"
-          type="password"
-          error={errors.confirmPassword}
-        />
 
-        <button
-          type="submit"
-          disabled={bootstrapAdmin.isPending || logoUploading}
-          className="w-full rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800 disabled:opacity-60"
-        >
-          {bootstrapAdmin.isPending ? "Creating account..." : "Create admin"}
-        </button>
+        <div className="mt-7 flex items-center justify-between gap-3 border-t border-gray-100 pt-5">
+          <button
+            type="button"
+            onClick={handleBack}
+            disabled={step === 0 || bootstrapAdmin.isPending}
+            className="h-11 rounded-lg border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 focus:ring-4 focus:ring-purple-100 focus:outline-none disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Back
+          </button>
+
+          {step < steps.length - 1 ? (
+            <button
+              type="button"
+              onClick={handleNext}
+              disabled={logoUploading}
+              className="h-11 rounded-lg bg-purple-700 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-800 focus:ring-4 focus:ring-purple-100 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Continue
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={bootstrapAdmin.isPending || logoUploading}
+              className="h-11 rounded-lg bg-purple-700 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-800 focus:ring-4 focus:ring-purple-100 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {bootstrapAdmin.isPending ? "Creating..." : "Create workspace"}
+            </button>
+          )}
+        </div>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-500">
+      <p className="mt-7 text-center text-sm text-gray-500">
         Already have an account?{" "}
-        <Link href="/login" className="font-semibold text-purple-700">
+        <Link
+          href="/login"
+          className="font-semibold text-purple-700 hover:text-purple-800"
+        >
           Sign in
         </Link>
       </p>
@@ -245,27 +354,267 @@ export default function RegisterPage() {
   );
 }
 
+function StepIndicator({ currentStep }: { currentStep: number }) {
+  return (
+    <ol className="grid grid-cols-3 gap-3">
+      {steps.map((stepItem, index) => {
+        const isActive = index === currentStep;
+        const isComplete = index < currentStep;
+
+        return (
+          <li key={stepItem.title}>
+            <div
+              className={`min-h-36 rounded-2xl border p-5 transition ${
+                isActive
+                  ? "border-purple-200 bg-purple-50 shadow-[0_0_0_1px_rgba(168,85,247,0.08)]"
+                  : isComplete
+                    ? "border-purple-200 bg-white"
+                    : "border-gray-200 bg-gray-50/80"
+              }`}
+            >
+              <span
+                className={`flex h-14 w-14 items-center justify-center rounded-full text-xl font-bold ${
+                  isActive
+                    ? "bg-purple-700 text-white shadow-sm"
+                    : isComplete
+                      ? "bg-purple-600 text-white shadow-sm"
+                      : "bg-white text-gray-500 ring-2 ring-gray-200"
+                }`}
+              >
+                {isComplete ? "✓" : index + 1}
+              </span>
+              <span
+                className={`mt-5 block text-lg font-bold ${
+                  isActive || isComplete ? "text-gray-700" : "text-gray-500"
+                }`}
+              >
+                {stepItem.eyebrow}
+              </span>
+              <span className="mt-1 block text-2xl font-bold text-gray-950">
+                {stepItem.title}
+              </span>
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+function CompanyStep({
+  values,
+  errors,
+  logoUploading,
+  onFieldChange,
+  onLogoChange,
+}: {
+  values: FormValues;
+  errors: FieldErrors;
+  logoUploading: boolean;
+  onFieldChange: (field: FieldName, value: string | undefined) => void;
+  onLogoChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}) {
+  return (
+    <StepShell
+      eyebrow="Company profile"
+      title="Start with your organization"
+      description="This becomes the first company workspace in EMPAY."
+    >
+      <Field
+        label="Company name"
+        id="companyName"
+        value={values.companyName}
+        error={errors.companyName}
+        placeholder="Odoo India"
+        onChange={(value) => onFieldChange("companyName", value)}
+      />
+
+      <div>
+        <label
+          htmlFor="companyLogo"
+          className="block text-sm font-semibold text-gray-800"
+        >
+          Company logo
+        </label>
+        <input
+          id="companyLogo"
+          name="companyLogo"
+          type="file"
+          accept="image/*"
+          onChange={onLogoChange}
+          className={`mt-2 block w-full rounded-lg border bg-white px-3 py-2 text-sm text-gray-700 shadow-sm transition file:mr-3 file:rounded-md file:border-0 file:bg-purple-50 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-purple-700 outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-100 ${
+            errors.companyLogoUrl
+              ? "border-red-400 bg-red-50"
+              : "border-gray-300"
+          }`}
+        />
+        <p className="mt-1 text-xs text-gray-500">Optional. PNG or JPG, up to 1MB.</p>
+        {logoUploading && (
+          <p className="mt-1 text-xs text-gray-500">Uploading logo...</p>
+        )}
+        {values.companyLogoUrl && !logoUploading && (
+          <p className="mt-1 text-xs text-emerald-600">Logo uploaded.</p>
+        )}
+        {errors.companyLogoUrl && (
+          <p className="mt-1 text-xs text-red-600">{errors.companyLogoUrl}</p>
+        )}
+      </div>
+    </StepShell>
+  );
+}
+
+function AdminStep({
+  values,
+  errors,
+  onFieldChange,
+}: {
+  values: FormValues;
+  errors: FieldErrors;
+  onFieldChange: (field: FieldName, value: string | undefined) => void;
+}) {
+  return (
+    <StepShell
+      eyebrow="Admin access"
+      title="Create the first admin"
+      description="This account can manage employees, settings, roles, and setup."
+    >
+      <Field
+        label="Admin name"
+        id="adminName"
+        value={values.adminName}
+        error={errors.adminName}
+        placeholder="Sahil Kale"
+        onChange={(value) => onFieldChange("adminName", value)}
+      />
+      <Field
+        label="Work email"
+        id="email"
+        type="email"
+        value={values.email}
+        error={errors.email}
+        placeholder="admin@company.com"
+        onChange={(value) => onFieldChange("email", value)}
+      />
+    </StepShell>
+  );
+}
+
+function SecurityStep({
+  values,
+  errors,
+  onFieldChange,
+}: {
+  values: FormValues;
+  errors: FieldErrors;
+  onFieldChange: (field: FieldName, value: string | undefined) => void;
+}) {
+  return (
+    <StepShell
+      eyebrow="Security"
+      title="Protect the workspace"
+      description="Use a strong password for the primary admin account."
+    >
+      <Field
+        label="Password"
+        id="password"
+        type="password"
+        value={values.password}
+        error={errors.password}
+        placeholder="Minimum 8 characters"
+        onChange={(value) => onFieldChange("password", value)}
+      />
+      <Field
+        label="Confirm password"
+        id="confirmPassword"
+        type="password"
+        value={values.confirmPassword}
+        error={errors.confirmPassword}
+        placeholder="Re-enter password"
+        onChange={(value) => onFieldChange("confirmPassword", value)}
+      />
+
+      <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+        <p className="text-xs font-semibold tracking-[0.16em] text-gray-500 uppercase">
+          Review
+        </p>
+        <dl className="mt-3 space-y-2 text-sm">
+          <div className="flex justify-between gap-4">
+            <dt className="text-gray-500">Company</dt>
+            <dd className="truncate font-semibold text-gray-900">
+              {values.companyName || "-"}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-gray-500">Admin</dt>
+            <dd className="truncate font-semibold text-gray-900">
+              {values.adminName || "-"}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-gray-500">Email</dt>
+            <dd className="truncate font-semibold text-gray-900">
+              {values.email || "-"}
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </StepShell>
+  );
+}
+
+function StepShell({
+  eyebrow,
+  title,
+  description,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section>
+      <p className="text-xs font-semibold tracking-[0.18em] text-purple-700 uppercase">
+        {eyebrow}
+      </p>
+      <h2 className="mt-2 text-xl font-bold text-gray-950">{title}</h2>
+      <p className="mt-1 text-sm leading-6 text-gray-500">{description}</p>
+      <div className="mt-6 space-y-5">{children}</div>
+    </section>
+  );
+}
+
 function Field({
   id,
   label,
   type = "text",
+  value,
+  placeholder,
   error,
+  onChange,
 }: {
-  id: string;
+  id: FieldName;
   label: string;
   type?: string;
+  value: string | undefined;
+  placeholder?: string;
   error?: string;
+  onChange: (value: string) => void;
 }) {
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700">
+      <label htmlFor={id} className="block text-sm font-semibold text-gray-800">
         {label}
       </label>
       <input
         id={id}
         name={id}
         type={type}
-        className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm shadow-sm transition outline-none focus:ring-2 focus:ring-purple-500 ${
+        value={value ?? ""}
+        placeholder={placeholder}
+        onChange={(event) => onChange(event.target.value)}
+        className={`mt-2 block h-11 w-full rounded-lg border bg-white px-3 text-sm text-gray-900 shadow-sm transition outline-none placeholder:text-gray-400 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 ${
           error ? "border-red-400 bg-red-50" : "border-gray-300"
         }`}
       />

@@ -189,7 +189,7 @@ export function ProfileWorkspace() {
     <div className="space-y-6">
       <ProfileHeader
         profile={profile}
-        displayName={displayName ?? "EmPay User"}
+        displayName={displayName ?? "EMPAY User"}
         initials={initials}
         avatarUrl={form.avatarUrl}
         uploading={avatarUploading}
