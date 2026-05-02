@@ -6,7 +6,7 @@ import { SalaryStatementReport } from "~/components/payroll/SalaryStatementRepor
 export default async function ReportsPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
-  if (session.user.mustChangePassword) redirect("/dashboard/security/change-password");
+  if (session.user.mustChangePassword) redirect("/change-password");
 
   const allowed = ["ADMIN", "PAYROLL_OFFICER"] as string[];
   if (!allowed.includes(session.user.role)) redirect("/dashboard");

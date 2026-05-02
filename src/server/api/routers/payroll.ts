@@ -166,13 +166,24 @@ export const payrollRouter = createTRPCRouter({
       const companyId = await getCompanyId(ctx);
       const employee = await ctx.db.employee.findFirst({
         where: { id: input.employeeId, companyId },
-        select: { id: true },
+        select: { id: true, user: { select: { role: true } } },
       });
 
       if (!employee) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Employee not found",
+        });
+      }
+
+      // Only ADMIN can set salary for HR or Payroll Officers
+      const isElevatedRole =
+        employee.user.role === "HR_OFFICER" ||
+        employee.user.role === "PAYROLL_OFFICER";
+      if (isElevatedRole && ctx.session.user.role !== "ADMIN") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Only admins can modify salary for HR or Payroll Officers",
         });
       }
 
@@ -213,13 +224,24 @@ export const payrollRouter = createTRPCRouter({
       const companyId = await getCompanyId(ctx);
       const employee = await ctx.db.employee.findFirst({
         where: { id: input.employeeId, companyId },
-        select: { id: true },
+        select: { id: true, user: { select: { role: true } } },
       });
 
       if (!employee) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Employee not found",
+        });
+      }
+
+      // Only ADMIN can assign components for HR or Payroll Officers
+      const isElevatedRole =
+        employee.user.role === "HR_OFFICER" ||
+        employee.user.role === "PAYROLL_OFFICER";
+      if (isElevatedRole && ctx.session.user.role !== "ADMIN") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Only admins can modify salary for HR or Payroll Officers",
         });
       }
 

@@ -57,7 +57,7 @@ export default async function AttendancePage({
   }
 
   if (session.user.mustChangePassword) {
-    redirect("/dashboard/security/change-password");
+    redirect("/change-password");
   }
 
   if (session.user.role === "EMPLOYEE") {

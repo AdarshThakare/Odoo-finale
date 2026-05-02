@@ -8,7 +8,7 @@ export default async function PayrollPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
   if (session.user.mustChangePassword) {
-    redirect("/dashboard/security/change-password");
+    redirect("/change-password");
   }
 
   const canRunPayroll = ["ADMIN", "PAYROLL_OFFICER"].includes(

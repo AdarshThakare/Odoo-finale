@@ -8,7 +8,7 @@ export default async function LeavePage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
   if (session.user.mustChangePassword) {
-    redirect("/dashboard/security/change-password");
+    redirect("/change-password");
   }
 
   const canManage = ["ADMIN", "HR_OFFICER"].includes(session.user.role);

@@ -20,6 +20,15 @@ import {
 import { type Role } from "../../../generated/prisma";
 import { BrandLogo } from "~/components/BrandLogo";
 
+// Use the absolute app URL so sign-out works correctly on production too.
+// Falls back to /login (relative) which works for local dev.
+const SIGNOUT_CALLBACK =
+  typeof window !== "undefined" &&
+  window.location.hostname !== "localhost" &&
+  window.location.hostname !== "127.0.0.1"
+    ? `${window.location.origin}/login`
+    : "/login";
+
 interface NavItem {
   label: string;
   href: string;

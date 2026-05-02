@@ -46,8 +46,11 @@ export default function EmployeeProfilePage() {
   });
 
   const [profileError, setProfileError] = useState("");
+  const [profileSuccess, setProfileSuccess] = useState("");
   const [salaryError, setSalaryError] = useState("");
+  const [salarySuccess, setSalarySuccess] = useState("");
   const [componentError, setComponentError] = useState("");
+  const [componentSuccess, setComponentSuccess] = useState("");
 
   useEffect(() => {
     if (!employee) return;
@@ -76,6 +79,8 @@ export default function EmployeeProfilePage() {
     onSuccess: async () => {
       await utils.employee.getById.invalidate({ id: employeeId });
       setProfileError("");
+      setProfileSuccess("Profile saved successfully!");
+      setTimeout(() => setProfileSuccess(""), 3000);
     },
     onError: (error) => setProfileError(error.message),
   });
@@ -84,6 +89,8 @@ export default function EmployeeProfilePage() {
     onSuccess: async () => {
       await utils.employee.getById.invalidate({ id: employeeId });
       setSalaryError("");
+      setSalarySuccess("Salary saved successfully!");
+      setTimeout(() => setSalarySuccess(""), 3000);
     },
     onError: (error) => setSalaryError(error.message),
   });
@@ -92,11 +99,9 @@ export default function EmployeeProfilePage() {
     onSuccess: async () => {
       await utils.employee.getById.invalidate({ id: employeeId });
       setComponentError("");
-      setComponentForm({
-        salaryComponentId: "",
-        amount: "",
-        effectiveFrom: "",
-      });
+      setComponentSuccess("Component assigned!");
+      setTimeout(() => setComponentSuccess(""), 3000);
+      setComponentForm({ salaryComponentId: "", amount: "", effectiveFrom: "" });
     },
     onError: (error) => setComponentError(error.message),
   });
@@ -192,6 +197,11 @@ export default function EmployeeProfilePage() {
             {profileError}
           </div>
         )}
+        {profileSuccess && (
+          <div className="mt-4 rounded-lg bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+            ✓ {profileSuccess}
+          </div>
+        )}
 
         <form
           onSubmit={handleProfileSubmit}
@@ -283,6 +293,11 @@ export default function EmployeeProfilePage() {
             {salaryError}
           </div>
         )}
+        {salarySuccess && (
+          <div className="mt-4 rounded-lg bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+            ✓ {salarySuccess}
+          </div>
+        )}
 
         <form
           onSubmit={handleSalarySubmit}
@@ -336,6 +351,11 @@ export default function EmployeeProfilePage() {
         {componentError && (
           <div className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
             {componentError}
+          </div>
+        )}
+        {componentSuccess && (
+          <div className="mt-4 rounded-lg bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+            ✓ {componentSuccess}
           </div>
         )}
 
