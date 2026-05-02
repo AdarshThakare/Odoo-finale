@@ -1,30 +1,105 @@
-# Create T3 App
+# EmPay HRMS
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+EmPay is a role-based Human Resource Management System built with Next.js, tRPC, Prisma, PostgreSQL, NextAuth, Tailwind CSS, and Recharts.
 
-## What's next? How do I make an app with this?
+## Setup
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+1. Install dependencies:
 
+```bash
+npm install
+```
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+2. Configure `.env.local`:
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+```bash
+AUTH_SECRET="..."
+DATABASE_URL="postgresql://..."
+NODE_ENV="development"
+```
 
-## Learn More
+Optional integrations:
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+```bash
+RESEND_API_KEY="..."
+EMAIL_FROM="..."
+CLOUDINARY_NAME="..."
+CLOUDINARY_API_KEY="..."
+CLOUDINARY_API_SECRET="..."
+```
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+3. Push the Prisma schema:
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+```bash
+npm run db:push
+```
 
-## How do I deploy this?
+4. Seed demo data:
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+```bash
+npm run db:seed
+```
+
+5. Start development:
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:3000`.
+
+## Demo Credentials
+
+Admin:
+
+```text
+admin@empay.com
+Admin@123
+```
+
+Demo users created by the seed:
+
+```text
+hr.demo@empay.com
+payroll.demo@empay.com
+employee.demo1@empay.com
+employee.demo2@empay.com
+employee.demo3@empay.com
+```
+
+Password for demo users:
+
+```text
+Employee@123
+```
+
+## Demo Data
+
+The seed script adds:
+
+- 3 departments
+- 5 demo employees
+- salary structures and salary components
+- leave types and 2026 leave allocations
+- April and May 2026 attendance records
+- April 2026 completed payroll
+- May 2026 draft payroll period
+
+## Main Flows
+
+- Admin signup: `/register`
+- Login: `/login`
+- Dashboard: `/dashboard`
+- Employees: `/dashboard/employees`
+- Attendance: `/dashboard/attendance`
+- Leave: `/dashboard/leave`
+- Payroll: `/dashboard/payroll`
+- Settings: `/dashboard/settings`
+
+## Checks
+
+```bash
+npm run lint
+npm run typecheck
+npm run build
+```

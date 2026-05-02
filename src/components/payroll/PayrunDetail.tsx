@@ -56,7 +56,15 @@ export function PayrunDetail({ period }: { period: Period }) {
           <button
             type="button"
             disabled={runPayroll.isPending}
-            onClick={() => runPayroll.mutate({ periodId: period.id })}
+            onClick={() => {
+              if (
+                window.confirm(
+                  "Run payroll for this period? This will generate payslips.",
+                )
+              ) {
+                runPayroll.mutate({ periodId: period.id });
+              }
+            }}
             className="rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800 disabled:opacity-60"
           >
             {runPayroll.isPending ? "Running..." : "Run payroll"}

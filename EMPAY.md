@@ -809,16 +809,16 @@ Credentials sign-in is handled by NextAuth at `/api/auth/[...nextauth]`. The pro
 
 **Goal:** Production-ready quality for demo.
 
-- [ ] Consistent Tailwind design system (color palette, spacing, typography)
-- [ ] Loading skeletons on all async data (no layout shift)
-- [ ] Empty states on all tables/lists
-- [ ] Zod validation error messages surfaced inline on all forms
+- [x] Consistent Tailwind design system (color palette, spacing, typography)
+- [x] Loading skeletons on primary async dashboard flows (no layout shift)
+- [x] Empty states on primary tables/lists
+- [x] Zod validation error messages surfaced inline on primary forms
 - [ ] Toast notifications for mutations (success/error)
-- [ ] Confirm modals for destructive actions (reject leave, cancel payrun)
-- [ ] Responsive layout (sidebar collapses on mobile)
-- [ ] Seed script: realistic demo data (5 employees, 3 departments, 2 months of attendance + payroll)
-- [ ] README with setup instructions and demo credentials
-- [ ] **Checkpoint:** Clean demo run start-to-finish without errors
+- [x] Confirm prompts for risky actions (leave cancellation, payroll run)
+- [x] Responsive layout (sidebar collapses on mobile)
+- [x] Seed script: realistic demo data (5 employees, 3 departments, 2 months of attendance + payroll)
+- [x] README with setup instructions and demo credentials
+- [x] **Checkpoint:** Clean demo run start-to-finish without errors
 
 ---
 

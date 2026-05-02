@@ -4,6 +4,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
 
 import { Prisma, PrismaClient } from "../generated/prisma";
+import { runPayroll } from "../src/server/modules/payroll/payroll.service";
 
 config({ path: ".env.local", override: true });
 
@@ -130,9 +131,9 @@ async function upsertDemoEmployee(input: {
   return employee;
 }
 
-async function seedAttendance(employeeId: string) {
-  const start = utcDate("2026-05-01");
-  const end = utcDate("2026-05-31");
+async function seedAttendance(employeeId: string, startKey: string, endKey: string) {
+  const start = utcDate(startKey);
+  const end = utcDate(endKey);
   const cursor = new Date(start);
 
   while (cursor <= end) {
@@ -370,6 +371,22 @@ async function main() {
       basicSalary: 52000,
       hra: 20800,
     }),
+    upsertDemoEmployee({
+      companyId: admin.company.id,
+      companyCode: admin.company.code,
+      email: "employee.demo3@empay.com",
+      firstName: "Kabir",
+      lastName: "Singh",
+      role: "EMPLOYEE",
+      employeeCode: "DEMO-ENG-003",
+      serial: "0105",
+      phone: "9876501005",
+      gender: "MALE",
+      departmentId: engineering.id,
+      designationId: softwareEngineer.id,
+      basicSalary: 58000,
+      hra: 23200,
+    }),
   ]);
 
   const internetAllowance = await prisma.salaryComponent.upsert({
@@ -384,7 +401,8 @@ async function main() {
   });
 
   for (const employee of demoEmployees) {
-    await seedAttendance(employee.id);
+    await seedAttendance(employee.id, "2026-04-01", "2026-04-30");
+    await seedAttendance(employee.id, "2026-05-01", "2026-05-31");
     await seedLeaveAllocation(employee.id, casualLeave.id);
 
     await prisma.employeeSalaryComponent.upsert({
@@ -430,6 +448,17 @@ async function main() {
     });
   }
 
+  const aprilPeriod = await prisma.payrollPeriod.upsert({
+    where: { name: "April 2026 Demo" },
+    update: {},
+    create: {
+      name: "April 2026 Demo",
+      startDate: utcDate("2026-04-01"),
+      endDate: utcDate("2026-04-30"),
+      createdById: admin.id,
+    },
+  });
+
   await prisma.payrollPeriod.upsert({
     where: { name: "May 2026 Demo" },
     update: {},
@@ -440,6 +469,15 @@ async function main() {
       createdById: admin.id,
     },
   });
+
+  if (
+    !(await prisma.payrollEntry.findFirst({
+      where: { payrollPeriodId: aprilPeriod.id },
+      select: { id: true },
+    }))
+  ) {
+    await runPayroll(prisma, admin.id, aprilPeriod.id);
+  }
 
   console.log("Seed complete");
   console.log("Demo company:", admin.company.name);
