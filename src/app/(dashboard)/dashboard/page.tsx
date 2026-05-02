@@ -12,7 +12,7 @@ export default async function DashboardPage() {
   }
 
   if (session?.user.mustChangePassword) {
-    redirect("/dashboard/security/change-password");
+    redirect("/change-password");
   }
 
   const canSeeHr = ["ADMIN", "HR_OFFICER"].includes(session.user.role);

@@ -34,15 +34,27 @@ export function ChangePasswordForm() {
 
   const changePassword = api.auth.changePassword.useMutation({
     onSuccess: async (result, variables) => {
-      setSuccess("Password updated! Redirecting...");
+      setSuccess("Password updated! Signing you in...");
       setServerError("");
 
-      await signIn("credentials", {
+      // Re-sign in with the new password so the session token is refreshed
+      // and mustChangePassword is cleared.
+      const signInResult = await signIn("credentials", {
         identifier: result.identifier,
         password: variables.newPassword,
         redirect: false,
       });
 
+      if (signInResult?.error) {
+        setSuccess("");
+        setServerError("Password updated but auto sign-in failed. Please log in manually.");
+        router.push("/login");
+        return;
+      }
+
+      setSuccess("Done! Redirecting to dashboard...");
+      // Brief pause so the new session cookie is fully written before navigation
+      await new Promise((resolve) => setTimeout(resolve, 500));
       router.push("/dashboard");
       router.refresh();
     },

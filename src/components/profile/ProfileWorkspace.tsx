@@ -615,7 +615,7 @@ function SecurityTab() {
         page.
       </p>
       <Link
-        href="/dashboard/security/change-password"
+        href="/change-password"
         className="mt-5 inline-flex rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800"
       >
         Change Password

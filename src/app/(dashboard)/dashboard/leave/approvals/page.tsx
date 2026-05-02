@@ -8,7 +8,7 @@ export default async function LeaveApprovalsPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
   if (session.user.mustChangePassword) {
-    redirect("/dashboard/security/change-password");
+    redirect("/change-password");
   }
 
   if (!["ADMIN", "PAYROLL_OFFICER"].includes(session.user.role)) {
