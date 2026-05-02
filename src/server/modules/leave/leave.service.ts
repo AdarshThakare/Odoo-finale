@@ -193,6 +193,9 @@ export async function applyForLeave(
 
   const from = startOfUtcDay(new Date(`${input.fromDate}T00:00:00Z`));
   const to = startOfUtcDay(new Date(`${input.toDate}T00:00:00Z`));
+  const halfDay = input.halfDayDate
+    ? startOfUtcDay(new Date(`${input.halfDayDate}T00:00:00Z`))
+    : undefined;
   const year = from.getUTCFullYear();
 
   const leaveType = await db.leaveType.findUnique({
@@ -209,7 +212,7 @@ export async function applyForLeave(
     });
   }
 
-  const totalDays = calculateLeaveDays(from, to, input.isHalfDay);
+  const totalDays = calculateLeaveDays(from, to, input.isHalfDay, halfDay);
   if (totalDays === 0) {
     throw new TRPCError({
       code: "BAD_REQUEST",
@@ -238,9 +241,7 @@ export async function applyForLeave(
     toDate: to,
     totalDays: new Prisma.Decimal(totalDays),
     isHalfDay: input.isHalfDay,
-    halfDayDate: input.halfDayDate
-      ? startOfUtcDay(new Date(`${input.halfDayDate}T00:00:00Z`))
-      : undefined,
+    halfDayDate: halfDay,
     reason: input.reason,
   });
 }
