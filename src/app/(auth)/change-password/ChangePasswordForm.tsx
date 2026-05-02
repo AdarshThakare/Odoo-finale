@@ -26,7 +26,22 @@ type FieldErrors = Partial<
   Record<"currentPassword" | "newPassword" | "confirmPassword", string>
 >;
 
-export function ChangePasswordForm() {
+type ChangePasswordFormProps = {
+  title?: string;
+  description?: string;
+  submitLabel?: string;
+  currentPasswordLabel?: string;
+  successRedirect?: string;
+};
+
+export function ChangePasswordForm({
+  title = "Set your password",
+  description =
+    "Your account requires a new password before you can continue.",
+  submitLabel = "Set new password",
+  currentPasswordLabel = "Current (temporary) password",
+  successRedirect = "/dashboard",
+}: ChangePasswordFormProps) {
   const router = useRouter();
   const [errors, setErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState("");
@@ -52,10 +67,10 @@ export function ChangePasswordForm() {
         return;
       }
 
-      setSuccess("Done! Redirecting to dashboard...");
+      setSuccess("Done! Redirecting...");
       // Brief pause so the new session cookie is fully written before navigation
       await new Promise((resolve) => setTimeout(resolve, 500));
-      router.push("/dashboard");
+      router.push(successRedirect);
       router.refresh();
     },
     onError: (error) => setServerError(error.message),
@@ -89,10 +104,8 @@ export function ChangePasswordForm() {
 
   return (
     <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
-      <h1 className="text-xl font-bold text-gray-900">Set your password</h1>
-      <p className="mt-1 text-sm text-gray-500">
-        Your account requires a new password before you can continue.
-      </p>
+      <h1 className="text-xl font-bold text-gray-900">{title}</h1>
+      <p className="mt-1 text-sm text-gray-500">{description}</p>
 
       {serverError && (
         <div className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -109,7 +122,7 @@ export function ChangePasswordForm() {
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <PasswordField
           id="currentPassword"
-          label="Current (temporary) password"
+          label={currentPasswordLabel}
           error={errors.currentPassword}
           autoComplete="current-password"
         />
@@ -131,7 +144,7 @@ export function ChangePasswordForm() {
           disabled={changePassword.isPending}
           className="w-full rounded-lg bg-purple-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-purple-800 disabled:opacity-60"
         >
-          {changePassword.isPending ? "Updating..." : "Set new password"}
+          {changePassword.isPending ? "Updating..." : submitLabel}
         </button>
       </form>
     </div>
