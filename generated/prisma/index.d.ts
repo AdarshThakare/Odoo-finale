@@ -2533,6 +2533,37 @@ export namespace Prisma {
 
 
   /**
+   * Count Type UserCountOutputType
+   */
+
+  export type UserCountOutputType = {
+    approvedLeaves: number
+  }
+
+  export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    approvedLeaves?: boolean | UserCountOutputTypeCountApprovedLeavesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserCountOutputType
+     */
+    select?: UserCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountApprovedLeavesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LeaveApplicationWhereInput
+  }
+
+
+  /**
    * Count Type CompanyCountOutputType
    */
 
@@ -3174,6 +3205,8 @@ export namespace Prisma {
     updatedAt?: boolean
     company?: boolean | User$companyArgs<ExtArgs>
     employee?: boolean | User$employeeArgs<ExtArgs>
+    approvedLeaves?: boolean | User$approvedLeavesArgs<ExtArgs>
+    _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3233,6 +3266,8 @@ export namespace Prisma {
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | User$companyArgs<ExtArgs>
     employee?: boolean | User$employeeArgs<ExtArgs>
+    approvedLeaves?: boolean | User$approvedLeavesArgs<ExtArgs>
+    _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | User$companyArgs<ExtArgs>
@@ -3246,6 +3281,7 @@ export namespace Prisma {
     objects: {
       company: Prisma.$CompanyPayload<ExtArgs> | null
       employee: Prisma.$EmployeePayload<ExtArgs> | null
+      approvedLeaves: Prisma.$LeaveApplicationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3658,6 +3694,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     company<T extends User$companyArgs<ExtArgs> = {}>(args?: Subset<T, User$companyArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     employee<T extends User$employeeArgs<ExtArgs> = {}>(args?: Subset<T, User$employeeArgs<ExtArgs>>): Prisma__EmployeeClient<$Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    approvedLeaves<T extends User$approvedLeavesArgs<ExtArgs> = {}>(args?: Subset<T, User$approvedLeavesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LeaveApplicationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4137,6 +4174,30 @@ export namespace Prisma {
      */
     include?: EmployeeInclude<ExtArgs> | null
     where?: EmployeeWhereInput
+  }
+
+  /**
+   * User.approvedLeaves
+   */
+  export type User$approvedLeavesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LeaveApplication
+     */
+    select?: LeaveApplicationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LeaveApplication
+     */
+    omit?: LeaveApplicationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaveApplicationInclude<ExtArgs> | null
+    where?: LeaveApplicationWhereInput
+    orderBy?: LeaveApplicationOrderByWithRelationInput | LeaveApplicationOrderByWithRelationInput[]
+    cursor?: LeaveApplicationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LeaveApplicationScalarFieldEnum | LeaveApplicationScalarFieldEnum[]
   }
 
   /**
@@ -12955,6 +13016,7 @@ export namespace Prisma {
     updatedAt?: boolean
     employee?: boolean | EmployeeDefaultArgs<ExtArgs>
     leaveType?: boolean | LeaveTypeDefaultArgs<ExtArgs>
+    approvedBy?: boolean | LeaveApplication$approvedByArgs<ExtArgs>
     ledgerEntries?: boolean | LeaveApplication$ledgerEntriesArgs<ExtArgs>
     _count?: boolean | LeaveApplicationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["leaveApplication"]>
@@ -12977,6 +13039,7 @@ export namespace Prisma {
     updatedAt?: boolean
     employee?: boolean | EmployeeDefaultArgs<ExtArgs>
     leaveType?: boolean | LeaveTypeDefaultArgs<ExtArgs>
+    approvedBy?: boolean | LeaveApplication$approvedByArgs<ExtArgs>
   }, ExtArgs["result"]["leaveApplication"]>
 
   export type LeaveApplicationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -12997,6 +13060,7 @@ export namespace Prisma {
     updatedAt?: boolean
     employee?: boolean | EmployeeDefaultArgs<ExtArgs>
     leaveType?: boolean | LeaveTypeDefaultArgs<ExtArgs>
+    approvedBy?: boolean | LeaveApplication$approvedByArgs<ExtArgs>
   }, ExtArgs["result"]["leaveApplication"]>
 
   export type LeaveApplicationSelectScalar = {
@@ -13021,16 +13085,19 @@ export namespace Prisma {
   export type LeaveApplicationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     employee?: boolean | EmployeeDefaultArgs<ExtArgs>
     leaveType?: boolean | LeaveTypeDefaultArgs<ExtArgs>
+    approvedBy?: boolean | LeaveApplication$approvedByArgs<ExtArgs>
     ledgerEntries?: boolean | LeaveApplication$ledgerEntriesArgs<ExtArgs>
     _count?: boolean | LeaveApplicationCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type LeaveApplicationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     employee?: boolean | EmployeeDefaultArgs<ExtArgs>
     leaveType?: boolean | LeaveTypeDefaultArgs<ExtArgs>
+    approvedBy?: boolean | LeaveApplication$approvedByArgs<ExtArgs>
   }
   export type LeaveApplicationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     employee?: boolean | EmployeeDefaultArgs<ExtArgs>
     leaveType?: boolean | LeaveTypeDefaultArgs<ExtArgs>
+    approvedBy?: boolean | LeaveApplication$approvedByArgs<ExtArgs>
   }
 
   export type $LeaveApplicationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -13038,6 +13105,7 @@ export namespace Prisma {
     objects: {
       employee: Prisma.$EmployeePayload<ExtArgs>
       leaveType: Prisma.$LeaveTypePayload<ExtArgs>
+      approvedBy: Prisma.$UserPayload<ExtArgs> | null
       ledgerEntries: Prisma.$LeaveLedgerEntryPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -13452,6 +13520,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     employee<T extends EmployeeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, EmployeeDefaultArgs<ExtArgs>>): Prisma__EmployeeClient<$Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     leaveType<T extends LeaveTypeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LeaveTypeDefaultArgs<ExtArgs>>): Prisma__LeaveTypeClient<$Result.GetResult<Prisma.$LeaveTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    approvedBy<T extends LeaveApplication$approvedByArgs<ExtArgs> = {}>(args?: Subset<T, LeaveApplication$approvedByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     ledgerEntries<T extends LeaveApplication$ledgerEntriesArgs<ExtArgs> = {}>(args?: Subset<T, LeaveApplication$ledgerEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LeaveLedgerEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -13895,6 +13964,25 @@ export namespace Prisma {
      * Limit how many LeaveApplications to delete.
      */
     limit?: number
+  }
+
+  /**
+   * LeaveApplication.approvedBy
+   */
+  export type LeaveApplication$approvedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
   }
 
   /**
@@ -24854,6 +24942,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"User"> | Date | string
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
     employee?: XOR<EmployeeNullableScalarRelationFilter, EmployeeWhereInput> | null
+    approvedLeaves?: LeaveApplicationListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -24873,6 +24962,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     company?: CompanyOrderByWithRelationInput
     employee?: EmployeeOrderByWithRelationInput
+    approvedLeaves?: LeaveApplicationOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -24895,6 +24985,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"User"> | Date | string
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
     employee?: XOR<EmployeeNullableScalarRelationFilter, EmployeeWhereInput> | null
+    approvedLeaves?: LeaveApplicationListRelationFilter
   }, "id" | "email" | "loginId">
 
   export type UserOrderByWithAggregationInput = {
@@ -25600,6 +25691,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"LeaveApplication"> | Date | string
     employee?: XOR<EmployeeScalarRelationFilter, EmployeeWhereInput>
     leaveType?: XOR<LeaveTypeScalarRelationFilter, LeaveTypeWhereInput>
+    approvedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     ledgerEntries?: LeaveLedgerEntryListRelationFilter
   }
 
@@ -25621,6 +25713,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     employee?: EmployeeOrderByWithRelationInput
     leaveType?: LeaveTypeOrderByWithRelationInput
+    approvedBy?: UserOrderByWithRelationInput
     ledgerEntries?: LeaveLedgerEntryOrderByRelationAggregateInput
   }
 
@@ -25645,6 +25738,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"LeaveApplication"> | Date | string
     employee?: XOR<EmployeeScalarRelationFilter, EmployeeWhereInput>
     leaveType?: XOR<LeaveTypeScalarRelationFilter, LeaveTypeWhereInput>
+    approvedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     ledgerEntries?: LeaveLedgerEntryListRelationFilter
   }, "id">
 
@@ -26387,6 +26481,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     company?: CompanyCreateNestedOneWithoutUsersInput
     employee?: EmployeeCreateNestedOneWithoutUserInput
+    approvedLeaves?: LeaveApplicationCreateNestedManyWithoutApprovedByInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -26405,6 +26500,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     employee?: EmployeeUncheckedCreateNestedOneWithoutUserInput
+    approvedLeaves?: LeaveApplicationUncheckedCreateNestedManyWithoutApprovedByInput
   }
 
   export type UserUpdateInput = {
@@ -26423,6 +26519,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneWithoutUsersNestedInput
     employee?: EmployeeUpdateOneWithoutUserNestedInput
+    approvedLeaves?: LeaveApplicationUpdateManyWithoutApprovedByNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -26441,6 +26538,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     employee?: EmployeeUncheckedUpdateOneWithoutUserNestedInput
+    approvedLeaves?: LeaveApplicationUncheckedUpdateManyWithoutApprovedByNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -27218,13 +27316,13 @@ export namespace Prisma {
     halfDayDate?: Date | string | null
     reason: string
     status?: $Enums.LeaveStatus
-    approvedById?: string | null
     approvedAt?: Date | string | null
     rejectionReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     employee: EmployeeCreateNestedOneWithoutLeaveApplicationsInput
     leaveType: LeaveTypeCreateNestedOneWithoutApplicationsInput
+    approvedBy?: UserCreateNestedOneWithoutApprovedLeavesInput
     ledgerEntries?: LeaveLedgerEntryCreateNestedManyWithoutLeaveApplicationInput
   }
 
@@ -27256,13 +27354,13 @@ export namespace Prisma {
     halfDayDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reason?: StringFieldUpdateOperationsInput | string
     status?: EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
-    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
     approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     employee?: EmployeeUpdateOneRequiredWithoutLeaveApplicationsNestedInput
     leaveType?: LeaveTypeUpdateOneRequiredWithoutApplicationsNestedInput
+    approvedBy?: UserUpdateOneWithoutApprovedLeavesNestedInput
     ledgerEntries?: LeaveLedgerEntryUpdateManyWithoutLeaveApplicationNestedInput
   }
 
@@ -27312,7 +27410,6 @@ export namespace Prisma {
     halfDayDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reason?: StringFieldUpdateOperationsInput | string
     status?: EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
-    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
     approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -28135,9 +28232,19 @@ export namespace Prisma {
     isNot?: EmployeeWhereInput | null
   }
 
+  export type LeaveApplicationListRelationFilter = {
+    every?: LeaveApplicationWhereInput
+    some?: LeaveApplicationWhereInput
+    none?: LeaveApplicationWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
+  }
+
+  export type LeaveApplicationOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type UserCountOrderByAggregateInput = {
@@ -28426,12 +28533,6 @@ export namespace Prisma {
     none?: AttendanceRecordWhereInput
   }
 
-  export type LeaveApplicationListRelationFilter = {
-    every?: LeaveApplicationWhereInput
-    some?: LeaveApplicationWhereInput
-    none?: LeaveApplicationWhereInput
-  }
-
   export type LeaveAllocationListRelationFilter = {
     every?: LeaveAllocationWhereInput
     some?: LeaveAllocationWhereInput
@@ -28456,10 +28557,6 @@ export namespace Prisma {
   }
 
   export type AttendanceRecordOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type LeaveApplicationOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -28862,6 +28959,11 @@ export namespace Prisma {
     in?: $Enums.LeaveStatus[] | ListEnumLeaveStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.LeaveStatus[] | ListEnumLeaveStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumLeaveStatusFilter<$PrismaModel> | $Enums.LeaveStatus
+  }
+
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
   }
 
   export type LeaveApplicationCountOrderByAggregateInput = {
@@ -29482,10 +29584,24 @@ export namespace Prisma {
     connect?: EmployeeWhereUniqueInput
   }
 
+  export type LeaveApplicationCreateNestedManyWithoutApprovedByInput = {
+    create?: XOR<LeaveApplicationCreateWithoutApprovedByInput, LeaveApplicationUncheckedCreateWithoutApprovedByInput> | LeaveApplicationCreateWithoutApprovedByInput[] | LeaveApplicationUncheckedCreateWithoutApprovedByInput[]
+    connectOrCreate?: LeaveApplicationCreateOrConnectWithoutApprovedByInput | LeaveApplicationCreateOrConnectWithoutApprovedByInput[]
+    createMany?: LeaveApplicationCreateManyApprovedByInputEnvelope
+    connect?: LeaveApplicationWhereUniqueInput | LeaveApplicationWhereUniqueInput[]
+  }
+
   export type EmployeeUncheckedCreateNestedOneWithoutUserInput = {
     create?: XOR<EmployeeCreateWithoutUserInput, EmployeeUncheckedCreateWithoutUserInput>
     connectOrCreate?: EmployeeCreateOrConnectWithoutUserInput
     connect?: EmployeeWhereUniqueInput
+  }
+
+  export type LeaveApplicationUncheckedCreateNestedManyWithoutApprovedByInput = {
+    create?: XOR<LeaveApplicationCreateWithoutApprovedByInput, LeaveApplicationUncheckedCreateWithoutApprovedByInput> | LeaveApplicationCreateWithoutApprovedByInput[] | LeaveApplicationUncheckedCreateWithoutApprovedByInput[]
+    connectOrCreate?: LeaveApplicationCreateOrConnectWithoutApprovedByInput | LeaveApplicationCreateOrConnectWithoutApprovedByInput[]
+    createMany?: LeaveApplicationCreateManyApprovedByInputEnvelope
+    connect?: LeaveApplicationWhereUniqueInput | LeaveApplicationWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -29532,6 +29648,20 @@ export namespace Prisma {
     update?: XOR<XOR<EmployeeUpdateToOneWithWhereWithoutUserInput, EmployeeUpdateWithoutUserInput>, EmployeeUncheckedUpdateWithoutUserInput>
   }
 
+  export type LeaveApplicationUpdateManyWithoutApprovedByNestedInput = {
+    create?: XOR<LeaveApplicationCreateWithoutApprovedByInput, LeaveApplicationUncheckedCreateWithoutApprovedByInput> | LeaveApplicationCreateWithoutApprovedByInput[] | LeaveApplicationUncheckedCreateWithoutApprovedByInput[]
+    connectOrCreate?: LeaveApplicationCreateOrConnectWithoutApprovedByInput | LeaveApplicationCreateOrConnectWithoutApprovedByInput[]
+    upsert?: LeaveApplicationUpsertWithWhereUniqueWithoutApprovedByInput | LeaveApplicationUpsertWithWhereUniqueWithoutApprovedByInput[]
+    createMany?: LeaveApplicationCreateManyApprovedByInputEnvelope
+    set?: LeaveApplicationWhereUniqueInput | LeaveApplicationWhereUniqueInput[]
+    disconnect?: LeaveApplicationWhereUniqueInput | LeaveApplicationWhereUniqueInput[]
+    delete?: LeaveApplicationWhereUniqueInput | LeaveApplicationWhereUniqueInput[]
+    connect?: LeaveApplicationWhereUniqueInput | LeaveApplicationWhereUniqueInput[]
+    update?: LeaveApplicationUpdateWithWhereUniqueWithoutApprovedByInput | LeaveApplicationUpdateWithWhereUniqueWithoutApprovedByInput[]
+    updateMany?: LeaveApplicationUpdateManyWithWhereWithoutApprovedByInput | LeaveApplicationUpdateManyWithWhereWithoutApprovedByInput[]
+    deleteMany?: LeaveApplicationScalarWhereInput | LeaveApplicationScalarWhereInput[]
+  }
+
   export type EmployeeUncheckedUpdateOneWithoutUserNestedInput = {
     create?: XOR<EmployeeCreateWithoutUserInput, EmployeeUncheckedCreateWithoutUserInput>
     connectOrCreate?: EmployeeCreateOrConnectWithoutUserInput
@@ -29540,6 +29670,20 @@ export namespace Prisma {
     delete?: EmployeeWhereInput | boolean
     connect?: EmployeeWhereUniqueInput
     update?: XOR<XOR<EmployeeUpdateToOneWithWhereWithoutUserInput, EmployeeUpdateWithoutUserInput>, EmployeeUncheckedUpdateWithoutUserInput>
+  }
+
+  export type LeaveApplicationUncheckedUpdateManyWithoutApprovedByNestedInput = {
+    create?: XOR<LeaveApplicationCreateWithoutApprovedByInput, LeaveApplicationUncheckedCreateWithoutApprovedByInput> | LeaveApplicationCreateWithoutApprovedByInput[] | LeaveApplicationUncheckedCreateWithoutApprovedByInput[]
+    connectOrCreate?: LeaveApplicationCreateOrConnectWithoutApprovedByInput | LeaveApplicationCreateOrConnectWithoutApprovedByInput[]
+    upsert?: LeaveApplicationUpsertWithWhereUniqueWithoutApprovedByInput | LeaveApplicationUpsertWithWhereUniqueWithoutApprovedByInput[]
+    createMany?: LeaveApplicationCreateManyApprovedByInputEnvelope
+    set?: LeaveApplicationWhereUniqueInput | LeaveApplicationWhereUniqueInput[]
+    disconnect?: LeaveApplicationWhereUniqueInput | LeaveApplicationWhereUniqueInput[]
+    delete?: LeaveApplicationWhereUniqueInput | LeaveApplicationWhereUniqueInput[]
+    connect?: LeaveApplicationWhereUniqueInput | LeaveApplicationWhereUniqueInput[]
+    update?: LeaveApplicationUpdateWithWhereUniqueWithoutApprovedByInput | LeaveApplicationUpdateWithWhereUniqueWithoutApprovedByInput[]
+    updateMany?: LeaveApplicationUpdateManyWithWhereWithoutApprovedByInput | LeaveApplicationUpdateManyWithWhereWithoutApprovedByInput[]
+    deleteMany?: LeaveApplicationScalarWhereInput | LeaveApplicationScalarWhereInput[]
   }
 
   export type UserCreateNestedManyWithoutCompanyInput = {
@@ -30336,6 +30480,12 @@ export namespace Prisma {
     connect?: LeaveTypeWhereUniqueInput
   }
 
+  export type UserCreateNestedOneWithoutApprovedLeavesInput = {
+    create?: XOR<UserCreateWithoutApprovedLeavesInput, UserUncheckedCreateWithoutApprovedLeavesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutApprovedLeavesInput
+    connect?: UserWhereUniqueInput
+  }
+
   export type LeaveLedgerEntryCreateNestedManyWithoutLeaveApplicationInput = {
     create?: XOR<LeaveLedgerEntryCreateWithoutLeaveApplicationInput, LeaveLedgerEntryUncheckedCreateWithoutLeaveApplicationInput> | LeaveLedgerEntryCreateWithoutLeaveApplicationInput[] | LeaveLedgerEntryUncheckedCreateWithoutLeaveApplicationInput[]
     connectOrCreate?: LeaveLedgerEntryCreateOrConnectWithoutLeaveApplicationInput | LeaveLedgerEntryCreateOrConnectWithoutLeaveApplicationInput[]
@@ -30368,6 +30518,16 @@ export namespace Prisma {
     upsert?: LeaveTypeUpsertWithoutApplicationsInput
     connect?: LeaveTypeWhereUniqueInput
     update?: XOR<XOR<LeaveTypeUpdateToOneWithWhereWithoutApplicationsInput, LeaveTypeUpdateWithoutApplicationsInput>, LeaveTypeUncheckedUpdateWithoutApplicationsInput>
+  }
+
+  export type UserUpdateOneWithoutApprovedLeavesNestedInput = {
+    create?: XOR<UserCreateWithoutApprovedLeavesInput, UserUncheckedCreateWithoutApprovedLeavesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutApprovedLeavesInput
+    upsert?: UserUpsertWithoutApprovedLeavesInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutApprovedLeavesInput, UserUpdateWithoutApprovedLeavesInput>, UserUncheckedUpdateWithoutApprovedLeavesInput>
   }
 
   export type LeaveLedgerEntryUpdateManyWithoutLeaveApplicationNestedInput = {
@@ -31265,6 +31425,52 @@ export namespace Prisma {
     create: XOR<EmployeeCreateWithoutUserInput, EmployeeUncheckedCreateWithoutUserInput>
   }
 
+  export type LeaveApplicationCreateWithoutApprovedByInput = {
+    id?: string
+    fromDate: Date | string
+    toDate: Date | string
+    totalDays: Decimal | DecimalJsLike | number | string
+    isHalfDay?: boolean
+    halfDayDate?: Date | string | null
+    reason: string
+    status?: $Enums.LeaveStatus
+    approvedAt?: Date | string | null
+    rejectionReason?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    employee: EmployeeCreateNestedOneWithoutLeaveApplicationsInput
+    leaveType: LeaveTypeCreateNestedOneWithoutApplicationsInput
+    ledgerEntries?: LeaveLedgerEntryCreateNestedManyWithoutLeaveApplicationInput
+  }
+
+  export type LeaveApplicationUncheckedCreateWithoutApprovedByInput = {
+    id?: string
+    employeeId: string
+    leaveTypeId: string
+    fromDate: Date | string
+    toDate: Date | string
+    totalDays: Decimal | DecimalJsLike | number | string
+    isHalfDay?: boolean
+    halfDayDate?: Date | string | null
+    reason: string
+    status?: $Enums.LeaveStatus
+    approvedAt?: Date | string | null
+    rejectionReason?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    ledgerEntries?: LeaveLedgerEntryUncheckedCreateNestedManyWithoutLeaveApplicationInput
+  }
+
+  export type LeaveApplicationCreateOrConnectWithoutApprovedByInput = {
+    where: LeaveApplicationWhereUniqueInput
+    create: XOR<LeaveApplicationCreateWithoutApprovedByInput, LeaveApplicationUncheckedCreateWithoutApprovedByInput>
+  }
+
+  export type LeaveApplicationCreateManyApprovedByInputEnvelope = {
+    data: LeaveApplicationCreateManyApprovedByInput | LeaveApplicationCreateManyApprovedByInput[]
+    skipDuplicates?: boolean
+  }
+
   export type CompanyUpsertWithoutUsersInput = {
     update: XOR<CompanyUpdateWithoutUsersInput, CompanyUncheckedUpdateWithoutUsersInput>
     create: XOR<CompanyCreateWithoutUsersInput, CompanyUncheckedCreateWithoutUsersInput>
@@ -31391,6 +31597,43 @@ export namespace Prisma {
     salarySlips?: SalarySlipUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
+  export type LeaveApplicationUpsertWithWhereUniqueWithoutApprovedByInput = {
+    where: LeaveApplicationWhereUniqueInput
+    update: XOR<LeaveApplicationUpdateWithoutApprovedByInput, LeaveApplicationUncheckedUpdateWithoutApprovedByInput>
+    create: XOR<LeaveApplicationCreateWithoutApprovedByInput, LeaveApplicationUncheckedCreateWithoutApprovedByInput>
+  }
+
+  export type LeaveApplicationUpdateWithWhereUniqueWithoutApprovedByInput = {
+    where: LeaveApplicationWhereUniqueInput
+    data: XOR<LeaveApplicationUpdateWithoutApprovedByInput, LeaveApplicationUncheckedUpdateWithoutApprovedByInput>
+  }
+
+  export type LeaveApplicationUpdateManyWithWhereWithoutApprovedByInput = {
+    where: LeaveApplicationScalarWhereInput
+    data: XOR<LeaveApplicationUpdateManyMutationInput, LeaveApplicationUncheckedUpdateManyWithoutApprovedByInput>
+  }
+
+  export type LeaveApplicationScalarWhereInput = {
+    AND?: LeaveApplicationScalarWhereInput | LeaveApplicationScalarWhereInput[]
+    OR?: LeaveApplicationScalarWhereInput[]
+    NOT?: LeaveApplicationScalarWhereInput | LeaveApplicationScalarWhereInput[]
+    id?: StringFilter<"LeaveApplication"> | string
+    employeeId?: StringFilter<"LeaveApplication"> | string
+    leaveTypeId?: StringFilter<"LeaveApplication"> | string
+    fromDate?: DateTimeFilter<"LeaveApplication"> | Date | string
+    toDate?: DateTimeFilter<"LeaveApplication"> | Date | string
+    totalDays?: DecimalFilter<"LeaveApplication"> | Decimal | DecimalJsLike | number | string
+    isHalfDay?: BoolFilter<"LeaveApplication"> | boolean
+    halfDayDate?: DateTimeNullableFilter<"LeaveApplication"> | Date | string | null
+    reason?: StringFilter<"LeaveApplication"> | string
+    status?: EnumLeaveStatusFilter<"LeaveApplication"> | $Enums.LeaveStatus
+    approvedById?: StringNullableFilter<"LeaveApplication"> | string | null
+    approvedAt?: DateTimeNullableFilter<"LeaveApplication"> | Date | string | null
+    rejectionReason?: StringNullableFilter<"LeaveApplication"> | string | null
+    createdAt?: DateTimeFilter<"LeaveApplication"> | Date | string
+    updatedAt?: DateTimeFilter<"LeaveApplication"> | Date | string
+  }
+
   export type UserCreateWithoutCompanyInput = {
     id?: string
     email: string
@@ -31406,6 +31649,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     employee?: EmployeeCreateNestedOneWithoutUserInput
+    approvedLeaves?: LeaveApplicationCreateNestedManyWithoutApprovedByInput
   }
 
   export type UserUncheckedCreateWithoutCompanyInput = {
@@ -31423,6 +31667,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     employee?: EmployeeUncheckedCreateNestedOneWithoutUserInput
+    approvedLeaves?: LeaveApplicationUncheckedCreateNestedManyWithoutApprovedByInput
   }
 
   export type UserCreateOrConnectWithoutCompanyInput = {
@@ -32069,6 +32314,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     company?: CompanyCreateNestedOneWithoutUsersInput
+    approvedLeaves?: LeaveApplicationCreateNestedManyWithoutApprovedByInput
   }
 
   export type UserUncheckedCreateWithoutEmployeeInput = {
@@ -32086,6 +32332,7 @@ export namespace Prisma {
     companyId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    approvedLeaves?: LeaveApplicationUncheckedCreateNestedManyWithoutApprovedByInput
   }
 
   export type UserCreateOrConnectWithoutEmployeeInput = {
@@ -32207,12 +32454,12 @@ export namespace Prisma {
     halfDayDate?: Date | string | null
     reason: string
     status?: $Enums.LeaveStatus
-    approvedById?: string | null
     approvedAt?: Date | string | null
     rejectionReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     leaveType: LeaveTypeCreateNestedOneWithoutApplicationsInput
+    approvedBy?: UserCreateNestedOneWithoutApprovedLeavesInput
     ledgerEntries?: LeaveLedgerEntryCreateNestedManyWithoutLeaveApplicationInput
   }
 
@@ -32407,6 +32654,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneWithoutUsersNestedInput
+    approvedLeaves?: LeaveApplicationUpdateManyWithoutApprovedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutEmployeeInput = {
@@ -32424,6 +32672,7 @@ export namespace Prisma {
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvedLeaves?: LeaveApplicationUncheckedUpdateManyWithoutApprovedByNestedInput
   }
 
   export type CompanyUpsertWithoutEmployeesInput = {
@@ -32561,27 +32810,6 @@ export namespace Prisma {
   export type LeaveApplicationUpdateManyWithWhereWithoutEmployeeInput = {
     where: LeaveApplicationScalarWhereInput
     data: XOR<LeaveApplicationUpdateManyMutationInput, LeaveApplicationUncheckedUpdateManyWithoutEmployeeInput>
-  }
-
-  export type LeaveApplicationScalarWhereInput = {
-    AND?: LeaveApplicationScalarWhereInput | LeaveApplicationScalarWhereInput[]
-    OR?: LeaveApplicationScalarWhereInput[]
-    NOT?: LeaveApplicationScalarWhereInput | LeaveApplicationScalarWhereInput[]
-    id?: StringFilter<"LeaveApplication"> | string
-    employeeId?: StringFilter<"LeaveApplication"> | string
-    leaveTypeId?: StringFilter<"LeaveApplication"> | string
-    fromDate?: DateTimeFilter<"LeaveApplication"> | Date | string
-    toDate?: DateTimeFilter<"LeaveApplication"> | Date | string
-    totalDays?: DecimalFilter<"LeaveApplication"> | Decimal | DecimalJsLike | number | string
-    isHalfDay?: BoolFilter<"LeaveApplication"> | boolean
-    halfDayDate?: DateTimeNullableFilter<"LeaveApplication"> | Date | string | null
-    reason?: StringFilter<"LeaveApplication"> | string
-    status?: EnumLeaveStatusFilter<"LeaveApplication"> | $Enums.LeaveStatus
-    approvedById?: StringNullableFilter<"LeaveApplication"> | string | null
-    approvedAt?: DateTimeNullableFilter<"LeaveApplication"> | Date | string | null
-    rejectionReason?: StringNullableFilter<"LeaveApplication"> | string | null
-    createdAt?: DateTimeFilter<"LeaveApplication"> | Date | string
-    updatedAt?: DateTimeFilter<"LeaveApplication"> | Date | string
   }
 
   export type LeaveAllocationUpsertWithWhereUniqueWithoutEmployeeInput = {
@@ -32934,12 +33162,12 @@ export namespace Prisma {
     halfDayDate?: Date | string | null
     reason: string
     status?: $Enums.LeaveStatus
-    approvedById?: string | null
     approvedAt?: Date | string | null
     rejectionReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     employee: EmployeeCreateNestedOneWithoutLeaveApplicationsInput
+    approvedBy?: UserCreateNestedOneWithoutApprovedLeavesInput
     ledgerEntries?: LeaveLedgerEntryCreateNestedManyWithoutLeaveApplicationInput
   }
 
@@ -33426,6 +33654,47 @@ export namespace Prisma {
     create: XOR<LeaveTypeCreateWithoutApplicationsInput, LeaveTypeUncheckedCreateWithoutApplicationsInput>
   }
 
+  export type UserCreateWithoutApprovedLeavesInput = {
+    id?: string
+    email: string
+    loginId?: string | null
+    passwordHash: string
+    name?: string | null
+    avatarUrl?: string | null
+    role?: $Enums.Role
+    isActive?: boolean
+    mustChangePassword?: boolean
+    temporaryPasswordIssuedAt?: Date | string | null
+    lastPasswordChangedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company?: CompanyCreateNestedOneWithoutUsersInput
+    employee?: EmployeeCreateNestedOneWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutApprovedLeavesInput = {
+    id?: string
+    email: string
+    loginId?: string | null
+    passwordHash: string
+    name?: string | null
+    avatarUrl?: string | null
+    role?: $Enums.Role
+    isActive?: boolean
+    mustChangePassword?: boolean
+    temporaryPasswordIssuedAt?: Date | string | null
+    lastPasswordChangedAt?: Date | string | null
+    companyId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    employee?: EmployeeUncheckedCreateNestedOneWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutApprovedLeavesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutApprovedLeavesInput, UserUncheckedCreateWithoutApprovedLeavesInput>
+  }
+
   export type LeaveLedgerEntryCreateWithoutLeaveApplicationInput = {
     id?: string
     employeeId: string
@@ -33586,6 +33855,53 @@ export namespace Prisma {
     ledgerEntries?: LeaveLedgerEntryUncheckedUpdateManyWithoutLeaveTypeNestedInput
   }
 
+  export type UserUpsertWithoutApprovedLeavesInput = {
+    update: XOR<UserUpdateWithoutApprovedLeavesInput, UserUncheckedUpdateWithoutApprovedLeavesInput>
+    create: XOR<UserCreateWithoutApprovedLeavesInput, UserUncheckedCreateWithoutApprovedLeavesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutApprovedLeavesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutApprovedLeavesInput, UserUncheckedUpdateWithoutApprovedLeavesInput>
+  }
+
+  export type UserUpdateWithoutApprovedLeavesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    loginId?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
+    temporaryPasswordIssuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastPasswordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneWithoutUsersNestedInput
+    employee?: EmployeeUpdateOneWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutApprovedLeavesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    loginId?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
+    temporaryPasswordIssuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastPasswordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    employee?: EmployeeUncheckedUpdateOneWithoutUserNestedInput
+  }
+
   export type LeaveLedgerEntryUpsertWithWhereUniqueWithoutLeaveApplicationInput = {
     where: LeaveLedgerEntryWhereUniqueInput
     update: XOR<LeaveLedgerEntryUpdateWithoutLeaveApplicationInput, LeaveLedgerEntryUncheckedUpdateWithoutLeaveApplicationInput>
@@ -33640,13 +33956,13 @@ export namespace Prisma {
     halfDayDate?: Date | string | null
     reason: string
     status?: $Enums.LeaveStatus
-    approvedById?: string | null
     approvedAt?: Date | string | null
     rejectionReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     employee: EmployeeCreateNestedOneWithoutLeaveApplicationsInput
     leaveType: LeaveTypeCreateNestedOneWithoutApplicationsInput
+    approvedBy?: UserCreateNestedOneWithoutApprovedLeavesInput
   }
 
   export type LeaveApplicationUncheckedCreateWithoutLedgerEntriesInput = {
@@ -33727,13 +34043,13 @@ export namespace Prisma {
     halfDayDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reason?: StringFieldUpdateOperationsInput | string
     status?: EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
-    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
     approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     employee?: EmployeeUpdateOneRequiredWithoutLeaveApplicationsNestedInput
     leaveType?: LeaveTypeUpdateOneRequiredWithoutApplicationsNestedInput
+    approvedBy?: UserUpdateOneWithoutApprovedLeavesNestedInput
   }
 
   export type LeaveApplicationUncheckedUpdateWithoutLedgerEntriesInput = {
@@ -34903,6 +35219,76 @@ export namespace Prisma {
     employeeComponents?: EmployeeSalaryComponentUncheckedUpdateManyWithoutSalaryComponentNestedInput
   }
 
+  export type LeaveApplicationCreateManyApprovedByInput = {
+    id?: string
+    employeeId: string
+    leaveTypeId: string
+    fromDate: Date | string
+    toDate: Date | string
+    totalDays: Decimal | DecimalJsLike | number | string
+    isHalfDay?: boolean
+    halfDayDate?: Date | string | null
+    reason: string
+    status?: $Enums.LeaveStatus
+    approvedAt?: Date | string | null
+    rejectionReason?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LeaveApplicationUpdateWithoutApprovedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    toDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalDays?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isHalfDay?: BoolFieldUpdateOperationsInput | boolean
+    halfDayDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reason?: StringFieldUpdateOperationsInput | string
+    status?: EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    employee?: EmployeeUpdateOneRequiredWithoutLeaveApplicationsNestedInput
+    leaveType?: LeaveTypeUpdateOneRequiredWithoutApplicationsNestedInput
+    ledgerEntries?: LeaveLedgerEntryUpdateManyWithoutLeaveApplicationNestedInput
+  }
+
+  export type LeaveApplicationUncheckedUpdateWithoutApprovedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    leaveTypeId?: StringFieldUpdateOperationsInput | string
+    fromDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    toDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalDays?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isHalfDay?: BoolFieldUpdateOperationsInput | boolean
+    halfDayDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reason?: StringFieldUpdateOperationsInput | string
+    status?: EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ledgerEntries?: LeaveLedgerEntryUncheckedUpdateManyWithoutLeaveApplicationNestedInput
+  }
+
+  export type LeaveApplicationUncheckedUpdateManyWithoutApprovedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    leaveTypeId?: StringFieldUpdateOperationsInput | string
+    fromDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    toDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalDays?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isHalfDay?: BoolFieldUpdateOperationsInput | boolean
+    halfDayDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reason?: StringFieldUpdateOperationsInput | string
+    status?: EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type UserCreateManyCompanyInput = {
     id?: string
     email: string
@@ -34976,6 +35362,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     employee?: EmployeeUpdateOneWithoutUserNestedInput
+    approvedLeaves?: LeaveApplicationUpdateManyWithoutApprovedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCompanyInput = {
@@ -34993,6 +35380,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     employee?: EmployeeUncheckedUpdateOneWithoutUserNestedInput
+    approvedLeaves?: LeaveApplicationUncheckedUpdateManyWithoutApprovedByNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutCompanyInput = {
@@ -35601,12 +35989,12 @@ export namespace Prisma {
     halfDayDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reason?: StringFieldUpdateOperationsInput | string
     status?: EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
-    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
     approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     leaveType?: LeaveTypeUpdateOneRequiredWithoutApplicationsNestedInput
+    approvedBy?: UserUpdateOneWithoutApprovedLeavesNestedInput
     ledgerEntries?: LeaveLedgerEntryUpdateManyWithoutLeaveApplicationNestedInput
   }
 
@@ -35844,12 +36232,12 @@ export namespace Prisma {
     halfDayDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reason?: StringFieldUpdateOperationsInput | string
     status?: EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
-    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
     approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     employee?: EmployeeUpdateOneRequiredWithoutLeaveApplicationsNestedInput
+    approvedBy?: UserUpdateOneWithoutApprovedLeavesNestedInput
     ledgerEntries?: LeaveLedgerEntryUpdateManyWithoutLeaveApplicationNestedInput
   }
 

@@ -85,6 +85,7 @@ model User {
   updatedAt                 DateTime  @updatedAt
 
   employee Employee?
+  approvedLeaves LeaveApplication[] @relation("LeaveApprover")
 
   @@index([email])
   @@index([loginId])
@@ -251,6 +252,7 @@ model LeaveApplication {
   reason          String
   status          LeaveStatus @default(PENDING)
   approvedById    String?
+  approvedBy      User?       @relation("LeaveApprover", fields: [approvedById], references: [id])
   approvedAt      DateTime?
   rejectionReason String?
   createdAt       DateTime    @default(now())

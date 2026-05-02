@@ -11,7 +11,7 @@ export default async function LeaveApprovalsPage() {
     redirect("/change-password");
   }
 
-  if (!["ADMIN", "PAYROLL_OFFICER"].includes(session.user.role)) {
+  if (!["ADMIN", "HR_OFFICER"].includes(session.user.role)) {
     redirect("/dashboard/leave");
   }
 
@@ -20,5 +20,7 @@ export default async function LeaveApprovalsPage() {
     api.leave.getAllApprovals(),
   ]);
 
-  return <ApprovalsWorkspace pending={pending} all={all} />;
+  const canApprove = ["ADMIN", "HR_OFFICER"].includes(session.user.role);
+
+  return <ApprovalsWorkspace pending={pending} all={all} canApprove={canApprove} />;
 }
