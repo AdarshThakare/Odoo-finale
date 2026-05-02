@@ -465,7 +465,7 @@ export async function checkInForUser(db: PrismaClient, userId: string) {
   const scope = await getCompanyScope(db, userId);
   const employee = await getEmployeeByUserId(db, userId);
 
-  if (!employee || employee.companyId !== scope.companyId) {
+  if (employee?.companyId !== scope.companyId) {
     throw new TRPCError({
       code: "NOT_FOUND",
       message: "Employee profile not found",

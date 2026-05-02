@@ -45,7 +45,7 @@ export default async function EmployeesPage({
         </div>
         <div className="flex flex-col items-end gap-3 sm:flex-row sm:items-center">
           <div className="flex items-center gap-4 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm">
-            <span className="font-semibold text-gray-700">Today's Attendance:</span>
+            <span className="font-semibold text-gray-700">Today&apos;s Attendance:</span>
             <div className="flex items-center gap-1.5">
               <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
               <span className="text-gray-600">Present</span>
@@ -131,11 +131,10 @@ export default async function EmployeesPage({
                             name={fullName}
                           />
                           <span
-                            className={`absolute -bottom-1 -right-1 block h-4 w-4 rounded-full border-2 border-white ${
-                              presentEmployeeIds.has(employee.id)
+                            className={`absolute -bottom-1 -right-1 block h-4 w-4 rounded-full border-2 border-white ${presentEmployeeIds.has(employee.id)
                                 ? "bg-emerald-500"
                                 : "bg-red-500"
-                            }`}
+                              }`}
                             aria-label={
                               presentEmployeeIds.has(employee.id)
                                 ? "Present today"
@@ -276,9 +275,8 @@ function ContactLine({
         className="shrink-0 text-gray-400"
       />
       <span
-        className={`truncate ${
-          mono ? "font-mono font-semibold text-gray-800" : "font-medium"
-        }`}
+        className={`truncate ${mono ? "font-mono font-semibold text-gray-800" : "font-medium"
+          }`}
       >
         {value}
       </span>
