@@ -36,7 +36,20 @@ function makeTemporaryPassword() {
 
 export const employeeRouter = createTRPCRouter({
   list: roleProcedure([...creatorRoles]).query(async ({ ctx }) => {
+    const creator = await ctx.db.user.findUnique({
+      where: { id: ctx.session.user.id },
+      select: { companyId: true },
+    });
+
+    if (!creator?.companyId) {
+      throw new TRPCError({
+        code: "PRECONDITION_FAILED",
+        message: "Company setup is required before listing employees",
+      });
+    }
+
     return ctx.db.employee.findMany({
+      where: { companyId: creator.companyId },
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -62,6 +75,28 @@ export const employeeRouter = createTRPCRouter({
   create: roleProcedure([...creatorRoles])
     .input(createEmployeeSchema)
     .mutation(async ({ ctx, input }) => {
+      const creator = await ctx.db.user.findUnique({
+        where: { id: ctx.session.user.id },
+        select: {
+          company: {
+            select: {
+              id: true,
+              name: true,
+              code: true,
+            },
+          },
+        },
+      });
+
+      if (!creator?.company) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Company setup is required before creating employees",
+        });
+      }
+
+      const company = creator.company;
+
       if (ctx.session.user.role === "HR_OFFICER" && input.role !== "EMPLOYEE") {
         throw new TRPCError({
           code: "FORBIDDEN",
@@ -83,16 +118,11 @@ export const employeeRouter = createTRPCRouter({
         });
       }
 
-      const company = await ctx.db.company.upsert({
-        where: { code: "OI" },
-        update: {},
-        create: { name: "Odoo India", code: "OI" },
-      });
-
       const joiningDate = new Date(input.dateOfJoining);
       const joiningYear = joiningDate.getUTCFullYear();
       const serial = await ctx.db.employee.count({
         where: {
+          companyId: company.id,
           dateOfJoining: {
             gte: new Date(Date.UTC(joiningYear, 0, 1)),
             lt: new Date(Date.UTC(joiningYear + 1, 0, 1)),
@@ -101,7 +131,7 @@ export const employeeRouter = createTRPCRouter({
       });
 
       const sequence = String(serial + 1).padStart(4, "0");
-      const loginId = `${initials(input.firstName)}${initials(
+      const loginId = `${company.code}${initials(input.firstName)}${initials(
         input.lastName,
       )}${joiningYear}${sequence}`;
       const employeeCode = `EMP-${joiningYear}-${sequence}`;
@@ -181,6 +211,7 @@ export const employeeRouter = createTRPCRouter({
         email: await sendOnboardingEmail({
           to: input.email,
           name: `${input.firstName} ${input.lastName}`,
+          companyName: company.name,
           loginId,
           temporaryPassword,
           role: input.role,
