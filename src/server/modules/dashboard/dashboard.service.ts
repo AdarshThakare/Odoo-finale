@@ -293,3 +293,66 @@ export async function getHeadcountByDepartment(
     employees: department._count.employees,
   }));
 }
+
+export async function getAdminWarnings(db: PrismaClient, userId: string) {
+  const scope = await getScope(db, userId);
+
+  if (scope.role !== "ADMIN") return { withoutBank: 0, withoutManager: 0 };
+
+  const [withoutBank, withoutManager] = await Promise.all([
+    db.employee.count({
+      where: {
+        companyId: scope.companyId,
+        user: { isActive: true },
+        OR: [
+          { bankAccountNumber: null },
+          { bankAccountNumber: "" },
+          { bankIfsc: null },
+          { bankIfsc: "" },
+        ],
+      },
+    }),
+    db.employee.count({
+      where: {
+        companyId: scope.companyId,
+        user: { isActive: true },
+        OR: [{ managerName: null }, { managerName: "" }],
+      },
+    }),
+  ]);
+
+  return { withoutBank, withoutManager };
+}
+
+export async function getRecentPayruns(db: PrismaClient, userId: string) {
+  const scope = await getScope(db, userId);
+
+  if (scope.role !== "ADMIN" && scope.role !== "PAYROLL_OFFICER") return [];
+
+  const userIds = (
+    await db.user.findMany({
+      where: { companyId: scope.companyId },
+      select: { id: true },
+    })
+  ).map((u) => u.id);
+
+  const entries = await db.payrollEntry.findMany({
+    where: { payrollPeriod: { createdById: { in: userIds } } },
+    orderBy: { createdAt: "desc" },
+    take: 3,
+    select: {
+      id: true,
+      totalNet: true,
+      _count: { select: { salarySlips: true } },
+      payrollPeriod: { select: { id: true, name: true } },
+    },
+  });
+
+  return entries.map((e) => ({
+    entryId: e.id,
+    periodId: e.payrollPeriod.id,
+    name: e.payrollPeriod.name,
+    slipCount: e._count.salarySlips,
+    totalNet: Number(e.totalNet),
+  }));
+}

@@ -1,10 +1,12 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import {
+  getAdminWarnings,
   getAttendanceTrend,
   getDashboardStats,
   getHeadcountByDepartment,
   getLeaveDistribution,
   getPayrollTrend,
+  getRecentPayruns,
 } from "~/server/modules/dashboard/dashboard.service";
 
 export const dashboardRouter = createTRPCRouter({
@@ -22,5 +24,11 @@ export const dashboardRouter = createTRPCRouter({
   ),
   getHeadcountByDepartment: protectedProcedure.query(({ ctx }) =>
     getHeadcountByDepartment(ctx.db, ctx.session.user.id),
+  ),
+  getAdminWarnings: protectedProcedure.query(({ ctx }) =>
+    getAdminWarnings(ctx.db, ctx.session.user.id),
+  ),
+  getRecentPayruns: protectedProcedure.query(({ ctx }) =>
+    getRecentPayruns(ctx.db, ctx.session.user.id),
   ),
 });
