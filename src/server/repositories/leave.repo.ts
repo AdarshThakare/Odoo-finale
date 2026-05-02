@@ -123,7 +123,10 @@ export async function getLeaveApplicationsByEmployee(
   return db.leaveApplication.findMany({
     where: { employeeId },
     orderBy: { createdAt: "desc" },
-    include: { leaveType: { select: { id: true, name: true } } },
+    include: {
+      leaveType: { select: { id: true, name: true } },
+      approvedBy: { select: { name: true } },
+    },
   });
 }
 
@@ -148,6 +151,7 @@ export async function getPendingApplicationsByCompany(
           department: { select: { name: true } },
         },
       },
+      approvedBy: { select: { name: true } },
     },
   });
 }
@@ -170,6 +174,7 @@ export async function getAllApplicationsByCompany(
           department: { select: { name: true } },
         },
       },
+      approvedBy: { select: { name: true } },
     },
   });
 }

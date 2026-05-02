@@ -207,6 +207,11 @@ export function MyLeaveWorkspace({
                       >
                         {application.status}
                       </span>
+                      {application.approvedBy?.name && (
+                        <p className="mt-2 text-[10px] text-gray-500">
+                          By: {application.approvedBy.name}
+                        </p>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       {["PENDING", "APPROVED"].includes(
