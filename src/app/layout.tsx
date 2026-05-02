@@ -19,7 +19,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.APP_URL ?? process.env.NEXTAUTH_URL ?? "http://localhost:3000",
+    process.env.APP_URL ?? "https://odoo-finale.vercel.app/",
   ),
   title: "EMPAY - Smart HRMS",
   description: "Human Resource & Payroll Management System",

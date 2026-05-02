@@ -10,6 +10,7 @@ import {
   checkOutForUser,
   getAllAttendanceForUser,
   getMyAttendanceForUser,
+  getTodayAttendanceSummary,
 } from "~/server/modules/attendance/attendance.service";
 
 export const attendanceRouter = createTRPCRouter({
@@ -60,4 +61,15 @@ export const attendanceRouter = createTRPCRouter({
   checkOut: protectedProcedure.mutation(async ({ ctx }) => {
     return checkOutForUser(ctx.db, ctx.session.user.id);
   }),
+
+  /**
+   * Get today's attendance summary: which employee IDs are present or in-progress.
+   * Used by the employee directory to show the attendance dot.
+   * RBAC: can_view_all_attendance
+   */
+  getTodaySummary: companyPermissionProcedure("can_view_all_attendance").query(
+    async ({ ctx }) => {
+      return getTodayAttendanceSummary(ctx.db, ctx.session.user.id);
+    },
+  ),
 });

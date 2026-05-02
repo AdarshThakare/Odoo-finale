@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import { api, type RouterOutputs } from "~/trpc/react";
@@ -66,6 +67,7 @@ function splitList(value: string | null | undefined) {
 
 export function ProfileWorkspace() {
   const utils = api.useUtils();
+  const router = useRouter();
   const { data: profile, isLoading } = api.employee.getMyProfile.useQuery();
   const [tab, setTab] = useState<Tab>("resume");
   const [message, setMessage] = useState("");
@@ -107,6 +109,7 @@ export function ProfileWorkspace() {
       setError("");
       setMessage("Profile saved.");
       await utils.employee.getMyProfile.invalidate();
+      router.refresh();
     },
     onError: (mutationError) => {
       setMessage("");
