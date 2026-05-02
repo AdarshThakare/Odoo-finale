@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@theme {
+:root {
   --font-sans:
     var(--font-source-sans), "Segoe UI", Roboto, "Helvetica Neue", Arial,
     ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
@@ -27,6 +27,40 @@
   h1 {
     font-family: var(--font-display);
     letter-spacing: 0;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  @keyframes dash-fade-up {
+    0% {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes dash-fade-in {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .dash-fade-up {
+    animation: dash-fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .dash-fade-in {
+    animation: dash-fade-in 700ms ease-out forwards;
   }
 }
 

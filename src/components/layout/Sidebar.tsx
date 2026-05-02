@@ -113,7 +113,7 @@ export function Sidebar({ role, userAvatarUrl, userName }: SidebarProps) {
   };
   const handleConfirmSignOut = () => {
     setIsSignOutOpen(false);
-    signOut({ callbackUrl: "/login" });
+    void signOut({ callbackUrl: "/login" });
   };
 
   return (
