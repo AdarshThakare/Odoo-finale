@@ -322,10 +322,11 @@ export default function EmployeeProfilePage() {
         </form>
       </section>
 
-      <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900">
-          Salary structure
-        </h2>
+      {hasSalaryEditCapability && (
+        <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Salary structure
+          </h2>
         <p className="text-sm text-gray-500">
           Set basic salary and HRA for this employee.
         </p>
@@ -385,12 +386,14 @@ export default function EmployeeProfilePage() {
             )}
           </div>
         </form>
-      </section>
+        </section>
+      )}
 
-      <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900">
-          Additional components
-        </h2>
+      {hasSalaryEditCapability && (
+        <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Additional components
+          </h2>
         <p className="text-sm text-gray-500">
           Assign earning or deduction components.
         </p>
@@ -499,7 +502,8 @@ export default function EmployeeProfilePage() {
             </tbody>
           </table>
         </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }
