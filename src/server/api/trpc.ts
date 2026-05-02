@@ -13,6 +13,7 @@ import { ZodError } from "zod";
 
 import { auth } from "~/server/auth";
 import { db } from "~/server/db";
+import { type Role } from "../../../generated/prisma";
 
 /**
  * 1. CONTEXT
@@ -130,4 +131,16 @@ export const protectedProcedure = t.procedure
         session: { ...ctx.session, user: ctx.session.user },
       },
     });
+  });
+
+export const roleProcedure = (allowedRoles: Role[]) =>
+  protectedProcedure.use(({ ctx, next }) => {
+    if (!allowedRoles.includes(ctx.session.user.role)) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: `Requires one of: ${allowedRoles.join(", ")}`,
+      });
+    }
+
+    return next({ ctx });
   });
