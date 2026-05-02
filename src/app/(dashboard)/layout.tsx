@@ -11,6 +11,9 @@ export default async function DashboardLayout({
   const session = await auth();
 
   if (!session?.user) redirect("/login");
+  if (session.user.mustChangePassword) {
+    redirect("/dashboard/security/change-password");
+  }
 
   return (
     <div className="flex h-screen bg-gray-50">
