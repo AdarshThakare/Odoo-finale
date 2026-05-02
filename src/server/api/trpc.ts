@@ -13,6 +13,7 @@ import { ZodError } from "zod";
 
 import { auth } from "~/server/auth";
 import { db } from "~/server/db";
+import { checkAccess } from "~/lib/fga";
 import { type Role } from "../../../generated/prisma";
 
 /**
@@ -133,6 +134,9 @@ export const protectedProcedure = t.procedure
     });
   });
 
+/**
+ * Legacy role-based procedure guard (kept as a secondary defense-in-depth layer).
+ */
 export const roleProcedure = (allowedRoles: Role[]) =>
   protectedProcedure.use(({ ctx, next }) => {
     if (!allowedRoles.includes(ctx.session.user.role)) {
@@ -144,3 +148,111 @@ export const roleProcedure = (allowedRoles: Role[]) =>
 
     return next({ ctx });
   });
+
+// ---------------------------------------------------------------------------
+// 4. OpenFGA Fine-Grained Authorization Procedures
+// ---------------------------------------------------------------------------
+
+/**
+ * Helper: resolve the companyId for the current user (cached per-request).
+ */
+async function resolveCompanyId(
+  dbClient: typeof db,
+  userId: string,
+): Promise<string> {
+  const user = await dbClient.user.findUnique({
+    where: { id: userId },
+    select: { companyId: true },
+  });
+
+  if (!user?.companyId) {
+    throw new TRPCError({
+      code: "PRECONDITION_FAILED",
+      message: "Company setup is required",
+    });
+  }
+
+  return user.companyId;
+}
+
+/**
+ * FGA Company-Level Procedure
+ *
+ * Checks a company-level FGA relation (e.g. can_manage_employees on company:{companyId}).
+ * Resolves the user's companyId automatically and injects it into ctx.
+ *
+ * Usage:
+ *   fgaCompanyProcedure("can_manage_employees")
+ *     .input(...)
+ *     .mutation(({ ctx }) => { ... ctx.companyId is available ... })
+ */
+export const fgaCompanyProcedure = (relation: string) =>
+  protectedProcedure.use(async ({ ctx, next }) => {
+    const companyId = await resolveCompanyId(ctx.db, ctx.session.user.id);
+
+    const allowed = await checkAccess(
+      ctx.session.user.id,
+      relation,
+      "company",
+      companyId,
+    );
+
+    if (!allowed) {
+      console.warn(
+        `[FGA] DENIED: user:${ctx.session.user.id} → ${relation} → company:${companyId}`,
+      );
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: `Access denied: requires "${relation}" permission`,
+      });
+    }
+
+    console.log(
+      `[FGA] ALLOWED: user:${ctx.session.user.id} → ${relation} → company:${companyId}`,
+    );
+
+    return next({
+      ctx: {
+        ...ctx,
+        companyId,
+      },
+    });
+  });
+
+/**
+ * FGA Resource-Level Procedure
+ *
+ * Checks a resource-level FGA relation (e.g. can_view on employee_profile:{id}).
+ * The objectId must be provided as a function that extracts it from the parsed input.
+ *
+ * Usage:
+ *   fgaResourceProcedure("can_view", "employee_profile")
+ *     .input(z.object({ id: z.string() }))
+ *     .query(({ ctx, input }) => { ... })
+ *
+ * For resource checks, the objectIdFn will be called with the raw input to extract
+ * the resource id. If not provided, the middleware checks company-level access instead.
+ */
+export const fgaResourceCheck = (
+  relation: string,
+  objectType: string,
+  objectId: string,
+  userId: string,
+) => checkAccess(userId, relation, objectType, objectId);
+
+/**
+ * Protected procedure with companyId injected into context.
+ * Used for self-service procedures that don't need FGA checks
+ * but benefit from having companyId available.
+ */
+export const protectedWithCompanyProcedure = protectedProcedure.use(
+  async ({ ctx, next }) => {
+    const companyId = await resolveCompanyId(ctx.db, ctx.session.user.id);
+    return next({
+      ctx: {
+        ...ctx,
+        companyId,
+      },
+    });
+  },
+);

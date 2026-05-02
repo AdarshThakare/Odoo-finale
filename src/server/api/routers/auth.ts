@@ -7,6 +7,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { syncUserRole } from "~/lib/fga-sync";
 
 const bootstrapSchema = z
   .object({
@@ -151,7 +152,7 @@ export const authRouter = createTRPCRouter({
 
       const passwordHash = await bcrypt.hash(input.password, 12);
 
-      await ctx.db.user.create({
+      const adminUser = await ctx.db.user.create({
         data: {
           email: input.email,
           loginId,
@@ -164,6 +165,14 @@ export const authRouter = createTRPCRouter({
           lastPasswordChangedAt: new Date(),
         },
       });
+
+      // Sync the admin role tuple to OpenFGA
+      try {
+        await syncUserRole(adminUser.id, "ADMIN", company.id);
+        console.log("[FGA] Synced admin role tuple for bootstrapped user");
+      } catch (err) {
+        console.warn("[FGA] Failed to sync admin role tuple (FGA may not be running):", err);
+      }
 
       return {
         loginId,

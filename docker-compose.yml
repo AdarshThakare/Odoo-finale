@@ -10,6 +10,8 @@ services:
       - OPENFGA_LOG_FORMAT=json
       - OPENFGA_PLAYGROUND_ENABLED=true
       - OPENFGA_PLAYGROUND_PORT=3001
+      - OPENFGA_PLAYGROUND_HOST=0.0.0.0
+      
     ports:
       - "8080:8080" # http
       - "8081:8081" # grpc

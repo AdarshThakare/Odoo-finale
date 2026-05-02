@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import bcrypt from "bcryptjs";
 
-import { type PrismaClient, type Role } from "../../../../generated/prisma";
+import { type PrismaClient } from "../../../../generated/prisma";
 import { sendOnboardingEmail } from "~/server/email";
 import {
   countEmployeesForYear,
@@ -10,13 +10,11 @@ import {
   findDesignationById,
   findUserByEmail,
   getEmployeeById,
-  getEmployeeByUserId,
   getUserCompany,
   listEmployeesByCompany,
   updateEmployeeProfile,
 } from "~/server/repositories/employee.repo";
-
-const creatorRoles: Role[] = ["ADMIN", "HR_OFFICER"];
+import { syncNewEmployee, syncUserRole } from "~/lib/fga-sync";
 
 function initials(value: string) {
   return value
@@ -69,13 +67,6 @@ export async function createEmployeeForUser(
     throw new TRPCError({
       code: "PRECONDITION_FAILED",
       message: "Company setup is required before creating employees",
-    });
-  }
-
-  if (creator.role === "HR_OFFICER" && input.role !== "EMPLOYEE") {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "HR officers can only create employee accounts",
     });
   }
 
@@ -138,6 +129,17 @@ export async function createEmployeeForUser(
     });
   });
 
+  // Sync FGA tuples for the new employee
+  try {
+    // Write the employee's role tuple to OpenFGA
+    await syncUserRole(employee.userId, input.role, company.id);
+    // Write owner + company tuples for the employee profile
+    await syncNewEmployee(employee.userId, employee.id, company.id);
+    console.log(`[FGA] Synced tuples for new employee ${employee.id}`);
+  } catch (err) {
+    console.warn("[FGA] Failed to sync employee tuples (FGA may not be running):", err);
+  }
+
   return {
     employee,
     credentials: {
@@ -169,16 +171,7 @@ export async function getEmployeeForUser(
     });
   }
 
-  if (!creatorRoles.includes(creator.role)) {
-    const selfEmployee = await getEmployeeByUserId(db, userId);
-    if (selfEmployee?.id !== employeeId) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "You are not allowed to view this profile",
-      });
-    }
-  }
-
+  // FGA check was already done at the router level (can_view on employee_profile)
   const employee = await getEmployeeById(db, employeeId);
   if (!employee) {
     throw new TRPCError({
