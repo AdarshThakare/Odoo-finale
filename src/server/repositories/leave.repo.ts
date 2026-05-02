@@ -1,4 +1,4 @@
-import { type PrismaClient, type Prisma } from "../../../generated/prisma";
+import { type Prisma, type PrismaClient } from "../../../generated/prisma";
 
 // ─── Leave Types ──────────────────────────────────────────────────────────────
 
@@ -92,7 +92,7 @@ export async function getLeaveLedgerBalance(
     where: {
       employeeId,
       leaveTypeId,
-      createdAt: { gte: yearStart, lt: yearEnd },
+      fromDate: { gte: yearStart, lt: yearEnd },
     },
     _sum: { leaves: true },
   });
@@ -229,5 +229,6 @@ export async function upsertAttendanceOnLeave(
     where: { employeeId_date: { employeeId, date } },
     update: { status: "ON_LEAVE" },
     create: { employeeId, date, status: "ON_LEAVE" },
+    select: { id: true },
   });
 }
