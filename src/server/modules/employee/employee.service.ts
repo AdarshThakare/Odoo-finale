@@ -14,7 +14,6 @@ import {
   listEmployeesByCompany,
   updateEmployeeProfile,
 } from "~/server/repositories/employee.repo";
-import { syncNewEmployee, syncUserRole } from "~/lib/fga-sync";
 const salaryViewerRoles: Role[] = ["ADMIN", "PAYROLL_OFFICER"];
 
 function initials(value: string) {
@@ -142,17 +141,6 @@ export async function createEmployeeForUser(
     });
   });
 
-  // Sync FGA tuples for the new employee
-  try {
-    // Write the employee's role tuple to OpenFGA
-    await syncUserRole(employee.userId, input.role, company.id);
-    // Write owner + company tuples for the employee profile
-    await syncNewEmployee(employee.userId, employee.id, company.id);
-    console.log(`[FGA] Synced tuples for new employee ${employee.id}`);
-  } catch (err) {
-    console.warn("[FGA] Failed to sync employee tuples (FGA may not be running):", err);
-  }
-
   return {
     employee,
     credentials: {
@@ -184,7 +172,7 @@ export async function getEmployeeForUser(
     });
   }
 
-  // FGA check was already done at the router level (can_view on employee_profile)
+  // Permission check was already done at the router level.
   const employee = await getEmployeeById(db, employeeId);
   if (!employee) {
     throw new TRPCError({

@@ -1,12 +1,11 @@
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import {
   createTRPCRouter,
-  fgaCompanyProcedure,
+  companyPermissionProcedure,
   protectedProcedure,
+  requirePermission,
 } from "~/server/api/trpc";
-import { checkAccess } from "~/lib/fga";
 import {
   addLeaveType,
   allocateLeave,
@@ -32,9 +31,9 @@ export const leaveRouter = createTRPCRouter({
 
   /**
    * Create a new leave type.
-   * FGA: can_manage_leave_allocations on company:{companyId}
+   * RBAC: can_manage_leave_allocations on company:{companyId}
    */
-  createType: fgaCompanyProcedure("can_manage_leave_allocations")
+  createType: companyPermissionProcedure("can_manage_leave_allocations")
     .input(
       z.object({
         name: z.string().min(2, "Name is required"),
@@ -47,9 +46,9 @@ export const leaveRouter = createTRPCRouter({
 
   /**
    * Allocate leave to an employee.
-   * FGA: can_manage_leave_allocations on company:{companyId}
+   * RBAC: can_manage_leave_allocations on company:{companyId}
    */
-  allocate: fgaCompanyProcedure("can_manage_leave_allocations")
+  allocate: companyPermissionProcedure("can_manage_leave_allocations")
     .input(
       z.object({
         employeeId: z.string().min(1),
@@ -64,7 +63,7 @@ export const leaveRouter = createTRPCRouter({
 
   /**
    * Get the current user's leave balances.
-   * Self-service — no FGA check needed.
+   * Self-service — no RBAC check needed.
    */
   getBalance: protectedProcedure.query(({ ctx }) =>
     getLeaveBalances(ctx.db, ctx.session.user.id),
@@ -72,7 +71,7 @@ export const leaveRouter = createTRPCRouter({
 
   /**
    * Apply for leave.
-   * Self-service — no FGA check needed.
+   * Self-service — no RBAC check needed.
    */
   applyForLeave: protectedProcedure
     .input(
@@ -91,7 +90,7 @@ export const leaveRouter = createTRPCRouter({
 
   /**
    * Get the current user's own leave applications.
-   * Self-service — no FGA check needed.
+   * Self-service — no RBAC check needed.
    */
   getMyApplications: protectedProcedure.query(({ ctx }) =>
     getMyLeaveApplications(ctx.db, ctx.session.user.id),
@@ -99,41 +98,28 @@ export const leaveRouter = createTRPCRouter({
 
   /**
    * Get all pending leave approval requests.
-   * FGA: can_approve_leave_applications on company:{companyId}
+   * RBAC: can_approve_leave_applications on company:{companyId}
    */
-  getPendingApprovals: fgaCompanyProcedure(
+  getPendingApprovals: companyPermissionProcedure(
     "can_approve_leave_applications",
   ).query(({ ctx }) => getPendingApprovals(ctx.db, ctx.session.user.id)),
 
   /**
    * Get all leave approvals (history).
-   * FGA: can_approve_leave_applications on company:{companyId}
+   * RBAC: can_approve_leave_applications on company:{companyId}
    */
-  getAllApprovals: fgaCompanyProcedure(
+  getAllApprovals: companyPermissionProcedure(
     "can_approve_leave_applications",
   ).query(({ ctx }) => getAllApprovals(ctx.db, ctx.session.user.id)),
 
   /**
    * Approve a leave application.
-   * FGA: can_approve on leave_application:{applicationId}
+   * RBAC: can_approve on leave_application:{applicationId}
    */
   approve: protectedProcedure
     .input(z.object({ applicationId: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
-      const allowed = await checkAccess(
-        ctx.session.user.id,
-        "can_approve",
-        "leave_application",
-        input.applicationId,
-      );
-
-      if (!allowed) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "You do not have permission to approve this leave application",
-        });
-      }
-
+      requirePermission(ctx.session.user.role, "can_approve_leave_application");
       return approveLeaveApplication(
         ctx.db,
         ctx.session.user.id,
@@ -143,7 +129,7 @@ export const leaveRouter = createTRPCRouter({
 
   /**
    * Reject a leave application.
-   * FGA: can_approve on leave_application:{applicationId}
+   * RBAC: can_approve on leave_application:{applicationId}
    */
   reject: protectedProcedure
     .input(
@@ -153,20 +139,7 @@ export const leaveRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const allowed = await checkAccess(
-        ctx.session.user.id,
-        "can_approve",
-        "leave_application",
-        input.applicationId,
-      );
-
-      if (!allowed) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "You do not have permission to reject this leave application",
-        });
-      }
-
+      requirePermission(ctx.session.user.role, "can_approve_leave_application");
       return rejectLeaveApplication(
         ctx.db,
         ctx.session.user.id,
@@ -177,7 +150,7 @@ export const leaveRouter = createTRPCRouter({
 
   /**
    * Cancel a leave application (owner only).
-   * FGA: can_view on leave_application:{applicationId} (ensures ownership)
+   * RBAC: can_view on leave_application:{applicationId} (ensures ownership)
    */
   cancel: protectedProcedure
     .input(z.object({ applicationId: z.string().min(1) }))
