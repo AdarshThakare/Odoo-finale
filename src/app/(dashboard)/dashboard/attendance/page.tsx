@@ -48,7 +48,7 @@ function buildHref(
 export default async function AttendancePage({
   searchParams,
 }: {
-  searchParams?: Promise<{ month?: string; date?: string; search?: string }>;
+  searchParams?: Promise<{ month?: string; date?: string; search?: string; view?: string }>;
 }) {
   const params = await searchParams;
   const session = await auth();
@@ -60,14 +60,21 @@ export default async function AttendancePage({
     redirect("/change-password");
   }
 
-  if (session.user.role === "EMPLOYEE") {
+  const canSwitchView = session.user.role !== "EMPLOYEE";
+  const defaultView = canSwitchView ? "team" : "mine";
+  const requestedView = params?.view ?? defaultView;
+  const view = canSwitchView ? requestedView : "mine";
+
+  if (view === "mine") {
     const monthKey = getMonthKey(params?.month);
     const data = await api.attendance.getMyAttendance({ month: monthKey });
     const prevHref = buildHref("/dashboard/attendance", {
       month: addMonths(monthKey, -1),
+      view: canSwitchView ? "mine" : undefined,
     });
     const nextHref = buildHref("/dashboard/attendance", {
       month: addMonths(monthKey, 1),
+      view: canSwitchView ? "mine" : undefined,
     });
 
     return (
@@ -77,6 +84,7 @@ export default async function AttendancePage({
         basePath="/dashboard/attendance"
         prevHref={prevHref}
         nextHref={nextHref}
+        canSwitchView={canSwitchView}
       />
     );
   }
@@ -87,10 +95,12 @@ export default async function AttendancePage({
   const prevHref = buildHref("/dashboard/attendance", {
     date: addDays(dateKey, -1),
     search,
+    view: "team",
   });
   const nextHref = buildHref("/dashboard/attendance", {
     date: addDays(dateKey, 1),
     search,
+    view: "team",
   });
 
   return (
@@ -100,6 +110,7 @@ export default async function AttendancePage({
       basePath="/dashboard/attendance"
       prevHref={prevHref}
       nextHref={nextHref}
+      canSwitchView={canSwitchView}
     />
   );
 }
