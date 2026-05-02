@@ -160,15 +160,20 @@ export async function getDashboardStats(db: PrismaClient, userId: string) {
       attendanceStatus: myAttendance?.status ?? "ABSENT",
       checkedIn: !!myAttendance?.checkIn && !myAttendance.checkOut,
       leaveBalance: Number(myLeaveBalance?._sum.leaves ?? 0),
-      latestPayslip: employeePayslip,
+      latestPayslip: employeePayslip
+        ? {
+            ...employeePayslip,
+            netSalary: Number(employeePayslip.netSalary),
+          }
+        : null,
     },
     hr: hrStats,
     payroll: payrollEntry
       ? {
           periodName: payrollEntry.payrollPeriod.name,
-          totalGross: payrollEntry.totalGross,
-          totalDeductions: payrollEntry.totalDeductions,
-          totalNet: payrollEntry.totalNet,
+          totalGross: Number(payrollEntry.totalGross),
+          totalDeductions: Number(payrollEntry.totalDeductions),
+          totalNet: Number(payrollEntry.totalNet),
           employeeCount: payrollEntry.salarySlips.length,
         }
       : null,
