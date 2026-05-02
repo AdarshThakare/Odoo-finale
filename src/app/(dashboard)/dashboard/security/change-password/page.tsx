@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
 
+import { BrandName } from "~/components/BrandLogo";
 import { api } from "~/trpc/react";
 
 const passwordSchema = z
@@ -79,7 +80,7 @@ export default function ChangePasswordPage() {
     <div className="max-w-xl">
       <h1 className="text-2xl font-bold text-gray-900">Change password</h1>
       <p className="mt-1 text-sm text-gray-500">
-        Update your temporary password before continuing in EmPay.
+        Update your temporary password before continuing in <BrandName />.
       </p>
 
       {serverError && (

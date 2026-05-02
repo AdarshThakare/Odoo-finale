@@ -187,10 +187,16 @@ export function SalaryStatementReport({ employees }: Props) {
           <div
             style={{ fontFamily: "Arial, sans-serif", fontSize: "11px", padding: "24px" }}
           >
-            <div
-              style={{ fontWeight: "bold", fontSize: "16px", marginBottom: "2px" }}
-            >
-              {statement.employee.company?.name ?? "EmPay"}
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "2px" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={statement.employee.company?.logoUrl ?? "/empay.png"}
+                alt="EMPAY logo"
+                style={{ height: "36px", objectFit: "contain" }}
+              />
+              <div style={{ fontWeight: "bold", fontSize: "16px" }}>
+                {statement.employee.company?.name ?? "EMPAY"}
+              </div>
             </div>
             <div
               style={{

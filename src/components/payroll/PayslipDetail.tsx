@@ -386,26 +386,16 @@ function PrintPayslip({
             style={{ height: "48px", objectFit: "contain" }}
           />
         ) : (
-          <div
-            style={{
-              width: "48px",
-              height: "48px",
-              background: "#7C3AED",
-              borderRadius: "8px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "white",
-              fontWeight: "bold",
-              fontSize: "20px",
-            }}
-          >
-            {(company?.name ?? "E").charAt(0)}
-          </div>
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src="/empay.png"
+            alt="EMPAY logo"
+            style={{ height: "48px", objectFit: "contain" }}
+          />
         )}
         <div>
           <div style={{ fontWeight: "bold", fontSize: "16px" }}>
-            {company?.name ?? "EmPay"}
+            {company?.name ?? "EMPAY"}
           </div>
         </div>
       </div>
