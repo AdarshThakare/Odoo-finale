@@ -18,7 +18,7 @@ interface EmailResult {
 }
 
 const resendApiKey = env.RESEND_API_KEY ?? env.AUTH_RESEND_KEY;
-const appUrl = env.APP_URL ?? "http://localhost:3000";
+const appUrl = env.APP_URL ?? "https://odoo-finale.vercel.app/";
 
 export async function sendOnboardingEmail(
   input: OnboardingEmailInput,

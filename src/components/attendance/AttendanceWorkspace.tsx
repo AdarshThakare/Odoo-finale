@@ -93,6 +93,7 @@ type AttendanceWorkspaceProps =
       basePath: string;
       prevHref: string;
       nextHref: string;
+      canSwitchView?: boolean;
     }
   | {
       mode: "team";
@@ -100,6 +101,7 @@ type AttendanceWorkspaceProps =
       basePath: string;
       prevHref: string;
       nextHref: string;
+      canSwitchView?: boolean;
     };
 
 const noteLines = {
@@ -128,6 +130,7 @@ function EmployeeAttendanceWorkspace({
   basePath,
   prevHref,
   nextHref,
+  canSwitchView,
 }: Extract<AttendanceWorkspaceProps, { mode: "mine" }>) {
   const router = useRouter();
   const [message, setMessage] = useState<string | null>(null);
@@ -164,9 +167,27 @@ function EmployeeAttendanceWorkspace({
         title="My attendance"
         description={`${data.company.name} - ${data.employee.department} - ${data.employee.designation}`}
         actions={
-          <div className="flex flex-wrap gap-2">
-            <LinkButton href={prevHref}>Previous</LinkButton>
-            <LinkButton href={nextHref}>Next</LinkButton>
+          <div className="flex flex-wrap items-center gap-4">
+            {canSwitchView && (
+              <div className="flex rounded-lg bg-gray-100 p-1">
+                <Link
+                  href="?view=mine"
+                  className="rounded-md bg-white px-3 py-1.5 text-sm font-medium text-gray-900 shadow-sm"
+                >
+                  My Attendance
+                </Link>
+                <Link
+                  href="?view=team"
+                  className="rounded-md px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                >
+                  Team Attendance
+                </Link>
+              </div>
+            )}
+            <div className="flex flex-wrap gap-2">
+              <LinkButton href={prevHref}>Previous</LinkButton>
+              <LinkButton href={nextHref}>Next</LinkButton>
+            </div>
           </div>
         }
       />
@@ -279,6 +300,7 @@ function TeamAttendanceWorkspace({
   basePath,
   prevHref,
   nextHref,
+  canSwitchView,
 }: Extract<AttendanceWorkspaceProps, { mode: "team" }>) {
   return (
     <div>
@@ -287,9 +309,27 @@ function TeamAttendanceWorkspace({
         title="Team attendance"
         description={`For Admin / HR Officer / Payroll Officer - ${data.company.name}`}
         actions={
-          <div className="flex flex-wrap gap-2">
-            <LinkButton href={prevHref}>Previous</LinkButton>
-            <LinkButton href={nextHref}>Next</LinkButton>
+          <div className="flex flex-wrap items-center gap-4">
+            {canSwitchView && (
+              <div className="flex rounded-lg bg-gray-100 p-1">
+                <Link
+                  href="?view=mine"
+                  className="rounded-md px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+                >
+                  My Attendance
+                </Link>
+                <Link
+                  href="?view=team"
+                  className="rounded-md bg-white px-3 py-1.5 text-sm font-medium text-gray-900 shadow-sm"
+                >
+                  Team Attendance
+                </Link>
+              </div>
+            )}
+            <div className="flex flex-wrap gap-2">
+              <LinkButton href={prevHref}>Previous</LinkButton>
+              <LinkButton href={nextHref}>Next</LinkButton>
+            </div>
           </div>
         }
       />
