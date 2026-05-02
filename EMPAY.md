@@ -42,9 +42,9 @@ EmPay does **not** allow normal employees to self-register. Public sign-up is di
    - `loginId`
    - `employeeCode`
    - temporary password
-4. The employee receives the Login ID and temporary password through email or an Admin/HR handoff.
+4. The system sends an onboarding email with Login URL, Login ID, temporary password, and role.
 5. The employee signs in using either Login ID or email plus password.
-6. Employees with generated passwords are marked `mustChangePassword=true` and should be routed to password management before normal usage once that screen exists.
+6. Employees with generated passwords are marked `mustChangePassword=true` and are routed to password management after first login.
 
 **Login ID format:**
 
@@ -73,6 +73,23 @@ SAKA = first two letters of first name + first two letters of last name
 - Public `/register` must not create accounts.
 - `PAYROLL_OFFICER` and `EMPLOYEE` cannot create users.
 
+**Onboarding email:**
+
+- Sent through Resend when `RESEND_API_KEY` or `AUTH_RESEND_KEY` and `EMAIL_FROM` are configured.
+- Employee creation should still succeed if email delivery is skipped or fails, but the UI must show the email status so HR/Admin can manually share the credentials if needed.
+- Email content includes:
+  - Login URL
+  - Login ID
+  - temporary password
+  - role
+  - instruction to change the temporary password after first sign-in
+
+**Password management:**
+
+- Generated employee accounts start with `mustChangePassword=true`.
+- After the user changes their password, set `mustChangePassword=false` and `lastPasswordChangedAt=now()`.
+- Admin/HR-created users should be directed to password management after first login.
+
 ---
 
 ## 2. Database Schema (PostgreSQL via Prisma)
@@ -81,22 +98,22 @@ SAKA = first two letters of first name + first two letters of last name
 
 ```prisma
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  loginId       String?   @unique
-  passwordHash  String
-  name          String?
-  role          Role      @default(EMPLOYEE)
-  isActive      Boolean   @default(true)
-  mustChangePassword Boolean @default(false)
+  id                        String    @id @default(cuid())
+  email                     String    @unique
+  loginId                   String?   @unique
+  passwordHash              String
+  name                      String?
+  role                      Role      @default(EMPLOYEE)
+  isActive                  Boolean   @default(true)
+  mustChangePassword        Boolean   @default(false)
   temporaryPasswordIssuedAt DateTime?
-  lastPasswordChangedAt DateTime?
-  companyId     String?
-  company       Company?  @relation(fields: [companyId], references: [id])
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  lastPasswordChangedAt     DateTime?
+  companyId                 String?
+  company                   Company?  @relation(fields: [companyId], references: [id])
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
 
-  employee      Employee?
+  employee Employee?
 
   @@index([email])
   @@index([loginId])
@@ -176,7 +193,7 @@ model Employee {
   leaveAllocations      LeaveAllocation[]
   salaryStructure       SalaryStructure?
   employeeSalaryComponents EmployeeSalaryComponent[]
-  salarySlips           SalarySliip[]
+  salarySlips           SalarySlip[]
 }
 
 enum Gender {
@@ -509,27 +526,31 @@ src/
 ├── app/
 │   ├── (auth)/
 │   │   ├── login/page.tsx
-│   │   └── register/page.tsx
+│   │   └── register/page.tsx          # Disabled public registration notice
 │   ├── (dashboard)/
 │   │   ├── layout.tsx              # Sidebar shell + role-guard
-│   │   ├── page.tsx                # Dashboard home
-│   │   ├── employees/
-│   │   │   ├── page.tsx            # Employee directory
-│   │   │   └── [id]/page.tsx       # Employee profile
-│   │   ├── attendance/
-│   │   │   ├── page.tsx            # Own attendance (Employee view)
-│   │   │   └── all/page.tsx        # All employees (HR/Admin view)
-│   │   ├── leave/
-│   │   │   ├── page.tsx            # My leave applications
-│   │   │   ├── apply/page.tsx
-│   │   │   ├── approvals/page.tsx  # Payroll Officer view
-│   │   │   └── manage/page.tsx     # HR: allocations + leave types
-│   │   ├── payroll/
-│   │   │   ├── page.tsx            # Payroll Officer: payrun list
-│   │   │   ├── [periodId]/page.tsx # Payrun detail + slips
-│   │   │   └── payslip/[id]/page.tsx
-│   │   └── settings/
-│   │       └── page.tsx            # Admin: users, roles, components
+│   │   └── dashboard/
+│   │       ├── page.tsx            # Dashboard home; first-login redirect
+│   │       ├── employees/
+│   │       │   ├── page.tsx        # Employee directory
+│   │       │   ├── new/page.tsx    # Admin/HR create employee + credentials
+│   │       │   └── [id]/page.tsx   # Employee profile
+│   │       ├── security/
+│   │       │   └── change-password/page.tsx
+│   │       ├── attendance/
+│   │       │   ├── page.tsx        # Own attendance (Employee view)
+│   │       │   └── all/page.tsx    # All employees (HR/Admin view)
+│   │       ├── leave/
+│   │       │   ├── page.tsx        # My leave applications
+│   │       │   ├── apply/page.tsx
+│   │       │   ├── approvals/page.tsx  # Payroll Officer view
+│   │       │   └── manage/page.tsx     # HR: allocations + leave types
+│   │       ├── payroll/
+│   │       │   ├── page.tsx        # Payroll Officer: payrun list
+│   │       │   ├── [periodId]/page.tsx # Payrun detail + slips
+│   │       │   └── payslip/[id]/page.tsx
+│   │       └── settings/
+│   │           └── page.tsx        # Admin: users, roles, components
 │   ├── api/
 │   │   ├── auth/[...nextauth]/route.ts
 │   │   └── trpc/[trpc]/route.ts
@@ -540,7 +561,7 @@ src/
 │   │   ├── root.ts                 # Merges all routers
 │   │   └── routers/
 │   │       ├── auth.ts
-│   │       ├── employees.ts
+│   │       ├── employee.ts
 │   │       ├── attendance.ts
 │   │       ├── leave.ts
 │   │       ├── payroll.ts
@@ -566,7 +587,8 @@ src/
 │   ├── auth/
 │   │   ├── config.ts               # NextAuth credentials provider
 │   │   └── index.ts
-│   └── db.ts                       # Prisma client singleton
+│   ├── db.ts                       # Prisma client singleton
+│   └── email.ts                    # Resend onboarding emails
 │
 ├── lib/
 │   ├── validators/                 # Zod schemas (shared FE + BE)
@@ -598,23 +620,23 @@ src/
 
 ### auth router
 
-| Procedure     | Type     | Who    | Description                  |
-| ------------- | -------- | ------ | ---------------------------- |
-| register      | mutation | public | Create user + employee shell |
-| login         | mutation | public | Credentials sign-in          |
-| me            | query    | authed | Current user + role          |
-| updateProfile | mutation | authed | Edit own profile             |
+| Procedure      | Type     | Who    | Description                                        |
+| -------------- | -------- | ------ | -------------------------------------------------- |
+| me             | query    | authed | Current user, role, employee, password-change flag |
+| changePassword | mutation | authed | Validate current password and update password      |
+
+Credentials sign-in is handled by NextAuth at `/api/auth/[...nextauth]`. The provider accepts either `loginId` or `email` plus password.
 
 ### employees router
 
-| Procedure  | Type     | Who              | Description               |
-| ---------- | -------- | ---------------- | ------------------------- |
-| list       | query    | HR+              | All employees (paginated) |
-| getById    | query    | authed           | Single employee profile   |
-| create     | mutation | HR_OFFICER/ADMIN | Create employee           |
-| update     | mutation | HR_OFFICER/ADMIN | Update employee profile   |
-| updateRole | mutation | ADMIN            | Change user role          |
-| deactivate | mutation | ADMIN            | Soft-delete user          |
+| Procedure  | Type     | Who              | Description                                              |
+| ---------- | -------- | ---------------- | -------------------------------------------------------- |
+| list       | query    | HR_OFFICER/ADMIN | All employees                                            |
+| create     | mutation | HR_OFFICER/ADMIN | Create employee, generated credentials, onboarding email |
+| getById    | query    | authed           | Single employee profile                                  |
+| update     | mutation | HR_OFFICER/ADMIN | Update employee profile                                  |
+| updateRole | mutation | ADMIN            | Change user role                                         |
+| deactivate | mutation | ADMIN            | Soft-delete user                                         |
 
 ### attendance router
 
@@ -668,18 +690,22 @@ src/
 
 ## 6. Dev Stages
 
-### Stage 0 — Foundation (Do First)
+### Stage 0 — Foundation
 
-**Goal:** Runnable app with auth, DB, and role-based routing.
+**Goal:** Runnable app with credentials auth, DB, role-based routing, Admin/HR account creation, onboarding email, and first-login password change.
 
-- [ ] Update `prisma/schema.prisma` with full schema (Sections 2.1–2.5 above)
-- [ ] Run `prisma migrate dev` and seed PT slabs + default leave types
-- [ ] Configure NextAuth credentials provider (`bcryptjs` for password hashing)
-- [ ] Implement `auth` tRPC router: `register`, `login`, `me`
-- [ ] Role guard middleware: `protectedProcedure(allowedRoles[])` in `src/server/api/trpc.ts`
-- [ ] Build login + register pages (Tailwind, Zod form validation, inline error messages)
-- [ ] Dashboard layout shell: sidebar with role-conditional nav items
-- [ ] **Checkpoint:** Can register as Admin, log in, see role-gated sidebar
+- [x] Update `prisma/schema.prisma` with full schema (Sections 2.1–2.5 above)
+- [x] Run `prisma db push` and seed PT slabs + default leave types + company + admin
+- [x] Configure NextAuth credentials provider (`bcryptjs` for password hashing)
+- [x] Login accepts Login ID or email plus password
+- [x] Public registration disabled; `/register` shows HR/Admin-managed account notice
+- [x] Implement `auth` tRPC router: `me`, `changePassword`
+- [x] Role guard middleware via `protectedProcedure` + `roleProcedure(roles[])`
+- [x] Dashboard layout shell: sidebar with role-conditional nav items
+- [x] Employee creation flow: Admin/HR creates user + employee, generated Login ID, generated temporary password
+- [x] Resend onboarding email helper and employee creation email status
+- [x] First-login password change flow at `/dashboard/security/change-password`
+- [x] **Checkpoint:** Admin can log in, create employee credentials, send/see onboarding status, and temporary-password users can change password
 
 ---
 
@@ -687,11 +713,13 @@ src/
 
 **Goal:** HR Officer can manage the workforce. Admin can configure the system.
 
-- [ ] `employees` tRPC router (list, getById, create, update)
+- [x] `employee` tRPC router (list, create)
+- [ ] `employee` tRPC router (getById, update)
 - [ ] `employee.service.ts` + `employee.repo.ts`
-- [ ] Auto-generate `employeeCode` (EMP-001 sequence) in service
+- [x] Auto-generate `employeeCode` and Login ID during employee creation
 - [ ] Department + Designation CRUD (Admin only, inline in settings page)
-- [ ] Employee directory page (table with search/filter by department)
+- [x] Employee directory page (initial table)
+- [ ] Employee directory search/filter by department
 - [ ] Employee profile page (view + edit form)
 - [ ] Salary component catalogue CRUD (Admin/Payroll Officer)
 - [ ] Assign salary structure to employee (basic + HRA)

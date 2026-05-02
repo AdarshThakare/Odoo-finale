@@ -50,6 +50,12 @@ const navItems: NavItem[] = [
     roles: ["ADMIN"],
     icon: "ST",
   },
+  {
+    label: "Security",
+    href: "/dashboard/security/change-password",
+    roles: ["ADMIN", "HR_OFFICER", "PAYROLL_OFFICER", "EMPLOYEE"],
+    icon: "SC",
+  },
 ];
 
 interface SidebarProps {

@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 
 import { createTRPCRouter, roleProcedure } from "~/server/api/trpc";
+import { sendOnboardingEmail } from "~/server/email";
 
 const createEmployeeSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
@@ -177,6 +178,13 @@ export const employeeRouter = createTRPCRouter({
           loginId,
           temporaryPassword,
         },
+        email: await sendOnboardingEmail({
+          to: input.email,
+          name: `${input.firstName} ${input.lastName}`,
+          loginId,
+          temporaryPassword,
+          role: input.role,
+        }),
       };
     }),
 });
