@@ -3,12 +3,24 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import {
+  IconBriefcase,
+  IconBuilding,
+  IconDeviceFloppy,
+  IconLock,
+  IconUpload,
+  IconUserCircle,
+  type TablerIcon,
+} from "@tabler/icons-react";
 
 import { api, type RouterOutputs } from "~/trpc/react";
 
 type Profile = RouterOutputs["employee"]["getMyProfile"];
 type Employee = NonNullable<Profile["employee"]>;
 type Tab = "resume" | "private" | "salary" | "security";
+
+const cardAnimation =
+  "dash-fade-up opacity-0 motion-reduce:opacity-100 motion-reduce:animate-none";
 
 const initialProfileForm = {
   name: "",
@@ -130,12 +142,22 @@ export function ProfileWorkspace() {
   }, [profile?.canViewSalary]);
 
   if (isLoading || !profile) {
-    return <div className="text-sm text-gray-600">Loading profile...</div>;
+    return (
+      <div className="relative rounded-4xl bg-white p-6 font-sans shadow-sm ring-1 ring-slate-200/70 sm:p-8 lg:p-10">
+        <div className="h-44 animate-pulse rounded-3xl bg-slate-100" />
+        <div className="mt-6 h-12 max-w-xl animate-pulse rounded-full bg-slate-100" />
+        <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="h-96 animate-pulse rounded-2xl bg-slate-100" />
+          <div className="h-96 animate-pulse rounded-2xl bg-slate-100" />
+        </div>
+      </div>
+    );
   }
 
   const employee = profile.employee;
-  const displayName =
-    employee ? `${employee.firstName} ${employee.lastName}` : profile.user.name;
+  const displayName = employee
+    ? `${employee.firstName} ${employee.lastName}`
+    : profile.user.name;
   const initials = (displayName ?? "EU")
     .split(/\s+/)
     .map((part) => part[0])
@@ -189,71 +211,97 @@ export function ProfileWorkspace() {
   }
 
   return (
-    <div className="space-y-6">
-      <ProfileHeader
-        profile={profile}
-        displayName={displayName ?? "EMPAY User"}
-        initials={initials}
-        avatarUrl={form.avatarUrl}
-        uploading={avatarUploading}
-        onAvatarUpload={(file) => void uploadAvatar(file)}
-      />
+    <div className="relative rounded-4xl bg-white p-6 font-sans shadow-sm ring-1 ring-slate-200/70 sm:p-8 lg:p-10">
+      <div className="relative space-y-8">
+        <ProfileHeader
+          profile={profile}
+          displayName={displayName ?? "EMPAY User"}
+          initials={initials}
+          avatarUrl={form.avatarUrl}
+          uploading={avatarUploading}
+          onAvatarUpload={(file) => void uploadAvatar(file)}
+        />
 
-      <div className="flex flex-wrap gap-1 rounded-lg bg-gray-100 p-1">
-        {tabs.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => setTab(item.id)}
-            className={`rounded-md px-4 py-1.5 text-sm font-semibold transition ${
-              tab === item.id
-                ? "bg-white text-purple-700 shadow-sm"
-                : "text-gray-600 hover:text-gray-900"
-            }`}
-          >
-            {item.label}
-          </button>
-        ))}
+        <section className="grid gap-4 md:grid-cols-3">
+          <ProfileStatCard
+            icon={IconUserCircle}
+            label="Access role"
+            value={profile.user.role.replace("_", " ")}
+            delay="80ms"
+          />
+          <ProfileStatCard
+            icon={IconBriefcase}
+            label="Job title"
+            value={employee?.designation.name ?? "Company user"}
+            delay="100ms"
+          />
+          <ProfileStatCard
+            icon={IconBuilding}
+            label="Department"
+            value={employee?.department.name ?? profile.company?.name ?? "-"}
+            delay="120ms"
+          />
+        </section>
+
+        <div
+          className={`${cardAnimation} flex flex-wrap gap-2 rounded-full bg-slate-100 p-1`}
+          style={{ animationDelay: "140ms" }}
+        >
+          {tabs.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setTab(item.id)}
+              className={`min-h-10 rounded-full px-4 text-sm font-semibold transition ${
+                tab === item.id
+                  ? "bg-white text-violet-700 shadow-sm ring-1 ring-slate-200/70"
+                  : "text-slate-600 hover:bg-white/70 hover:text-slate-900"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        {message && (
+          <div className="rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700 ring-1 ring-emerald-100">
+            {message}
+          </div>
+        )}
+        {error && (
+          <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-100">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={saveProfile}>
+          {tab === "resume" && (
+            <ResumeTab
+              employee={employee}
+              form={form}
+              setField={(field, value) =>
+                setForm((current) => ({ ...current, [field]: value }))
+              }
+              saving={updateProfile.isPending}
+            />
+          )}
+          {tab === "private" && (
+            <PrivateInfoTab
+              profile={profile}
+              form={form}
+              bankMissing={bankMissing}
+              setField={(field, value) =>
+                setForm((current) => ({ ...current, [field]: value }))
+              }
+              saving={updateProfile.isPending}
+            />
+          )}
+          {tab === "salary" && profile.canViewSalary && (
+            <SalaryInfoTab employee={employee} />
+          )}
+          {tab === "security" && <SecurityTab />}
+        </form>
       </div>
-
-      {message && (
-        <div className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700 ring-1 ring-green-200">
-          {message}
-        </div>
-      )}
-      {error && (
-        <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={saveProfile}>
-        {tab === "resume" && (
-          <ResumeTab
-            employee={employee}
-            form={form}
-            setField={(field, value) =>
-              setForm((current) => ({ ...current, [field]: value }))
-            }
-            saving={updateProfile.isPending}
-          />
-        )}
-        {tab === "private" && (
-          <PrivateInfoTab
-            profile={profile}
-            form={form}
-            bankMissing={bankMissing}
-            setField={(field, value) =>
-              setForm((current) => ({ ...current, [field]: value }))
-            }
-            saving={updateProfile.isPending}
-          />
-        )}
-        {tab === "salary" && profile.canViewSalary && (
-          <SalaryInfoTab employee={employee} />
-        )}
-        {tab === "security" && <SecurityTab />}
-      </form>
     </div>
   );
 }
@@ -276,10 +324,13 @@ function ProfileHeader({
   const employee = profile.employee;
 
   return (
-    <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
+    <section
+      className={`${cardAnimation} rounded-3xl bg-linear-to-br from-white via-white to-violet-50/70 p-6 shadow-sm ring-1 ring-slate-200/70`}
+      style={{ animationDelay: "40ms" }}
+    >
       <div className="grid gap-6 lg:grid-cols-[auto_minmax(0,1fr)_minmax(280px,0.8fr)]">
         <div className="flex flex-col items-center gap-3">
-          <label className="group relative flex h-24 w-24 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-purple-100 text-3xl font-bold text-purple-700 ring-4 ring-purple-50 transition hover:ring-purple-200">
+          <label className="group relative flex h-28 w-28 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-violet-100 text-3xl font-bold text-violet-700 ring-4 ring-white transition hover:ring-violet-200">
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -290,8 +341,15 @@ function ProfileHeader({
             ) : (
               initials
             )}
-            <span className="absolute inset-0 flex items-center justify-center bg-black/45 px-3 text-center text-xs font-semibold text-white opacity-0 transition group-hover:opacity-100">
-              {uploading ? "Uploading..." : "Upload photo"}
+            <span className="absolute inset-0 flex items-center justify-center bg-slate-950/50 px-3 text-center text-xs font-semibold text-white opacity-0 transition group-hover:opacity-100">
+              {uploading ? (
+                "Uploading..."
+              ) : (
+                <span className="inline-flex items-center gap-1">
+                  <IconUpload size={14} />
+                  Upload
+                </span>
+              )}
             </span>
             <input
               type="file"
@@ -305,19 +363,19 @@ function ProfileHeader({
               }}
             />
           </label>
-          <p className="text-center text-xs text-gray-500">
+          <p className="text-center text-xs text-slate-500">
             Click the photo to upload
           </p>
         </div>
 
         <div>
-          <p className="text-xs font-semibold tracking-wide text-purple-700 uppercase">
+          <p className="text-xs font-semibold tracking-[0.32em] text-slate-500 uppercase">
             My Profile
           </p>
-          <h1 className="mt-1 text-3xl font-bold text-gray-900">
+          <h1 className="font-display mt-2 text-3xl font-semibold text-slate-900 sm:text-4xl">
             {displayName}
           </h1>
-          <div className="mt-4 grid gap-3 text-sm md:grid-cols-2">
+          <div className="mt-5 grid gap-3 text-sm md:grid-cols-2">
             <InfoLine label="Login ID" value={profile.user.loginId ?? "-"} />
             <InfoLine label="Email" value={profile.user.email} />
             <InfoLine label="Mobile" value={employee?.phone ?? "-"} />
@@ -330,12 +388,46 @@ function ProfileHeader({
 
         <div className="grid gap-3 text-sm md:grid-cols-2 lg:grid-cols-1">
           <InfoLine label="Company" value={profile.company?.name ?? "-"} />
-          <InfoLine label="Department" value={employee?.department.name ?? "-"} />
+          <InfoLine
+            label="Department"
+            value={employee?.department.name ?? "-"}
+          />
           <InfoLine label="Manager" value={employee?.managerName ?? "-"} />
           <InfoLine label="Location" value={employee?.workLocation ?? "-"} />
         </div>
       </div>
     </section>
+  );
+}
+
+function ProfileStatCard({
+  icon: Icon,
+  label,
+  value,
+  delay,
+}: {
+  icon: TablerIcon;
+  label: string;
+  value: string;
+  delay: string;
+}) {
+  return (
+    <div
+      className={`${cardAnimation} rounded-2xl bg-linear-to-br from-white via-white to-violet-50/70 p-5 shadow-sm ring-1 ring-slate-200/70`}
+      style={{ animationDelay: delay }}
+    >
+      <div className="flex items-center gap-3">
+        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-violet-50 text-violet-700 ring-1 ring-violet-100">
+          <Icon size={20} />
+        </span>
+        <div className="min-w-0">
+          <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
+            {label}
+          </p>
+          <p className="truncate font-semibold text-slate-900">{value}</p>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -352,7 +444,10 @@ function ResumeTab({
 }) {
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-      <section className="space-y-5 rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
+      <section
+        className={`${cardAnimation} space-y-5 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200/70`}
+        style={{ animationDelay: "160ms" }}
+      >
         <TextArea
           label="About"
           value={form.about}
@@ -411,9 +506,14 @@ function PrivateInfoTab({
 
   if (!employee) {
     return (
-      <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900">Account details</h2>
-        <p className="mt-1 text-sm text-gray-500">
+      <section
+        className={`${cardAnimation} rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200/70`}
+        style={{ animationDelay: "160ms" }}
+      >
+        <h2 className="text-lg font-semibold text-slate-900">
+          Account details
+        </h2>
+        <p className="mt-1 text-sm text-slate-500">
           Admin accounts are company-level users and do not require employee
           private information.
         </p>
@@ -433,9 +533,12 @@ function PrivateInfoTab({
   }
 
   return (
-    <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
+    <section
+      className={`${cardAnimation} rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200/70`}
+      style={{ animationDelay: "160ms" }}
+    >
       {bankMissing && (
-        <div className="mb-5 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800 ring-1 ring-amber-200">
+        <div className="mb-5 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800 ring-1 ring-amber-100">
           Warning: bank account details are incomplete. Payroll warnings will
           include this employee until account number and IFSC are filled.
         </div>
@@ -443,7 +546,7 @@ function PrivateInfoTab({
 
       <div className="grid gap-8 lg:grid-cols-2">
         <div>
-          <h2 className="font-semibold text-gray-900">Personal information</h2>
+          <h2 className="font-semibold text-slate-900">Personal information</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <Field
               label="Date of Birth"
@@ -495,7 +598,7 @@ function PrivateInfoTab({
         </div>
 
         <div>
-          <h2 className="font-semibold text-gray-900">Bank details</h2>
+          <h2 className="font-semibold text-slate-900">Bank details</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <Field
               label="Account Number"
@@ -534,8 +637,11 @@ function PrivateInfoTab({
 function SalaryInfoTab({ employee }: { employee: Employee | null }) {
   if (!employee) {
     return (
-      <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-        <p className="text-sm text-gray-500">
+      <section
+        className={`${cardAnimation} rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200/70`}
+        style={{ animationDelay: "160ms" }}
+      >
+        <p className="text-sm text-slate-500">
           Salary information is available for employee profiles.
         </p>
       </section>
@@ -561,20 +667,37 @@ function SalaryInfoTab({ employee }: { employee: Employee | null }) {
   }
 
   return (
-    <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-      <h2 className="text-lg font-semibold text-gray-900">Salary Info</h2>
-      <p className="mt-1 text-sm text-gray-500">
+    <section
+      className={`${cardAnimation} rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200/70`}
+      style={{ animationDelay: "160ms" }}
+    >
+      <h2 className="text-lg font-semibold text-slate-900">Salary Info</h2>
+      <p className="mt-1 text-sm text-slate-500">
         Visible to Admin and Payroll Officer only.
       </p>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-2">
         <div className="space-y-4">
-          <SalaryLine label="Month Wage" value={`${money(monthlyWage)} / Month`} />
-          <SalaryLine label="Yearly wage" value={`${money(yearlyWage)} / Yearly`} />
+          <SalaryLine
+            label="Month Wage"
+            value={`${money(monthlyWage)} / Month`}
+          />
+          <SalaryLine
+            label="Yearly wage"
+            value={`${money(yearlyWage)} / Yearly`}
+          />
           <div className="pt-3">
-            <h3 className="font-semibold text-gray-900">Salary Components</h3>
-            <SalaryLine label="Basic Salary" value={`${money(basic)} / month`} detail={pct(basic)} />
-            <SalaryLine label="House Rent Allowance" value={`${money(hra)} / month`} detail={pct(hra)} />
+            <h3 className="font-semibold text-slate-900">Salary Components</h3>
+            <SalaryLine
+              label="Basic Salary"
+              value={`${money(basic)} / month`}
+              detail={pct(basic)}
+            />
+            <SalaryLine
+              label="House Rent Allowance"
+              value={`${money(hra)} / month`}
+              detail={pct(hra)}
+            />
             {earningComponents.map((c) => (
               <SalaryLine
                 key={c.id}
@@ -590,15 +713,25 @@ function SalaryInfoTab({ employee }: { employee: Employee | null }) {
           <SalaryLine label="No of working days in a week" value="5 days" />
           <SalaryLine label="Break time" value="1 hr" />
           <div className="pt-3">
-            <h3 className="font-semibold text-gray-900">
+            <h3 className="font-semibold text-slate-900">
               Provident Fund (PF) Contribution
             </h3>
-            <SalaryLine label="Employee" value={`${money(pf)} / month`} detail="12.00%" />
-            <p className="text-xs text-gray-400 pl-1">PF is calculated based on the basic salary</p>
-            <SalaryLine label="Employer" value={`${money(pf)} / month`} detail="12.00%" />
+            <SalaryLine
+              label="Employee"
+              value={`${money(pf)} / month`}
+              detail="12.00%"
+            />
+            <p className="pl-1 text-xs text-slate-400">
+              PF is calculated based on the basic salary
+            </p>
+            <SalaryLine
+              label="Employer"
+              value={`${money(pf)} / month`}
+              detail="12.00%"
+            />
           </div>
           <div className="pt-3">
-            <h3 className="font-semibold text-gray-900">Tax Deductions</h3>
+            <h3 className="font-semibold text-slate-900">Tax Deductions</h3>
             {deductionComponents.map((c) => (
               <SalaryLine
                 key={c.id}
@@ -608,7 +741,9 @@ function SalaryInfoTab({ employee }: { employee: Employee | null }) {
               />
             ))}
             <SalaryLine label="Professional Tax" value="₹200 / month" />
-            <p className="text-xs text-gray-400 pl-1">Professional Tax deducted from the Gross salary</p>
+            <p className="pl-1 text-xs text-slate-400">
+              Professional Tax deducted from the Gross salary
+            </p>
           </div>
         </div>
       </div>
@@ -618,18 +753,35 @@ function SalaryInfoTab({ employee }: { employee: Employee | null }) {
 
 function SecurityTab() {
   return (
-    <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-      <h2 className="text-lg font-semibold text-gray-900">Password Management</h2>
-      <p className="mt-1 text-sm text-gray-500">
-        Change the system-generated or current password from the secure password
-        page.
-      </p>
-      <Link
-        href="/dashboard/security/change-password"
-        className="mt-5 inline-flex rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800"
-      >
-        Change Password
-      </Link>
+    <section
+      className={`${cardAnimation} grid gap-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200/70 lg:grid-cols-[minmax(0,1fr)_320px]`}
+      style={{ animationDelay: "160ms" }}
+    >
+      <div>
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-50 text-violet-700 ring-1 ring-violet-100">
+          <IconLock size={22} />
+        </div>
+        <h2 className="mt-5 text-lg font-semibold text-slate-900">
+          Password management
+        </h2>
+        <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">
+          Change the system-generated or current password from the secure
+          password page.
+        </p>
+        <Link
+          href="/dashboard/security/change-password"
+          className="mt-5 inline-flex h-11 items-center justify-center rounded-full bg-violet-600 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-700"
+        >
+          Change password
+        </Link>
+      </div>
+      <div className="rounded-2xl bg-linear-to-br from-white via-white to-violet-50/70 p-5 ring-1 ring-slate-200/70">
+        <p className="text-sm font-semibold text-slate-900">Account safety</p>
+        <p className="mt-2 text-sm leading-6 text-slate-500">
+          Password changes refresh your active session and keep your dashboard
+          access aligned with the newest credential.
+        </p>
+      </div>
     </section>
   );
 }
@@ -637,10 +789,10 @@ function SecurityTab() {
 function InfoLine({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+      <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
         {label}
       </p>
-      <p className="mt-1 border-b border-gray-200 pb-1 font-medium text-gray-900">
+      <p className="mt-1 border-b border-slate-200 pb-1 font-medium text-slate-900">
         {value}
       </p>
     </div>
@@ -662,13 +814,13 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="text-sm font-medium text-gray-700">{label}</span>
+      <span className="text-sm font-medium text-slate-700">{label}</span>
       <input
         type={type}
         value={value}
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-purple-500"
+        className="mt-2 block h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm transition outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
       />
     </label>
   );
@@ -687,13 +839,13 @@ function TextArea({
 }) {
   return (
     <label className="block">
-      <span className="text-sm font-medium text-gray-700">{label}</span>
+      <span className="text-sm font-medium text-slate-700">{label}</span>
       <textarea
         rows={5}
         value={value}
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-purple-500"
+        className="mt-2 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
       />
     </label>
   );
@@ -702,8 +854,8 @@ function TextArea({
 function ReadOnly({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-sm font-medium text-gray-700">{label}</p>
-      <p className="mt-1 rounded-lg bg-gray-50 px-3 py-2 text-sm text-gray-700 ring-1 ring-gray-200">
+      <p className="text-sm font-medium text-slate-700">{label}</p>
+      <p className="mt-2 min-h-11 rounded-xl bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-slate-200">
         {value || "-"}
       </p>
     </div>
@@ -715,8 +867,9 @@ function SaveButton({ saving }: { saving: boolean }) {
     <button
       type="submit"
       disabled={saving}
-      className="mt-5 rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800 disabled:opacity-60"
+      className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-full bg-violet-600 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
     >
+      <IconDeviceFloppy size={16} />
       {saving ? "Saving..." : "Save profile"}
     </button>
   );
@@ -736,19 +889,24 @@ function ListPanel({
   placeholder: string;
 }) {
   return (
-    <section className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-gray-200">
-      <h2 className="font-semibold text-gray-900">{title}</h2>
+    <section
+      className={`${cardAnimation} rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70`}
+      style={{ animationDelay: title === "Skills" ? "200ms" : "240ms" }}
+    >
+      <h2 className="font-semibold text-slate-900">{title}</h2>
       <div className="mt-3 flex flex-wrap gap-2">
         {items.map((item) => (
           <span
             key={item}
-            className="rounded-full bg-purple-50 px-2 py-1 text-xs font-semibold text-purple-700"
+            className="rounded-full bg-violet-50 px-2.5 py-1 text-xs font-semibold text-violet-700 ring-1 ring-violet-100"
           >
             {item}
           </span>
         ))}
         {items.length === 0 && (
-          <p className="text-sm text-gray-500">No {title.toLowerCase()} yet.</p>
+          <p className="text-sm text-slate-500">
+            No {title.toLowerCase()} yet.
+          </p>
         )}
       </div>
       <textarea
@@ -756,7 +914,7 @@ function ListPanel({
         value={value}
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-4 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-purple-500"
+        className="mt-4 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
       />
     </section>
   );
@@ -772,12 +930,12 @@ function SalaryLine({
   detail?: string;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-gray-100 py-3 text-sm">
+    <div className="flex items-center justify-between gap-4 border-b border-slate-100 py-3 text-sm">
       <div>
-        <p className="font-medium text-gray-900">{label}</p>
-        {detail && <p className="text-xs text-gray-500">{detail}</p>}
+        <p className="font-medium text-slate-900">{label}</p>
+        {detail && <p className="text-xs text-slate-500">{detail}</p>}
       </div>
-      <p className="font-semibold text-gray-900">{value}</p>
+      <p className="font-semibold whitespace-nowrap text-slate-900">{value}</p>
     </div>
   );
 }

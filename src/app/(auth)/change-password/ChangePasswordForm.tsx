@@ -36,8 +36,7 @@ type ChangePasswordFormProps = {
 
 export function ChangePasswordForm({
   title = "Set your password",
-  description =
-    "Your account requires a new password before you can continue.",
+  description = "Your account requires a new password before you can continue.",
   submitLabel = "Set new password",
   currentPasswordLabel = "Current (temporary) password",
   successRedirect = "/dashboard",
@@ -62,7 +61,9 @@ export function ChangePasswordForm({
 
       if (signInResult?.error) {
         setSuccess("");
-        setServerError("Password updated but auto sign-in failed. Please log in manually.");
+        setServerError(
+          "Password updated but auto sign-in failed. Please log in manually.",
+        );
         router.push("/login");
         return;
       }
@@ -103,23 +104,25 @@ export function ChangePasswordForm({
   }
 
   return (
-    <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
-      <h1 className="text-xl font-bold text-gray-900">{title}</h1>
-      <p className="mt-1 text-sm text-gray-500">{description}</p>
+    <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200/70 sm:p-8">
+      <h1 className="font-display text-2xl font-semibold text-slate-900">
+        {title}
+      </h1>
+      <p className="mt-2 text-sm leading-6 text-slate-500">{description}</p>
 
       {serverError && (
-        <div className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-100">
           {serverError}
         </div>
       )}
 
       {success && (
-        <div className="mt-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">
+        <div className="mt-5 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800 ring-1 ring-emerald-100">
           {success}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+      <form onSubmit={handleSubmit} className="mt-7 space-y-5">
         <PasswordField
           id="currentPassword"
           label={currentPasswordLabel}
@@ -142,7 +145,7 @@ export function ChangePasswordForm({
         <button
           type="submit"
           disabled={changePassword.isPending}
-          className="w-full rounded-lg bg-purple-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-purple-800 disabled:opacity-60"
+          className="h-11 w-full rounded-full bg-violet-600 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {changePassword.isPending ? "Updating..." : submitLabel}
         </button>
@@ -164,7 +167,7 @@ function PasswordField({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700">
+      <label htmlFor={id} className="block text-sm font-medium text-slate-700">
         {label}
       </label>
       <input
@@ -172,10 +175,11 @@ function PasswordField({
         name={id}
         type="password"
         autoComplete={autoComplete}
-        className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm shadow-sm transition outline-none focus:ring-2 focus:ring-purple-500 ${error ? "border-red-400 bg-red-50" : "border-gray-300"
-          }`}
+        className={`mt-2 block h-11 w-full rounded-xl border px-3 text-sm text-slate-900 shadow-sm transition outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100 ${
+          error ? "border-red-300 bg-red-50" : "border-slate-200 bg-white"
+        }`}
       />
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-1.5 text-xs text-red-600">{error}</p>}
     </div>
   );
 }
