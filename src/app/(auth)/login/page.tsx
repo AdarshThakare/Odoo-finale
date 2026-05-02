@@ -61,7 +61,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8 sm:m-16">
       <div className="mb-7">
         <p className="text-xs font-semibold tracking-[0.18em] text-purple-700 uppercase">
           Welcome back
