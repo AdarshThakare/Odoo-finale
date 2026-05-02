@@ -20,6 +20,7 @@ export async function getUserCompany(
           id: true,
           name: true,
           code: true,
+          logoUrl: true,
         },
       },
     },
