@@ -167,7 +167,6 @@ export const permissionRoles = {
   can_approve_leave_applications: [
     "ADMIN",
     "HR_OFFICER",
-    "PAYROLL_OFFICER",
   ],
   can_view_reports: ["ADMIN", "HR_OFFICER", "PAYROLL_OFFICER"],
   can_view_employee_profile: [
@@ -181,7 +180,6 @@ export const permissionRoles = {
   can_approve_leave_application: [
     "ADMIN",
     "HR_OFFICER",
-    "PAYROLL_OFFICER",
   ],
   can_view_all_payslips: ["ADMIN", "PAYROLL_OFFICER"],
 } as const satisfies Record<string, readonly Role[]>;

@@ -12,7 +12,7 @@ export default async function LeavePage() {
   }
 
   const canManage = ["ADMIN", "HR_OFFICER"].includes(session.user.role);
-  const canApprove = ["ADMIN", "PAYROLL_OFFICER"].includes(session.user.role);
+  const canApprove = ["ADMIN", "HR_OFFICER"].includes(session.user.role);
   const hasPersonalLeaveProfile = session.user.role !== "ADMIN";
 
   const [balances, applications, pendingApprovals, leaveTypes, employees] =

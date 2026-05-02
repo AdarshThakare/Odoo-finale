@@ -97,9 +97,20 @@ export async function allocateLeave(
 
   const employee = await db.employee.findFirst({
     where: { id: input.employeeId, companyId: scope.companyId },
+    include: { user: true },
   });
   if (!employee) {
     throw new TRPCError({ code: "NOT_FOUND", message: "Employee not found" });
+  }
+
+  if (
+    ["HR_OFFICER", "PAYROLL_OFFICER"].includes(employee.user.role) &&
+    scope.role !== "ADMIN"
+  ) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Only admins can allocate leave to HR and Payroll officers",
+    });
   }
 
   const leaveType = await db.leaveType.findUnique({

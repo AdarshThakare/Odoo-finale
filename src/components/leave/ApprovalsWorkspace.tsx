@@ -28,9 +28,11 @@ function formatDays(value: unknown) {
 export function ApprovalsWorkspace({
   pending: initialPending,
   all: initialAll,
+  canApprove,
 }: {
   pending: Application[];
   all: Application[];
+  canApprove: boolean;
 }) {
   const utils = api.useUtils();
   const [tab, setTab] = useState<"pending" | "all">("pending");
@@ -160,29 +162,38 @@ export function ApprovalsWorkspace({
                   >
                     {application.status}
                   </span>
+                  {application.approvedBy?.name && (
+                    <p className="mt-2 text-[10px] text-gray-500">
+                      By: {application.approvedBy.name}
+                    </p>
+                  )}
                 </td>
                 <td className="px-4 py-3">
                   {application.status === "PENDING" ? (
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        disabled={approve.isPending}
-                        onClick={() =>
-                          approve.mutate({ applicationId: application.id })
-                        }
-                        className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700 disabled:opacity-50"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        type="button"
-                        disabled={reject.isPending}
-                        onClick={() => setRejecting(application)}
-                        className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50"
-                      >
-                        Reject
-                      </button>
-                    </div>
+                    canApprove ? (
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          disabled={approve.isPending}
+                          onClick={() =>
+                            approve.mutate({ applicationId: application.id })
+                          }
+                          className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700 disabled:opacity-50"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          type="button"
+                          disabled={reject.isPending}
+                          onClick={() => setRejecting(application)}
+                          className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-gray-500">Pending review</span>
+                    )
                   ) : (
                     <span className="text-xs text-gray-400">-</span>
                   )}
