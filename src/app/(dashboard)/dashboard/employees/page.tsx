@@ -23,10 +23,13 @@ export default async function EmployeesPage({
   const departmentId = params?.departmentId ?? undefined;
   const search = params?.q?.trim() ?? undefined;
 
-  const [employees, departments] = await Promise.all([
+  const [employees, departments, todayAttendance] = await Promise.all([
     api.employee.list({ departmentId, search }),
     api.settings.listDepartments(),
+    api.attendance.getTodaySummary().catch(() => []),
   ]);
+
+  const presentEmployeeIds = new Set(todayAttendance);
 
   return (
     <div className="space-y-6">
@@ -40,13 +43,26 @@ export default async function EmployeesPage({
             Search, review, and open employee profiles from one visual directory.
           </p>
         </div>
-        <Link
-          href="/dashboard/employees/new"
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-purple-700 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-800 focus:ring-4 focus:ring-purple-100 focus:outline-none"
-        >
-          <IconPlus size={18} stroke={2} aria-hidden="true" />
-          New
-        </Link>
+        <div className="flex flex-col items-end gap-3 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-4 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm">
+            <span className="font-semibold text-gray-700">Today's Attendance:</span>
+            <div className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+              <span className="text-gray-600">Present</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
+              <span className="text-gray-600">Absent</span>
+            </div>
+          </div>
+          <Link
+            href="/dashboard/employees/new"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-purple-700 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-800 focus:ring-4 focus:ring-purple-100 focus:outline-none"
+          >
+            <IconPlus size={18} stroke={2} aria-hidden="true" />
+            New
+          </Link>
+        </div>
       </div>
 
       <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
@@ -109,10 +125,29 @@ export default async function EmployeesPage({
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex min-w-0 items-center gap-4">
-                        <Avatar
-                          avatarUrl={employee.avatarUrl}
-                          name={fullName}
-                        />
+                        <div className="relative">
+                          <Avatar
+                            avatarUrl={employee.avatarUrl}
+                            name={fullName}
+                          />
+                          <span
+                            className={`absolute -bottom-1 -right-1 block h-4 w-4 rounded-full border-2 border-white ${
+                              presentEmployeeIds.has(employee.id)
+                                ? "bg-emerald-500"
+                                : "bg-red-500"
+                            }`}
+                            aria-label={
+                              presentEmployeeIds.has(employee.id)
+                                ? "Present today"
+                                : "Absent today"
+                            }
+                            title={
+                              presentEmployeeIds.has(employee.id)
+                                ? "Present today"
+                                : "Absent today"
+                            }
+                          />
+                        </div>
                         <div className="min-w-0">
                           <p className="truncate text-lg font-bold text-gray-950 group-hover:text-purple-700">
                             {fullName}
