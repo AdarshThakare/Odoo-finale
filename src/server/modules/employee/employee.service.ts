@@ -41,6 +41,12 @@ function dateOrNull(value: string | undefined) {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
+function startOfUtcDay(value: Date) {
+  return new Date(
+    Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate()),
+  );
+}
+
 export async function listEmployeesForUser(
   db: PrismaClient,
   userId: string,
@@ -55,7 +61,11 @@ export async function listEmployeesForUser(
     });
   }
 
-  return listEmployeesByCompany(db, companyId, filters);
+  const today = startOfUtcDay(new Date());
+  return listEmployeesByCompany(db, companyId, {
+    ...filters,
+    attendanceDate: today,
+  });
 }
 
 export async function createEmployeeForUser(

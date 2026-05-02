@@ -1,14 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { api } from "~/trpc/react";
 
 export default function EmployeeProfilePage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const employeeId = params.id as string;
+  const isReadOnly =
+    searchParams.get("mode") === "view" ||
+    searchParams.get("readonly") === "true";
   const utils = api.useUtils();
 
   const { data: employee, isLoading } = api.employee.getById.useQuery({
@@ -111,6 +115,7 @@ export default function EmployeeProfilePage() {
 
   function handleProfileSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isReadOnly) return;
     setProfileError("");
 
     updateEmployee.mutate({
@@ -126,6 +131,7 @@ export default function EmployeeProfilePage() {
 
   function handleSalarySubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isReadOnly) return;
     setSalaryError("");
 
     const basicSalary = Number(salaryForm.basicSalary);
@@ -150,6 +156,7 @@ export default function EmployeeProfilePage() {
 
   function handleComponentSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isReadOnly) return;
     setComponentError("");
 
     const amount = Number(componentForm.amount);
@@ -175,9 +182,16 @@ export default function EmployeeProfilePage() {
         >
           Back to employees
         </Link>
-        <h1 className="mt-3 text-2xl font-bold text-gray-900">
-          {employee.firstName} {employee.lastName}
-        </h1>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <h1 className="text-2xl font-bold text-gray-900">
+            {employee.firstName} {employee.lastName}
+          </h1>
+          {isReadOnly && (
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+              View only
+            </span>
+          )}
+        </div>
         <p className="mt-1 text-sm text-gray-500">
           Login ID: {employee.user.loginId}
         </p>
@@ -203,6 +217,7 @@ export default function EmployeeProfilePage() {
             onChange={(value) =>
               setProfileForm((prev) => ({ ...prev, firstName: value }))
             }
+            readOnly={isReadOnly}
           />
           <Field
             label="Last name"
@@ -210,6 +225,7 @@ export default function EmployeeProfilePage() {
             onChange={(value) =>
               setProfileForm((prev) => ({ ...prev, lastName: value }))
             }
+            readOnly={isReadOnly}
           />
           <Field
             label="Phone"
@@ -217,6 +233,7 @@ export default function EmployeeProfilePage() {
             onChange={(value) =>
               setProfileForm((prev) => ({ ...prev, phone: value }))
             }
+            readOnly={isReadOnly}
           />
           <Select
             label="Gender"
@@ -224,6 +241,7 @@ export default function EmployeeProfilePage() {
             onChange={(value) =>
               setProfileForm((prev) => ({ ...prev, gender: value }))
             }
+            disabled={isReadOnly}
             options={[
               { value: "MALE", label: "Male" },
               { value: "FEMALE", label: "Female" },
@@ -241,6 +259,7 @@ export default function EmployeeProfilePage() {
               }));
               setSelectedDepartmentId(value || undefined);
             }}
+            disabled={isReadOnly}
             options={(departmentsQuery.data ?? []).map((department) => ({
               value: department.id,
               label: department.name,
@@ -252,21 +271,24 @@ export default function EmployeeProfilePage() {
             onChange={(value) =>
               setProfileForm((prev) => ({ ...prev, designationId: value }))
             }
+            disabled={isReadOnly}
             options={(designationsQuery.data ?? []).map((designation) => ({
               value: designation.id,
               label: designation.name,
             }))}
           />
 
-          <div className="md:col-span-2">
-            <button
-              type="submit"
-              disabled={updateEmployee.isPending}
-              className="rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800 disabled:opacity-60"
-            >
-              {updateEmployee.isPending ? "Saving..." : "Save changes"}
-            </button>
-          </div>
+          {!isReadOnly && (
+            <div className="md:col-span-2">
+              <button
+                type="submit"
+                disabled={updateEmployee.isPending}
+                className="rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800 disabled:opacity-60"
+              >
+                {updateEmployee.isPending ? "Saving..." : "Save changes"}
+              </button>
+            </div>
+          )}
         </form>
       </section>
 
@@ -295,6 +317,7 @@ export default function EmployeeProfilePage() {
             onChange={(value) =>
               setSalaryForm((prev) => ({ ...prev, basicSalary: value }))
             }
+            readOnly={isReadOnly}
           />
           <Field
             label="HRA"
@@ -303,6 +326,7 @@ export default function EmployeeProfilePage() {
             onChange={(value) =>
               setSalaryForm((prev) => ({ ...prev, hra: value }))
             }
+            readOnly={isReadOnly}
           />
           <Field
             label="Effective from"
@@ -311,17 +335,20 @@ export default function EmployeeProfilePage() {
             onChange={(value) =>
               setSalaryForm((prev) => ({ ...prev, effectiveFrom: value }))
             }
+            readOnly={isReadOnly}
           />
 
-          <div className="md:col-span-3">
-            <button
-              type="submit"
-              disabled={setSalaryStructure.isPending}
-              className="rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800 disabled:opacity-60"
-            >
-              {setSalaryStructure.isPending ? "Saving..." : "Save salary"}
-            </button>
-          </div>
+          {!isReadOnly && (
+            <div className="md:col-span-3">
+              <button
+                type="submit"
+                disabled={setSalaryStructure.isPending}
+                className="rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800 disabled:opacity-60"
+              >
+                {setSalaryStructure.isPending ? "Saving..." : "Save salary"}
+              </button>
+            </div>
+          )}
         </form>
       </section>
 
@@ -352,6 +379,7 @@ export default function EmployeeProfilePage() {
                 salaryComponentId: value,
               }))
             }
+            disabled={isReadOnly}
             options={(componentsQuery.data ?? [])
               .filter((component) => component.isActive)
               .map((component) => ({
@@ -366,6 +394,7 @@ export default function EmployeeProfilePage() {
             onChange={(value) =>
               setComponentForm((prev) => ({ ...prev, amount: value }))
             }
+            readOnly={isReadOnly}
           />
           <Field
             label="Effective from"
@@ -374,17 +403,20 @@ export default function EmployeeProfilePage() {
             onChange={(value) =>
               setComponentForm((prev) => ({ ...prev, effectiveFrom: value }))
             }
+            readOnly={isReadOnly}
           />
 
-          <div className="md:col-span-3">
-            <button
-              type="submit"
-              disabled={assignComponent.isPending}
-              className="rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800 disabled:opacity-60"
-            >
-              {assignComponent.isPending ? "Assigning..." : "Assign component"}
-            </button>
-          </div>
+          {!isReadOnly && (
+            <div className="md:col-span-3">
+              <button
+                type="submit"
+                disabled={assignComponent.isPending}
+                className="rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-800 disabled:opacity-60"
+              >
+                {assignComponent.isPending ? "Assigning..." : "Assign component"}
+              </button>
+            </div>
+          )}
         </form>
 
         <div className="mt-6 overflow-hidden rounded-lg border border-gray-200">
@@ -437,11 +469,13 @@ function Field({
   value,
   onChange,
   type = "text",
+  readOnly,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   type?: string;
+  readOnly?: boolean;
 }) {
   return (
     <div>
@@ -450,7 +484,10 @@ function Field({
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm transition outline-none focus:ring-2 focus:ring-purple-500"
+        readOnly={readOnly}
+        className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm shadow-sm transition outline-none focus:ring-2 focus:ring-purple-500 ${
+          readOnly ? "border-gray-200 bg-gray-50 text-gray-600" : "border-gray-300"
+        }`}
       />
     </div>
   );
@@ -461,11 +498,13 @@ function Select({
   value,
   onChange,
   options,
+  disabled,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   options: Array<{ value: string; label: string }>;
+  disabled?: boolean;
 }) {
   return (
     <div>
@@ -473,7 +512,10 @@ function Select({
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm transition outline-none focus:ring-2 focus:ring-purple-500"
+        disabled={disabled}
+        className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm shadow-sm transition outline-none focus:ring-2 focus:ring-purple-500 ${
+          disabled ? "border-gray-200 bg-gray-50 text-gray-600" : "border-gray-300"
+        }`}
       >
         <option value="">Select</option>
         {options.map((option) => (

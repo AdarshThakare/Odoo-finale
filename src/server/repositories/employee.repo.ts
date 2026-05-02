@@ -77,11 +77,28 @@ export async function listEmployeesByCompany(
   filters?: {
     departmentId?: string;
     search?: string;
+    attendanceDate?: Date;
   },
 ) {
   const where: Prisma.EmployeeWhereInput = {
     companyId,
   };
+
+  const attendanceDate = filters?.attendanceDate;
+  const attendanceSelect = attendanceDate
+    ? {
+        attendanceRecords: {
+          where: { date: attendanceDate },
+          select: {
+            date: true,
+            checkIn: true,
+            checkOut: true,
+            workingHours: true,
+            status: true,
+          },
+        },
+      }
+    : {};
 
   if (filters?.departmentId) {
     where.departmentId = filters.departmentId;
@@ -115,6 +132,7 @@ export async function listEmployeesByCompany(
       employeeCode: true,
       firstName: true,
       lastName: true,
+      avatarUrl: true,
       phone: true,
       user: {
         select: {
@@ -127,6 +145,7 @@ export async function listEmployeesByCompany(
       },
       department: { select: { name: true } },
       designation: { select: { name: true } },
+      ...attendanceSelect,
     },
   });
 }
