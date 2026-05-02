@@ -1,10 +1,12 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import {
   createTRPCRouter,
+  fgaCompanyProcedure,
   protectedProcedure,
-  roleProcedure,
 } from "~/server/api/trpc";
+import { checkAccess } from "~/lib/fga";
 import {
   createEmployeeForUser,
   getEmployeeForUser,
@@ -36,10 +38,12 @@ const updateEmployeeSchema = z.object({
   designationId: z.string().min(1, "Designation is required"),
 });
 
-const creatorRoles = ["ADMIN", "HR_OFFICER"] as const;
-
 export const employeeRouter = createTRPCRouter({
-  list: roleProcedure([...creatorRoles])
+  /**
+   * List all employees in the company.
+   * FGA: can_view_employee_directory on company:{companyId}
+   */
+  list: fgaCompanyProcedure("can_view_employee_directory")
     .input(
       z
         .object({
@@ -52,21 +56,63 @@ export const employeeRouter = createTRPCRouter({
       return listEmployeesForUser(ctx.db, ctx.session.user.id, input);
     }),
 
+  /**
+   * Get a single employee profile by ID.
+   * FGA: can_view on employee_profile:{employeeId}
+   */
   getById: protectedProcedure
     .input(z.object({ id: z.string().min(1, "Employee is required") }))
     .query(async ({ ctx, input }) => {
+      // Resource-level FGA check
+      const allowed = await checkAccess(
+        ctx.session.user.id,
+        "can_view",
+        "employee_profile",
+        input.id,
+      );
+
+      if (!allowed) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have permission to view this employee profile",
+        });
+      }
+
       return getEmployeeForUser(ctx.db, ctx.session.user.id, input.id);
     }),
 
-  create: roleProcedure([...creatorRoles])
+  /**
+   * Create a new employee.
+   * FGA: can_manage_employees on company:{companyId}
+   */
+  create: fgaCompanyProcedure("can_manage_employees")
     .input(createEmployeeSchema)
     .mutation(async ({ ctx, input }) => {
       return createEmployeeForUser(ctx.db, ctx.session.user.id, input);
     }),
 
-  update: roleProcedure([...creatorRoles])
+  /**
+   * Update an existing employee's details.
+   * FGA: can_edit_details on employee_profile:{employeeId}
+   */
+  update: protectedProcedure
     .input(updateEmployeeSchema)
     .mutation(async ({ ctx, input }) => {
+      // Resource-level FGA check
+      const allowed = await checkAccess(
+        ctx.session.user.id,
+        "can_edit_details",
+        "employee_profile",
+        input.id,
+      );
+
+      if (!allowed) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have permission to edit this employee profile",
+        });
+      }
+
       return updateEmployeeForUser(ctx.db, ctx.session.user.id, input);
     }),
 });

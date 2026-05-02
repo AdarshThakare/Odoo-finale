@@ -1,0 +1,56 @@
+model
+  schema 1.1
+
+type user
+
+type company
+  relations
+    define admin: [user]
+    define hr_officer: [user]
+    define payroll_officer: [user]
+    define employee: [user]
+    define can_manage_settings: admin
+    define can_manage_users: admin
+    define can_view_employee_directory: admin or employee or hr_officer or payroll_officer
+    define can_manage_employees: admin or hr_officer
+    define can_manage_salary_info: admin or payroll_officer
+    define can_view_all_attendance: admin or hr_officer or payroll_officer
+    define can_manage_leave_allocations: admin or hr_officer
+    define can_approve_leave_applications: admin or payroll_officer
+    define can_manage_payroll: admin or payroll_officer
+    define can_view_reports: admin or payroll_officer
+
+type employee_profile
+  relations
+    define owner: [user]
+    define company: [company]
+    define can_view: owner or can_view_employee_directory from company
+    define can_edit_details: can_manage_employees from company
+    define can_edit_salary: can_manage_salary_info from company
+
+type attendance_record
+  relations
+    define owner: [user]
+    define company: [company]
+    define can_view: owner or can_view_all_attendance from company
+
+type leave_allocation
+  relations
+    define owner: [user]
+    define company: [company]
+    define can_view: owner or can_manage_leave_allocations from company
+    define can_manage: can_manage_leave_allocations from company
+
+type leave_application
+  relations
+    define owner: [user]
+    define company: [company]
+    define can_view: owner or can_approve_leave_applications from company
+    define can_approve: can_approve_leave_applications from company
+
+type salary_slip
+  relations
+    define owner: [user]
+    define company: [company]
+    define can_view: owner or can_manage_payroll from company
+    define can_manage: can_manage_payroll from company

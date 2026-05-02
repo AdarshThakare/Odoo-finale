@@ -1,11 +1,10 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-import { createTRPCRouter, roleProcedure } from "~/server/api/trpc";
-import { type PrismaClient } from "../../../../generated/prisma";
-
-const adminRoles = ["ADMIN"] as const;
-const managerRoles = ["ADMIN", "HR_OFFICER"] as const;
+import {
+  createTRPCRouter,
+  fgaCompanyProcedure,
+} from "~/server/api/trpc";
 
 const departmentSchema = z.object({
   name: z.string().min(2, "Department name is required"),
@@ -16,48 +15,36 @@ const designationSchema = z.object({
   name: z.string().min(2, "Designation name is required"),
 });
 
-async function getCompanyId(ctx: {
-  db: PrismaClient;
-  session: { user: { id: string } };
-}) {
-  const user = await ctx.db.user.findUnique({
-    where: { id: ctx.session.user.id },
-    select: { companyId: true },
-  });
-
-  if (!user?.companyId) {
-    throw new TRPCError({
-      code: "PRECONDITION_FAILED",
-      message: "Company setup is required",
-    });
-  }
-
-  return user.companyId;
-}
-
 export const settingsRouter = createTRPCRouter({
-  listDepartments: roleProcedure([...managerRoles]).query(async ({ ctx }) => {
-    const companyId = await getCompanyId(ctx);
-    return ctx.db.department.findMany({
-      where: { companyId },
-      orderBy: { name: "asc" },
-      select: {
-        id: true,
-        name: true,
-        _count: {
-          select: { employees: true, designations: true },
+  /**
+   * List all departments.
+   * FGA: can_view_employee_directory on company:{companyId}
+   */
+  listDepartments: fgaCompanyProcedure("can_view_employee_directory").query(
+    async ({ ctx }) => {
+      return ctx.db.department.findMany({
+        where: { companyId: ctx.companyId },
+        orderBy: { name: "asc" },
+        select: {
+          id: true,
+          name: true,
+          _count: {
+            select: { employees: true, designations: true },
+          },
         },
-      },
-    });
-  }),
+      });
+    },
+  ),
 
-  createDepartment: roleProcedure([...adminRoles])
+  /**
+   * Create a department.
+   * FGA: can_manage_settings on company:{companyId}
+   */
+  createDepartment: fgaCompanyProcedure("can_manage_settings")
     .input(departmentSchema)
     .mutation(async ({ ctx, input }) => {
-      const companyId = await getCompanyId(ctx);
-
       const existing = await ctx.db.department.findFirst({
-        where: { name: input.name, companyId },
+        where: { name: input.name, companyId: ctx.companyId },
         select: { id: true },
       });
 
@@ -69,12 +56,16 @@ export const settingsRouter = createTRPCRouter({
       }
 
       return ctx.db.department.create({
-        data: { name: input.name, companyId },
+        data: { name: input.name, companyId: ctx.companyId },
         select: { id: true, name: true },
       });
     }),
 
-  updateDepartment: roleProcedure([...adminRoles])
+  /**
+   * Update a department.
+   * FGA: can_manage_settings on company:{companyId}
+   */
+  updateDepartment: fgaCompanyProcedure("can_manage_settings")
     .input(
       z.object({
         id: z.string().min(1, "Department is required"),
@@ -82,10 +73,8 @@ export const settingsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const companyId = await getCompanyId(ctx);
-
       const department = await ctx.db.department.findFirst({
-        where: { id: input.id, companyId },
+        where: { id: input.id, companyId: ctx.companyId },
         select: { id: true },
       });
 
@@ -97,7 +86,7 @@ export const settingsRouter = createTRPCRouter({
       }
 
       const existing = await ctx.db.department.findFirst({
-        where: { name: input.name, companyId },
+        where: { name: input.name, companyId: ctx.companyId },
         select: { id: true },
       });
 
@@ -115,13 +104,15 @@ export const settingsRouter = createTRPCRouter({
       });
     }),
 
-  deleteDepartment: roleProcedure([...adminRoles])
+  /**
+   * Delete a department.
+   * FGA: can_manage_settings on company:{companyId}
+   */
+  deleteDepartment: fgaCompanyProcedure("can_manage_settings")
     .input(z.object({ id: z.string().min(1, "Department is required") }))
     .mutation(async ({ ctx, input }) => {
-      const companyId = await getCompanyId(ctx);
-
       const department = await ctx.db.department.findFirst({
-        where: { id: input.id, companyId },
+        where: { id: input.id, companyId: ctx.companyId },
         select: { id: true },
       });
 
@@ -158,10 +149,13 @@ export const settingsRouter = createTRPCRouter({
       return { success: true };
     }),
 
-  listDesignations: roleProcedure([...managerRoles])
+  /**
+   * List all designations.
+   * FGA: can_view_employee_directory on company:{companyId}
+   */
+  listDesignations: fgaCompanyProcedure("can_view_employee_directory")
     .input(z.object({ departmentId: z.string().optional() }).optional())
     .query(async ({ ctx, input }) => {
-      const companyId = await getCompanyId(ctx);
       const departmentFilter = input?.departmentId
         ? { departmentId: input.departmentId }
         : {};
@@ -169,7 +163,7 @@ export const settingsRouter = createTRPCRouter({
       return ctx.db.designation.findMany({
         where: {
           ...departmentFilter,
-          department: { companyId },
+          department: { companyId: ctx.companyId },
         },
         orderBy: { name: "asc" },
         select: {
@@ -181,12 +175,15 @@ export const settingsRouter = createTRPCRouter({
       });
     }),
 
-  createDesignation: roleProcedure([...adminRoles])
+  /**
+   * Create a designation.
+   * FGA: can_manage_settings on company:{companyId}
+   */
+  createDesignation: fgaCompanyProcedure("can_manage_settings")
     .input(designationSchema)
     .mutation(async ({ ctx, input }) => {
-      const companyId = await getCompanyId(ctx);
       const department = await ctx.db.department.findFirst({
-        where: { id: input.departmentId, companyId },
+        where: { id: input.departmentId, companyId: ctx.companyId },
         select: { id: true },
       });
 
@@ -218,7 +215,11 @@ export const settingsRouter = createTRPCRouter({
       });
     }),
 
-  updateDesignation: roleProcedure([...adminRoles])
+  /**
+   * Update a designation.
+   * FGA: can_manage_settings on company:{companyId}
+   */
+  updateDesignation: fgaCompanyProcedure("can_manage_settings")
     .input(
       z.object({
         id: z.string().min(1, "Designation is required"),
@@ -226,9 +227,8 @@ export const settingsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const companyId = await getCompanyId(ctx);
       const designation = await ctx.db.designation.findFirst({
-        where: { id: input.id, department: { companyId } },
+        where: { id: input.id, department: { companyId: ctx.companyId } },
         select: { id: true, departmentId: true },
       });
 
@@ -261,12 +261,15 @@ export const settingsRouter = createTRPCRouter({
       });
     }),
 
-  deleteDesignation: roleProcedure([...adminRoles])
+  /**
+   * Delete a designation.
+   * FGA: can_manage_settings on company:{companyId}
+   */
+  deleteDesignation: fgaCompanyProcedure("can_manage_settings")
     .input(z.object({ id: z.string().min(1, "Designation is required") }))
     .mutation(async ({ ctx, input }) => {
-      const companyId = await getCompanyId(ctx);
       const designation = await ctx.db.designation.findFirst({
-        where: { id: input.id, department: { companyId } },
+        where: { id: input.id, department: { companyId: ctx.companyId } },
         select: { id: true },
       });
 

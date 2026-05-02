@@ -240,6 +240,7 @@ export async function createEmployeeWithUser(
     },
     select: {
       id: true,
+      userId: true,
       employeeCode: true,
       firstName: true,
       lastName: true,
