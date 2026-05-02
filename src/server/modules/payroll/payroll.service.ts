@@ -35,7 +35,17 @@ async function getCompanyUserIds(db: PrismaClient, companyId: string) {
 export async function listPeriods(db: PrismaClient, userId: string) {
   const companyId = await getCompanyScope(db, userId);
   const createdByIds = await getCompanyUserIds(db, companyId);
-  return listPayrollPeriods(db, createdByIds);
+  const periods = await listPayrollPeriods(db, createdByIds);
+
+  return periods.map((period) => ({
+    ...period,
+    payrollEntries: period.payrollEntries.map((entry) => ({
+      ...entry,
+      totalGross: Number(entry.totalGross),
+      totalDeductions: Number(entry.totalDeductions),
+      totalNet: Number(entry.totalNet),
+    })),
+  }));
 }
 
 export async function createPeriod(
@@ -234,7 +244,28 @@ export async function getPayrollEntry(
     throw new TRPCError({ code: "NOT_FOUND", message: "Period not found" });
   }
 
-  return period;
+  return {
+    ...period,
+    payrollEntries: period.payrollEntries.map((entry) => ({
+      ...entry,
+      totalGross: Number(entry.totalGross),
+      totalDeductions: Number(entry.totalDeductions),
+      totalNet: Number(entry.totalNet),
+      salarySlips: entry.salarySlips.map((slip) => ({
+        ...slip,
+        basicSalary: Number(slip.basicSalary),
+        hra: Number(slip.hra),
+        totalEarnings: Number(slip.totalEarnings),
+        grossSalary: Number(slip.grossSalary),
+        pfEmployee: Number(slip.pfEmployee),
+        pfEmployer: Number(slip.pfEmployer),
+        professionalTax: Number(slip.professionalTax),
+        totalDeductions: Number(slip.totalDeductions),
+        netSalary: Number(slip.netSalary),
+        paidLeaveDays: Number(slip.paidLeaveDays),
+      })),
+    })),
+  };
 }
 
 export async function getPayslipForUser(
@@ -254,7 +285,29 @@ export async function getPayslipForUser(
     throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
   }
 
-  return slip;
+  return {
+    ...slip,
+    basicSalary: Number(slip.basicSalary),
+    hra: Number(slip.hra),
+    totalEarnings: Number(slip.totalEarnings),
+    grossSalary: Number(slip.grossSalary),
+    pfEmployee: Number(slip.pfEmployee),
+    pfEmployer: Number(slip.pfEmployer),
+    professionalTax: Number(slip.professionalTax),
+    totalDeductions: Number(slip.totalDeductions),
+    netSalary: Number(slip.netSalary),
+    paidLeaveDays: Number(slip.paidLeaveDays),
+    payrollEntry: {
+      ...slip.payrollEntry,
+      totalGross: Number(slip.payrollEntry.totalGross),
+      totalDeductions: Number(slip.payrollEntry.totalDeductions),
+      totalNet: Number(slip.payrollEntry.totalNet),
+    },
+    slipDetails: slip.slipDetails.map((detail) => ({
+      ...detail,
+      amount: Number(detail.amount),
+    })),
+  };
 }
 
 export async function listMyPayslips(db: PrismaClient, userId: string) {
@@ -268,7 +321,7 @@ export async function listMyPayslips(db: PrismaClient, userId: string) {
     return [];
   }
 
-  return db.salarySlip.findMany({
+  const payslips = await db.salarySlip.findMany({
     where: { employeeId: employee.id },
     orderBy: { createdAt: "desc" },
     include: {
@@ -281,4 +334,24 @@ export async function listMyPayslips(db: PrismaClient, userId: string) {
       },
     },
   });
+
+  return payslips.map((slip) => ({
+    ...slip,
+    basicSalary: Number(slip.basicSalary),
+    hra: Number(slip.hra),
+    totalEarnings: Number(slip.totalEarnings),
+    grossSalary: Number(slip.grossSalary),
+    pfEmployee: Number(slip.pfEmployee),
+    pfEmployer: Number(slip.pfEmployer),
+    professionalTax: Number(slip.professionalTax),
+    totalDeductions: Number(slip.totalDeductions),
+    netSalary: Number(slip.netSalary),
+    paidLeaveDays: Number(slip.paidLeaveDays),
+    payrollEntry: {
+      ...slip.payrollEntry,
+      totalGross: Number(slip.payrollEntry.totalGross),
+      totalDeductions: Number(slip.payrollEntry.totalDeductions),
+      totalNet: Number(slip.payrollEntry.totalNet),
+    },
+  }));
 }
