@@ -664,7 +664,7 @@ Credentials sign-in is handled by NextAuth at `/api/auth/[...nextauth]`. The pro
 | createType          | mutation | HR/ADMIN       | Add leave type             |
 | allocate            | mutation | HR/ADMIN       | Allocate leave to employee |
 | getBalance          | query    | authed         | Remaining leave balance    |
-| apply               | mutation | authed         | Submit leave application   |
+| applyForLeave       | mutation | authed         | Submit leave application   |
 | getMyApplications   | query    | authed         | Own leave history          |
 | getPendingApprovals | query    | PAYROLL/ADMIN  | All pending requests       |
 | approve             | mutation | PAYROLL/ADMIN  | Approve leave              |
@@ -753,19 +753,19 @@ Credentials sign-in is handled by NextAuth at `/api/auth/[...nextauth]`. The pro
 
 **Goal:** Full leave lifecycle from application to approval to ledger.
 
-- [ ] `leave` tRPC router (full surface — see Section 5)
-- [ ] `leave.service.ts`:
+- [x] `leave` tRPC router (full surface — see Section 5)
+- [x] `leave.service.ts`:
   - `calculateLeaveDays(from, to, isHalfDay)` — exclude weekends
   - `checkBalance(employeeId, leaveTypeId, days)` — before applying
   - `applyLeave()` — creates application + ledger debit on approval
   - `approveLeave()` — updates attendance records to ON_LEAVE for those dates
   - `cancelLeave()` — reverses ledger entry
-- [ ] Leave types management page (HR)
-- [ ] Leave allocation page (HR: assign quota per employee per year)
-- [ ] Leave application form (Employee): date picker, type selector, balance preview
-- [ ] My leaves page: application history + status badges
-- [ ] Approvals queue (Payroll Officer): approve/reject with reason modal
-- [ ] **Checkpoint:** Full leave workflow end-to-end
+- [x] Leave types management page (HR)
+- [x] Leave allocation page (HR: assign quota per employee per year)
+- [x] Leave application form (Employee): date picker, type selector, balance preview
+- [x] My leaves page: application history + status badges
+- [x] Approvals queue (Payroll Officer): approve/reject with reason modal
+- [x] **Checkpoint:** Full leave workflow end-to-end
 
 ---
 
@@ -773,16 +773,16 @@ Credentials sign-in is handled by NextAuth at `/api/auth/[...nextauth]`. The pro
 
 **Goal:** Payroll Officer runs monthly payroll; employees see payslips.
 
-- [ ] `payroll` tRPC router (full surface — see Section 5)
-- [ ] `payroll.engine.ts`: implement calculation formula (Section 3 exactly)
-- [ ] `payroll.utils.ts`: PT slab lookup function, PF_RATE = 0.12 constant
-- [ ] `payroll.service.ts`: orchestrates engine, writes SalarySlip + SalarySlipDetail
-- [ ] Payroll periods page: create period, view status
-- [ ] Run Payroll action: triggers bulk slip generation for all active employees
-- [ ] Payrun detail page: list of all slips, totals summary
-- [ ] Individual payslip page: formatted breakdown (earnings table + deductions table + net)
-- [ ] Employee payslip access: own slip only (gated by session)
-- [ ] **Checkpoint:** Payroll Officer can run payroll; payslip shows correct math
+- [x] `payroll` tRPC router (full surface — see Section 5)
+- [x] `payroll.engine.ts`: implement calculation formula (Section 3 exactly)
+- [x] `payroll.utils.ts`: PT slab lookup function, PF_RATE = 0.12 constant
+- [x] `payroll.service.ts`: orchestrates engine, writes SalarySlip + SalarySlipDetail
+- [x] Payroll periods page: create period, view status
+- [x] Run Payroll action: triggers bulk slip generation for all active employees
+- [x] Payrun detail page: list of all slips, totals summary
+- [x] Individual payslip page: formatted breakdown (earnings table + deductions table + net)
+- [x] Employee payslip access: own slip only (gated by session)
+- [x] **Checkpoint:** Payroll Officer can run payroll; payslip shows correct math
 
 ---
 
@@ -790,10 +790,10 @@ Credentials sign-in is handled by NextAuth at `/api/auth/[...nextauth]`. The pro
 
 **Goal:** Role-scoped dashboards with summary cards + Recharts charts.
 
-- [ ] `dashboard` tRPC router (getStats, getAttendanceTrend, getLeaveDistribution, getPayrollTrend)
-- [ ] `dashboard.service.ts`: efficient aggregate SQL queries via Prisma
-- [ ] Install Recharts: `npm install recharts`
-- [ ] Dashboard page with role-conditional sections:
+- [x] `dashboard` tRPC router (getStats, getAttendanceTrend, getLeaveDistribution, getPayrollTrend)
+- [x] `dashboard.service.ts`: efficient aggregate SQL queries via Prisma
+- [x] Install Recharts: `npm install recharts`
+- [x] Dashboard page with role-conditional sections:
   - **All roles:** Today's attendance status card, leave balance card
   - **HR+:** Present today count, pending leave requests, headcount by dept (bar chart)
   - **HR+:** Monthly attendance trend (line chart: present vs absent per day)
@@ -801,7 +801,7 @@ Credentials sign-in is handled by NextAuth at `/api/auth/[...nextauth]`. The pro
   - **Payroll+:** Last payrun summary card (total net, employee count)
   - **Payroll+:** Monthly payroll cost trend (bar chart, last 6 months)
   - **Admin:** Full overview — all of the above
-- [ ] **Checkpoint:** Dashboard renders real data from DB, charts animate on load
+- [x] **Checkpoint:** Dashboard renders real data from DB, charts animate on load
 
 ---
 

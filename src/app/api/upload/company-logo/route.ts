@@ -8,6 +8,23 @@ export const runtime = "nodejs";
 const MAX_LOGO_BYTES = 1024 * 1024;
 const LOGO_FOLDER = "empay/company-logos";
 
+type CloudinaryUploadResponse =
+  | { secure_url: string }
+  | { error: { message?: string } };
+
+function isCloudinaryUploadResponse(
+  value: unknown,
+): value is CloudinaryUploadResponse {
+  if (!value || typeof value !== "object") return false;
+  if ("secure_url" in value && typeof value.secure_url === "string") {
+    return true;
+  }
+  if ("error" in value && typeof value.error === "object") {
+    return true;
+  }
+  return false;
+}
+
 export async function POST(request: Request) {
   if (
     !env.CLOUDINARY_NAME ||
@@ -47,7 +64,9 @@ export async function POST(request: Request) {
   const timestamp = Math.floor(Date.now() / 1000);
   const signature = crypto
     .createHash("sha1")
-    .update(`folder=${LOGO_FOLDER}&timestamp=${timestamp}${env.CLOUDINARY_API_SECRET}`)
+    .update(
+      `folder=${LOGO_FOLDER}&timestamp=${timestamp}${env.CLOUDINARY_API_SECRET}`,
+    )
     .digest("hex");
 
   const uploadForm = new FormData();
@@ -65,12 +84,22 @@ export async function POST(request: Request) {
     },
   );
 
-  const payload = await uploadResponse.json().catch(() => null);
+  const payload: unknown = await uploadResponse.json().catch(() => null);
 
   if (!uploadResponse.ok) {
-    const message = payload?.error?.message ?? "Cloudinary upload failed";
+    const message =
+      isCloudinaryUploadResponse(payload) && "error" in payload
+        ? (payload.error.message ?? "Cloudinary upload failed")
+        : "Cloudinary upload failed";
     return NextResponse.json({ error: message }, { status: 502 });
   }
 
-  return NextResponse.json({ url: payload?.secure_url });
+  if (!isCloudinaryUploadResponse(payload) || !("secure_url" in payload)) {
+    return NextResponse.json(
+      { error: "Cloudinary upload failed" },
+      { status: 502 },
+    );
+  }
+
+  return NextResponse.json({ url: payload.secure_url });
 }

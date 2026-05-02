@@ -92,7 +92,11 @@ export default function EmployeeProfilePage() {
     onSuccess: async () => {
       await utils.employee.getById.invalidate({ id: employeeId });
       setComponentError("");
-      setComponentForm({ salaryComponentId: "", amount: "", effectiveFrom: "" });
+      setComponentForm({
+        salaryComponentId: "",
+        amount: "",
+        effectiveFrom: "",
+      });
     },
     onError: (error) => setComponentError(error.message),
   });
@@ -127,7 +131,11 @@ export default function EmployeeProfilePage() {
     const basicSalary = Number(salaryForm.basicSalary);
     const hra = Number(salaryForm.hra);
 
-    if (!salaryForm.effectiveFrom || Number.isNaN(basicSalary) || Number.isNaN(hra)) {
+    if (
+      !salaryForm.effectiveFrom ||
+      Number.isNaN(basicSalary) ||
+      Number.isNaN(hra)
+    ) {
       setSalaryError("Please enter valid salary details");
       return;
     }
@@ -185,7 +193,10 @@ export default function EmployeeProfilePage() {
           </div>
         )}
 
-        <form onSubmit={handleProfileSubmit} className="mt-4 grid gap-4 md:grid-cols-2">
+        <form
+          onSubmit={handleProfileSubmit}
+          className="mt-4 grid gap-4 md:grid-cols-2"
+        >
           <Field
             label="First name"
             value={profileForm.firstName}
@@ -260,7 +271,9 @@ export default function EmployeeProfilePage() {
       </section>
 
       <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900">Salary structure</h2>
+        <h2 className="text-lg font-semibold text-gray-900">
+          Salary structure
+        </h2>
         <p className="text-sm text-gray-500">
           Set basic salary and HRA for this employee.
         </p>
@@ -271,7 +284,10 @@ export default function EmployeeProfilePage() {
           </div>
         )}
 
-        <form onSubmit={handleSalarySubmit} className="mt-4 grid gap-4 md:grid-cols-3">
+        <form
+          onSubmit={handleSalarySubmit}
+          className="mt-4 grid gap-4 md:grid-cols-3"
+        >
           <Field
             label="Basic salary"
             type="number"
@@ -323,12 +339,18 @@ export default function EmployeeProfilePage() {
           </div>
         )}
 
-        <form onSubmit={handleComponentSubmit} className="mt-4 grid gap-4 md:grid-cols-3">
+        <form
+          onSubmit={handleComponentSubmit}
+          className="mt-4 grid gap-4 md:grid-cols-3"
+        >
           <Select
             label="Component"
             value={componentForm.salaryComponentId}
             onChange={(value) =>
-              setComponentForm((prev) => ({ ...prev, salaryComponentId: value }))
+              setComponentForm((prev) => ({
+                ...prev,
+                salaryComponentId: value,
+              }))
             }
             options={(componentsQuery.data ?? [])
               .filter((component) => component.isActive)
@@ -367,7 +389,7 @@ export default function EmployeeProfilePage() {
 
         <div className="mt-6 overflow-hidden rounded-lg border border-gray-200">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <thead className="bg-gray-50 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase">
               <tr>
                 <th className="px-3 py-2">Component</th>
                 <th className="px-3 py-2">Type</th>
@@ -385,7 +407,7 @@ export default function EmployeeProfilePage() {
                     {component.salaryComponent.type}
                   </td>
                   <td className="px-3 py-2 text-gray-600">
-                    {component.amount}
+                    {component.amount.toString()}
                   </td>
                   <td className="px-3 py-2 text-gray-600">
                     {component.isActive ? "Active" : "Inactive"}
@@ -394,7 +416,10 @@ export default function EmployeeProfilePage() {
               ))}
               {employee.employeeSalaryComponents.length === 0 && (
                 <tr>
-                  <td className="px-3 py-4 text-center text-gray-500" colSpan={4}>
+                  <td
+                    className="px-3 py-4 text-center text-gray-500"
+                    colSpan={4}
+                  >
                     No components assigned yet.
                   </td>
                 </tr>

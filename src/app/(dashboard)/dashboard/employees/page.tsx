@@ -5,10 +5,11 @@ import { api } from "~/trpc/server";
 export default async function EmployeesPage({
   searchParams,
 }: {
-  searchParams?: { departmentId?: string; q?: string };
+  searchParams?: Promise<{ departmentId?: string; q?: string }>;
 }) {
-  const departmentId = searchParams?.departmentId || undefined;
-  const search = searchParams?.q?.trim() || undefined;
+  const params = await searchParams;
+  const departmentId = params?.departmentId ?? undefined;
+  const search = params?.q?.trim() ?? undefined;
 
   const [employees, departments] = await Promise.all([
     api.employee.list({ departmentId, search }),

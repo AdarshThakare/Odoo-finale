@@ -1,7 +1,20 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-import { createTRPCRouter, roleProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  roleProcedure,
+} from "~/server/api/trpc";
+import { type PrismaClient } from "../../../../generated/prisma";
+import {
+  createPeriod,
+  getPayrollEntry,
+  getPayslipForUser,
+  listMyPayslips,
+  listPeriods,
+  runPayroll,
+} from "~/server/modules/payroll/payroll.service";
 
 const payrollRoles = ["ADMIN", "PAYROLL_OFFICER"] as const;
 
@@ -25,7 +38,16 @@ const assignComponentSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
-async function getCompanyId(ctx: { db: typeof import("~/server/db").db; session: { user: { id: string } } }) {
+const periodSchema = z.object({
+  name: z.string().min(2, "Period name is required"),
+  startDate: z.string().min(1, "Start date is required"),
+  endDate: z.string().min(1, "End date is required"),
+});
+
+async function getCompanyId(ctx: {
+  db: PrismaClient;
+  session: { user: { id: string } };
+}) {
   const user = await ctx.db.user.findUnique({
     where: { id: ctx.session.user.id },
     select: { companyId: true },
@@ -214,4 +236,42 @@ export const payrollRouter = createTRPCRouter({
         },
       });
     }),
+
+  listPeriods: roleProcedure([...payrollRoles]).query(({ ctx }) =>
+    listPeriods(ctx.db, ctx.session.user.id),
+  ),
+
+  createPeriod: roleProcedure([...payrollRoles])
+    .input(periodSchema)
+    .mutation(({ ctx, input }) =>
+      createPeriod(ctx.db, ctx.session.user.id, input),
+    ),
+
+  runPayroll: roleProcedure([...payrollRoles])
+    .input(z.object({ periodId: z.string().min(1, "Period is required") }))
+    .mutation(({ ctx, input }) =>
+      runPayroll(ctx.db, ctx.session.user.id, input.periodId),
+    ),
+
+  getPayrollEntry: roleProcedure([...payrollRoles])
+    .input(z.object({ periodId: z.string().min(1, "Period is required") }))
+    .query(({ ctx, input }) =>
+      getPayrollEntry(ctx.db, ctx.session.user.id, input.periodId),
+    ),
+
+  getPayslip: protectedProcedure
+    .input(z.object({ id: z.string().min(1, "Payslip is required") }))
+    .query(({ ctx, input }) =>
+      getPayslipForUser(
+        ctx.db,
+        ctx.session.user.id,
+        input.id,
+        ctx.session.user.role === "ADMIN" ||
+          ctx.session.user.role === "PAYROLL_OFFICER",
+      ),
+    ),
+
+  listMyPayslips: protectedProcedure.query(({ ctx }) =>
+    listMyPayslips(ctx.db, ctx.session.user.id),
+  ),
 });
