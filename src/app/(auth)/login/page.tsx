@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -122,7 +123,10 @@ export default function LoginPage() {
       </form>
 
       <p className="mt-6 text-center text-sm text-gray-500">
-        Accounts are created by HR or Admin.
+        Need to create a company?{" "}
+        <Link href="/register" className="font-semibold text-purple-700">
+          Create an admin account
+        </Link>
       </p>
     </div>
   );

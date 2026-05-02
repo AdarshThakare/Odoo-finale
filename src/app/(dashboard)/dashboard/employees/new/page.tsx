@@ -13,8 +13,8 @@ const employeeSchema = z.object({
   phone: z.string().optional(),
   dateOfJoining: z.string().min(1, "Joining date is required"),
   gender: z.enum(["MALE", "FEMALE", "OTHER"]),
-  departmentName: z.string().min(2, "Department is required"),
-  designationName: z.string().min(2, "Designation is required"),
+  departmentId: z.string().min(1, "Department is required"),
+  designationId: z.string().min(1, "Designation is required"),
   role: z.enum(["HR_OFFICER", "PAYROLL_OFFICER", "EMPLOYEE"]),
 });
 
@@ -25,18 +25,33 @@ type FieldErrors = Partial<
 export default function NewEmployeePage() {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState("");
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState<
+    string | undefined
+  >(undefined);
   const [createdCredentials, setCreatedCredentials] = useState<{
     loginId: string;
     temporaryPassword: string;
+    emailSent: boolean;
+    emailError?: string;
   } | null>(null);
 
   const createEmployee = api.employee.create.useMutation({
     onSuccess: (result) => {
-      setCreatedCredentials(result.credentials);
+      setCreatedCredentials({
+        ...result.credentials,
+        emailSent: result.email.sent,
+        emailError: result.email.error,
+      });
       setServerError("");
     },
     onError: (error) => setServerError(error.message),
   });
+
+  const departmentsQuery = api.settings.listDepartments.useQuery();
+  const designationsQuery = api.settings.listDesignations.useQuery(
+    selectedDepartmentId ? { departmentId: selectedDepartmentId } : undefined,
+    { enabled: !!selectedDepartmentId },
+  );
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -55,8 +70,8 @@ export default function NewEmployeePage() {
           : undefined,
       dateOfJoining: formData.get("dateOfJoining"),
       gender: formData.get("gender"),
-      departmentName: formData.get("departmentName"),
-      designationName: formData.get("designationName"),
+      departmentId: formData.get("departmentId"),
+      designationId: formData.get("designationId"),
       role: formData.get("role"),
     });
 
@@ -110,6 +125,12 @@ export default function NewEmployeePage() {
               {createdCredentials.temporaryPassword}
             </span>
           </p>
+          <p className="mt-2">
+            Email:{" "}
+            {createdCredentials.emailSent
+              ? "Onboarding email sent"
+              : `Not sent${createdCredentials.emailError ? ` - ${createdCredentials.emailError}` : ""}`}
+          </p>
         </div>
       )}
 
@@ -132,16 +153,40 @@ export default function NewEmployeePage() {
           <option value="FEMALE">Female</option>
           <option value="OTHER">Other</option>
         </Select>
-        <Field
+        <Select
           label="Department"
-          id="departmentName"
-          error={errors.departmentName}
-        />
-        <Field
+          id="departmentId"
+          error={errors.departmentId}
+          onChange={(event) => {
+            setSelectedDepartmentId(event.target.value || undefined);
+          }}
+        >
+          <option value="">Select department</option>
+          {departmentsQuery.data?.map((department) => (
+            <option key={department.id} value={department.id}>
+              {department.name}
+            </option>
+          ))}
+        </Select>
+        {departmentsQuery.data?.length === 0 && (
+          <p className="text-xs text-gray-500 md:col-span-2">
+            No departments found. Create them in Settings first.
+          </p>
+        )}
+        <Select
+          key={selectedDepartmentId ?? "designation"}
           label="Designation"
-          id="designationName"
-          error={errors.designationName}
-        />
+          id="designationId"
+          error={errors.designationId}
+          disabled={!selectedDepartmentId}
+        >
+          <option value="">Select designation</option>
+          {designationsQuery.data?.map((designation) => (
+            <option key={designation.id} value={designation.id}>
+              {designation.name}
+            </option>
+          ))}
+        </Select>
         <Select label="Role" id="role" error={errors.role}>
           <option value="EMPLOYEE">Employee</option>
           <option value="HR_OFFICER">HR Officer</option>
@@ -196,11 +241,15 @@ function Select({
   label,
   error,
   children,
+  onChange,
+  disabled,
 }: {
   id: string;
   label: string;
   error?: string;
   children: React.ReactNode;
+  onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  disabled?: boolean;
 }) {
   return (
     <div>
@@ -210,6 +259,8 @@ function Select({
       <select
         id={id}
         name={id}
+        onChange={onChange}
+        disabled={disabled}
         className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm shadow-sm transition outline-none focus:ring-2 focus:ring-purple-500 ${
           error ? "border-red-400 bg-red-50" : "border-gray-300"
         }`}

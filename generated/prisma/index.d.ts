@@ -24815,17 +24815,18 @@ export namespace Prisma {
 
   export type DepartmentWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    name?: string
+    name_companyId?: DepartmentNameCompanyIdCompoundUniqueInput
     AND?: DepartmentWhereInput | DepartmentWhereInput[]
     OR?: DepartmentWhereInput[]
     NOT?: DepartmentWhereInput | DepartmentWhereInput[]
+    name?: StringFilter<"Department"> | string
     companyId?: StringNullableFilter<"Department"> | string | null
     createdAt?: DateTimeFilter<"Department"> | Date | string
     updatedAt?: DateTimeFilter<"Department"> | Date | string
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
     employees?: EmployeeListRelationFilter
     designations?: DesignationListRelationFilter
-  }, "id" | "name">
+  }, "id" | "name_companyId">
 
   export type DepartmentOrderByWithAggregationInput = {
     id?: SortOrder
@@ -24977,11 +24978,12 @@ export namespace Prisma {
 
   export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    employeeCode?: string
     userId?: string
+    companyId_employeeCode?: EmployeeCompanyIdEmployeeCodeCompoundUniqueInput
     AND?: EmployeeWhereInput | EmployeeWhereInput[]
     OR?: EmployeeWhereInput[]
     NOT?: EmployeeWhereInput | EmployeeWhereInput[]
+    employeeCode?: StringFilter<"Employee"> | string
     companyId?: StringNullableFilter<"Employee"> | string | null
     firstName?: StringFilter<"Employee"> | string
     lastName?: StringFilter<"Employee"> | string
@@ -25008,7 +25010,7 @@ export namespace Prisma {
     salaryStructure?: XOR<SalaryStructureNullableScalarRelationFilter, SalaryStructureWhereInput> | null
     employeeSalaryComponents?: EmployeeSalaryComponentListRelationFilter
     salarySlips?: SalarySlipListRelationFilter
-  }, "id" | "employeeCode" | "userId">
+  }, "id" | "userId" | "companyId_employeeCode">
 
   export type EmployeeOrderByWithAggregationInput = {
     id?: SortOrder
@@ -27945,6 +27947,11 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type DepartmentNameCompanyIdCompoundUniqueInput = {
+    name: string
+    companyId: string
+  }
+
   export type DepartmentCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
@@ -28073,6 +28080,11 @@ export namespace Prisma {
 
   export type SalarySlipOrderByRelationAggregateInput = {
     _count?: SortOrder
+  }
+
+  export type EmployeeCompanyIdEmployeeCodeCompoundUniqueInput = {
+    companyId: string
+    employeeCode: string
   }
 
   export type EmployeeCountOrderByAggregateInput = {

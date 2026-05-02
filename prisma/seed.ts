@@ -1,4 +1,3 @@
-import bcrypt from "bcryptjs";
 import { config } from "dotenv";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
@@ -12,12 +11,6 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const company = await prisma.company.upsert({
-    where: { code: "OI" },
-    update: { name: "Odoo India" },
-    create: { name: "Odoo India", code: "OI" },
-  });
-
   await prisma.professionalTaxSlab.deleteMany();
   await prisma.professionalTaxSlab.createMany({
     data: [
@@ -58,32 +51,7 @@ async function main() {
     },
   });
 
-  const passwordHash = await bcrypt.hash("admin@123", 12);
-  await prisma.user.upsert({
-    where: { email: "admin@empay.com" },
-    update: {
-      loginId: "ADMIN20260001",
-      companyId: company.id,
-      mustChangePassword: false,
-      lastPasswordChangedAt: new Date(),
-    },
-    create: {
-      email: "admin@empay.com",
-      loginId: "ADMIN20260001",
-      passwordHash,
-      name: "System Admin",
-      role: "ADMIN",
-      isActive: true,
-      companyId: company.id,
-      mustChangePassword: false,
-      lastPasswordChangedAt: new Date(),
-    },
-  });
-
   console.log("Seed complete");
-  console.log(
-    "Admin credentials: admin@empay.com or ADMIN20260001 / admin@123",
-  );
 }
 
 main()
