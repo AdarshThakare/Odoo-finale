@@ -90,7 +90,7 @@ export async function allocateLeave(
   );
 
   const yearStart = new Date(Date.UTC(input.year, 0, 1));
-  const yearEnd = new Date(Date.UTC(input.year, 11, 31));
+  const yearEnd = new Date(Date.UTC(input.year + 1, 0, 1));
 
   const delta = existing ? input.totalDays - existing.totalDays : input.totalDays;
   if (delta !== 0) {
@@ -144,10 +144,15 @@ export async function applyForLeave(
   },
 ) {
   const employee = await requireEmployee(db, userId);
-  const year = new Date().getUTCFullYear();
 
   const from = startOfUtcDay(new Date(`${input.fromDate}T00:00:00Z`));
   const to = startOfUtcDay(new Date(`${input.toDate}T00:00:00Z`));
+  const year = from.getUTCFullYear();
+
+  const leaveType = await db.leaveType.findUnique({ where: { id: input.leaveTypeId } });
+  if (!leaveType) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "Leave type not found" });
+  }
 
   if (from > to) {
     throw new TRPCError({ code: "BAD_REQUEST", message: "Start date must be before end date" });
@@ -207,6 +212,11 @@ export async function approveLeaveApplication(
   }
   if (application.status !== "PENDING") {
     throw new TRPCError({ code: "BAD_REQUEST", message: "Only pending applications can be approved" });
+  }
+
+  const scope = await requireCompany(db, userId);
+  if (application.employee.companyId !== scope.companyId) {
+    throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
   }
 
   const year = application.fromDate.getUTCFullYear();
@@ -273,10 +283,25 @@ export async function cancelLeaveApplication(
   if (application.employee.user.id !== userId) {
     throw new TRPCError({ code: "FORBIDDEN", message: "You can only cancel your own leave" });
   }
-  if (application.status !== "PENDING") {
-    throw new TRPCError({ code: "BAD_REQUEST", message: "Only pending applications can be cancelled" });
+  if (!["PENDING", "APPROVED"].includes(application.status)) {
+    throw new TRPCError({ code: "BAD_REQUEST", message: "Only pending or approved applications can be cancelled" });
   }
 
-  await updateLeaveApplicationStatus(db, applicationId, "CANCELLED");
+  await db.$transaction(async (tx) => {
+    await updateLeaveApplicationStatus(tx as unknown as PrismaClient, applicationId, "CANCELLED");
+
+    if (application.status === "APPROVED") {
+      await createLeaveLedgerEntry(tx as unknown as PrismaClient, {
+        employeeId: application.employeeId,
+        leaveTypeId: application.leaveTypeId,
+        leaveApplicationId: applicationId,
+        transactionType: "CANCELLATION",
+        leaves: new Prisma.Decimal(Number(application.totalDays)),
+        fromDate: application.fromDate,
+        toDate: application.toDate,
+      });
+    }
+  });
+
   return { success: true };
 }
