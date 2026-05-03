@@ -255,18 +255,19 @@ export function PayslipDetail({ payslip }: { payslip: Payslip }) {
                     </tr>
                   </thead>
                   <tbody>
-                    <Row label="Basic Salary" amount={payslip.basicSalary} />
-                    <Row label="House Rent Allowance" amount={payslip.hra} />
+                    <Row label="Basic Salary" amount={payslip.basicSalary} rate={(payslip.basicSalary / (payslip.grossSalary + payslip.pfEmployer)) * 100} />
+                    <Row label="House Rent Allowance" amount={payslip.hra} rate={(payslip.hra / payslip.basicSalary) * 100} />
                     {earnings.map((d) => (
                       <Row
                         key={d.id}
                         label={d.salaryComponent.name}
                         amount={d.amount}
+                        rate={(d.amount / payslip.basicSalary) * 100}
                       />
                     ))}
                     <tr className="border-y-2 border-gray-200 bg-gray-50 font-bold">
                       <td className="py-2.5 pl-1 text-gray-900">Gross</td>
-                      <td className="py-2.5 text-right text-gray-900">100</td>
+                      <td className="py-2.5 text-right text-gray-900"></td>
                       <td className="py-2.5 text-right text-gray-900">
                         {money(payslip.grossSalary)}
                       </td>
@@ -275,12 +276,14 @@ export function PayslipDetail({ payslip }: { payslip: Payslip }) {
                       label="PF Employee"
                       amount={-payslip.pfEmployee}
                       isDeduction
+                      rate={(payslip.pfEmployee / payslip.basicSalary) * 100}
                     />
                     <Row
                       label="PF Employer"
                       amount={-payslip.pfEmployer}
                       isDeduction
                       note="(informational)"
+                      rate={(payslip.pfEmployer / payslip.basicSalary) * 100}
                     />
                     <Row
                       label="Professional Tax"
@@ -293,11 +296,12 @@ export function PayslipDetail({ payslip }: { payslip: Payslip }) {
                         label={d.salaryComponent.name}
                         amount={-d.amount}
                         isDeduction
+                        rate={(d.amount / payslip.basicSalary) * 100}
                       />
                     ))}
                     <tr className="border-t-2 border-gray-200 font-bold">
                       <td className="pt-3 text-gray-900">Net Amount</td>
-                      <td className="pt-3 text-right text-gray-900">100</td>
+                      <td className="pt-3 text-right text-gray-900"></td>
                       <td className="pt-3 text-right text-purple-700">
                         {money(payslip.netSalary)}
                       </td>
@@ -364,11 +368,13 @@ function SummaryCard({
 function Row({
   label,
   amount,
+  rate,
   isDeduction = false,
   note,
 }: {
   label: string;
   amount: number;
+  rate?: number;
   isDeduction?: boolean;
   note?: string;
 }) {
@@ -383,7 +389,9 @@ function Row({
         {label}
         {note && <span className="ml-2 text-xs text-gray-400">{note}</span>}
       </td>
-      <td className="py-2.5 text-right text-gray-500">100</td>
+      <td className="py-2.5 text-right text-gray-500">
+        {rate !== undefined ? `${rate.toFixed(2)} %` : ""}
+      </td>
       <td
         className={`py-2.5 text-right ${isDeduction ? "text-red-600" : "text-gray-700"}`}
       >
@@ -670,18 +678,28 @@ function PrintPayslip({
                     fontWeight: "600",
                   }}
                 >
-                  Amounts
+                  Rate
+                </th>
+                <th
+                  style={{
+                    textAlign: "right",
+                    padding: "5px 8px",
+                    fontWeight: "600",
+                  }}
+                >
+                  Amount
                 </th>
               </tr>
             </thead>
             <tbody>
-              <PrintRow label="Basic Salary" amount={payslip.basicSalary} />
-              <PrintRow label="House Rent Allowance" amount={payslip.hra} />
+              <PrintRow label="Basic Salary" amount={payslip.basicSalary} rate={(payslip.basicSalary / (payslip.grossSalary + payslip.pfEmployer)) * 100} />
+              <PrintRow label="House Rent Allowance" amount={payslip.hra} rate={(payslip.hra / payslip.basicSalary) * 100} />
               {earnings.map((d) => (
                 <PrintRow
                   key={d.id}
                   label={d.salaryComponent.name}
                   amount={d.amount}
+                  rate={(d.amount / payslip.basicSalary) * 100}
                 />
               ))}
               <PrintRow label="Gross" amount={payslip.grossSalary} bold />
@@ -709,7 +727,16 @@ function PrintPayslip({
                     fontWeight: "600",
                   }}
                 >
-                  Amounts
+                  Rate
+                </th>
+                <th
+                  style={{
+                    textAlign: "right",
+                    padding: "5px 8px",
+                    fontWeight: "600",
+                  }}
+                >
+                  Amount
                 </th>
               </tr>
             </thead>
@@ -718,11 +745,13 @@ function PrintPayslip({
                 label="PF Employee"
                 amount={payslip.pfEmployee}
                 deduction
+                rate={(payslip.pfEmployee / payslip.basicSalary) * 100}
               />
               <PrintRow
                 label="PF Employer"
                 amount={payslip.pfEmployer}
                 deduction
+                rate={(payslip.pfEmployer / payslip.basicSalary) * 100}
               />
               <PrintRow
                 label="Professional Tax"
@@ -735,6 +764,7 @@ function PrintPayslip({
                   label={d.salaryComponent.name}
                   amount={d.amount}
                   deduction
+                  rate={(d.amount / payslip.basicSalary) * 100}
                 />
               ))}
             </tbody>
@@ -791,11 +821,13 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 function PrintRow({
   label,
   amount,
+  rate,
   bold = false,
   deduction = false,
 }: {
   label: string;
   amount: number;
+  rate?: number;
   bold?: boolean;
   deduction?: boolean;
 }) {
@@ -803,6 +835,15 @@ function PrintRow({
     <tr style={{ borderBottom: "1px solid #f3f4f6" }}>
       <td style={{ padding: "3px 8px", fontWeight: bold ? "bold" : "normal" }}>
         {label}
+      </td>
+      <td
+        style={{
+          padding: "3px 8px",
+          textAlign: "right",
+          color: "#6b7280",
+        }}
+      >
+        {rate !== undefined ? `${rate.toFixed(2)} %` : ""}
       </td>
       <td
         style={{

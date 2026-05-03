@@ -11,6 +11,14 @@ import {
   type TablerIcon,
 } from "@tabler/icons-react";
 import { z } from "zod";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 
 import { useToast } from "~/components/ui/Toaster";
 import { api, type RouterOutputs } from "~/trpc/react";
@@ -138,6 +146,8 @@ export function PayrollWorkspace({
             delay="160ms"
           />
         </section>
+
+        <SalaryPieCharts slip={payslips[0]} />
 
         <PayrollTable
           title="Payslip history"
@@ -493,5 +503,104 @@ function StatusBadge({ label }: { label: string }) {
     <span className="inline-flex rounded-full bg-violet-50 px-2.5 py-1 text-xs font-semibold whitespace-nowrap text-violet-700 ring-1 ring-violet-100">
       {label}
     </span>
+  );
+}
+
+function SalaryPieCharts({ slip }: { slip: MyPayslip | undefined }) {
+  if (!slip) return null;
+
+  const earningsData = [
+    { name: "Basic Salary", value: Number(slip.basicSalary) },
+    { name: "HRA", value: Number(slip.hra) },
+    { name: "Other Allowances", value: Number(slip.totalEarnings) },
+  ].filter((d) => d.value > 0);
+
+  const deductionsData = [
+    { name: "PF Employee", value: Number(slip.pfEmployee) },
+    { name: "Professional Tax", value: Number(slip.professionalTax) },
+    {
+      name: "Other Deductions",
+      value:
+        Number(slip.totalDeductions) -
+        Number(slip.pfEmployee) -
+        Number(slip.professionalTax),
+    },
+  ].filter((d) => d.value > 0);
+
+  const EARNINGS_COLORS = ["#8b5cf6", "#3b82f6", "#14b8a6"];
+  const DEDUCTIONS_COLORS = ["#f43f5e", "#f59e0b", "#84cc16"];
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-2">
+      <div
+        className={`${cardAnimation} rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200/70`}
+        style={{ animationDelay: "180ms" }}
+      >
+        <h3 className="font-display mb-4 text-sm font-medium text-slate-900">
+          Earnings Breakdown
+        </h3>
+        <div className="h-64 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={earningsData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={80}
+                paddingAngle={2}
+              >
+                {earningsData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={EARNINGS_COLORS[index % EARNINGS_COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip formatter={(value: unknown) => money(value)} />
+              <Legend verticalAlign="bottom" height={36} />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {deductionsData.length > 0 && (
+        <div
+          className={`${cardAnimation} rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200/70`}
+          style={{ animationDelay: "200ms" }}
+        >
+          <h3 className="font-display mb-4 text-sm font-medium text-slate-900">
+            Deductions Breakdown
+          </h3>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={deductionsData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  paddingAngle={2}
+                >
+                  {deductionsData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={DEDUCTIONS_COLORS[index % DEDUCTIONS_COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value: unknown) => money(value)} />
+                <Legend verticalAlign="bottom" height={36} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
