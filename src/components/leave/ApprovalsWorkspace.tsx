@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { useToast } from "~/components/ui/Toaster";
 import { api, type RouterOutputs } from "~/trpc/react";
 
 type Application = RouterOutputs["leave"]["getAllApprovals"][number];
@@ -35,6 +36,7 @@ export function ApprovalsWorkspace({
   canApprove: boolean;
 }) {
   const utils = api.useUtils();
+  const toast = useToast();
   const [tab, setTab] = useState<"pending" | "all">("pending");
   const [actionError, setActionError] = useState("");
   const [rejecting, setRejecting] = useState<Application | null>(null);
@@ -57,9 +59,13 @@ export function ApprovalsWorkspace({
   const approve = api.leave.approve.useMutation({
     onSuccess: () => {
       setActionError("");
+      toast.success("Leave request approved.");
       invalidateApprovals();
     },
-    onError: (error) => setActionError(error.message),
+    onError: (error) => {
+      setActionError(error.message);
+      toast.error(error.message);
+    },
   });
 
   const reject = api.leave.reject.useMutation({
@@ -67,9 +73,13 @@ export function ApprovalsWorkspace({
       setRejecting(null);
       setRejectionReason("");
       setActionError("");
+      toast.success("Leave request rejected.");
       invalidateApprovals();
     },
-    onError: (error) => setActionError(error.message),
+    onError: (error) => {
+      setActionError(error.message);
+      toast.error(error.message);
+    },
   });
 
   const rows = tab === "pending" ? pending : all;
@@ -192,7 +202,9 @@ export function ApprovalsWorkspace({
                         </button>
                       </div>
                     ) : (
-                      <span className="text-xs text-gray-500">Pending review</span>
+                      <span className="text-xs text-gray-500">
+                        Pending review
+                      </span>
                     )
                   ) : (
                     <span className="text-xs text-gray-400">-</span>

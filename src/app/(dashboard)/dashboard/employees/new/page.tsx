@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { z } from "zod";
 
+import { useToast } from "~/components/ui/Toaster";
 import { api } from "~/trpc/react";
 
 const employeeSchema = z.object({
@@ -23,6 +24,7 @@ type FieldErrors = Partial<
 >;
 
 export default function NewEmployeePage() {
+  const toast = useToast();
   const [errors, setErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState("");
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<
@@ -43,8 +45,12 @@ export default function NewEmployeePage() {
         emailError: result.email.error,
       });
       setServerError("");
+      toast.success("Employee account created.");
     },
-    onError: (error) => setServerError(error.message),
+    onError: (error) => {
+      setServerError(error.message);
+      toast.error(error.message);
+    },
   });
 
   const departmentsQuery = api.settings.listDepartments.useQuery();
@@ -82,6 +88,9 @@ export default function NewEmployeePage() {
         fieldErrors[field] ??= issue.message;
       });
       setErrors(fieldErrors);
+      toast.error(
+        result.error.issues[0]?.message ?? "Check the highlighted fields.",
+      );
       return;
     }
 

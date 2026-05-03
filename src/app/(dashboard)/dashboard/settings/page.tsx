@@ -9,6 +9,7 @@ import {
   type TablerIcon,
 } from "@tabler/icons-react";
 
+import { useToast } from "~/components/ui/Toaster";
 import { api } from "~/trpc/react";
 
 const roleOptions = [
@@ -29,6 +30,7 @@ const cardAnimation =
 
 export default function SettingsPage() {
   const utils = api.useUtils();
+  const toast = useToast();
   const [departmentName, setDepartmentName] = useState("");
   const [designationName, setDesignationName] = useState("");
   const [designationDepartmentId, setDesignationDepartmentId] = useState("");
@@ -52,8 +54,12 @@ export default function SettingsPage() {
       await usersQuery.refetch();
       await utils.settings.listUsers.invalidate();
       setError("");
+      toast.success("User role updated.");
     },
-    onError: (err) => setError(err.message),
+    onError: (err) => {
+      setError(err.message);
+      toast.error(err.message);
+    },
   });
 
   const createDepartment = api.settings.createDepartment.useMutation({
@@ -61,24 +67,36 @@ export default function SettingsPage() {
       setDepartmentName("");
       await utils.settings.listDepartments.invalidate();
       setError("");
+      toast.success("Department created.");
     },
-    onError: (err) => setError(err.message),
+    onError: (err) => {
+      setError(err.message);
+      toast.error(err.message);
+    },
   });
 
   const updateDepartment = api.settings.updateDepartment.useMutation({
     onSuccess: async () => {
       await utils.settings.listDepartments.invalidate();
       setError("");
+      toast.success("Department updated.");
     },
-    onError: (err) => setError(err.message),
+    onError: (err) => {
+      setError(err.message);
+      toast.error(err.message);
+    },
   });
 
   const deleteDepartment = api.settings.deleteDepartment.useMutation({
     onSuccess: async () => {
       await utils.settings.listDepartments.invalidate();
       setError("");
+      toast.success("Department deleted.");
     },
-    onError: (err) => setError(err.message),
+    onError: (err) => {
+      setError(err.message);
+      toast.error(err.message);
+    },
   });
 
   const createDesignation = api.settings.createDesignation.useMutation({
@@ -86,24 +104,36 @@ export default function SettingsPage() {
       setDesignationName("");
       await utils.settings.listDesignations.invalidate();
       setError("");
+      toast.success("Designation created.");
     },
-    onError: (err) => setError(err.message),
+    onError: (err) => {
+      setError(err.message);
+      toast.error(err.message);
+    },
   });
 
   const updateDesignation = api.settings.updateDesignation.useMutation({
     onSuccess: async () => {
       await utils.settings.listDesignations.invalidate();
       setError("");
+      toast.success("Designation updated.");
     },
-    onError: (err) => setError(err.message),
+    onError: (err) => {
+      setError(err.message);
+      toast.error(err.message);
+    },
   });
 
   const deleteDesignation = api.settings.deleteDesignation.useMutation({
     onSuccess: async () => {
       await utils.settings.listDesignations.invalidate();
       setError("");
+      toast.success("Designation deleted.");
     },
-    onError: (err) => setError(err.message),
+    onError: (err) => {
+      setError(err.message);
+      toast.error(err.message);
+    },
   });
 
   const createComponent = api.payroll.createComponent.useMutation({
@@ -111,16 +141,24 @@ export default function SettingsPage() {
       setComponentName("");
       await utils.payroll.listComponents.invalidate();
       setError("");
+      toast.success("Salary component created.");
     },
-    onError: (err) => setError(err.message),
+    onError: (err) => {
+      setError(err.message);
+      toast.error(err.message);
+    },
   });
 
   const updateComponent = api.payroll.updateComponent.useMutation({
     onSuccess: async () => {
       await utils.payroll.listComponents.invalidate();
       setError("");
+      toast.success("Salary component updated.");
     },
-    onError: (err) => setError(err.message),
+    onError: (err) => {
+      setError(err.message);
+      toast.error(err.message);
+    },
   });
 
   function handleRenameDepartment(id: string, currentName: string) {

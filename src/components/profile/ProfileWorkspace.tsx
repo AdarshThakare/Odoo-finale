@@ -13,6 +13,7 @@ import {
   type TablerIcon,
 } from "@tabler/icons-react";
 
+import { useToast } from "~/components/ui/Toaster";
 import { api, type RouterOutputs } from "~/trpc/react";
 
 type Profile = RouterOutputs["employee"]["getMyProfile"];
@@ -80,6 +81,7 @@ function splitList(value: string | null | undefined) {
 export function ProfileWorkspace() {
   const utils = api.useUtils();
   const router = useRouter();
+  const toast = useToast();
   const { data: profile, isLoading } = api.employee.getMyProfile.useQuery();
   const [tab, setTab] = useState<Tab>("resume");
   const [message, setMessage] = useState("");
@@ -120,12 +122,14 @@ export function ProfileWorkspace() {
     onSuccess: async () => {
       setError("");
       setMessage("Profile saved.");
+      toast.success("Profile saved.");
       await utils.employee.getMyProfile.invalidate();
       router.refresh();
     },
     onError: (mutationError) => {
       setMessage("");
       setError(mutationError.message);
+      toast.error(mutationError.message);
     },
   });
 
@@ -200,11 +204,12 @@ export function ProfileWorkspace() {
       setForm((current) => ({ ...current, avatarUrl: payload.url }));
       updateProfile.mutate({ avatarUrl: payload.url });
     } catch (uploadError) {
-      setError(
+      const message =
         uploadError instanceof Error
           ? uploadError.message
-          : "Profile image upload failed",
-      );
+          : "Profile image upload failed";
+      setError(message);
+      toast.error(message);
     } finally {
       setAvatarUploading(false);
     }

@@ -15,6 +15,7 @@ import {
   IconWallet,
 } from "@tabler/icons-react";
 
+import { useToast } from "~/components/ui/Toaster";
 import { api } from "~/trpc/react";
 
 function getRoleRank(role: string) {
@@ -58,6 +59,7 @@ export default function EmployeeProfilePage() {
   const params = useParams();
   const employeeId = params.id as string;
   const utils = api.useUtils();
+  const toast = useToast();
 
   const { data: employee, isLoading } = api.employee.getById.useQuery({
     id: employeeId,
@@ -150,9 +152,13 @@ export default function EmployeeProfilePage() {
       await utils.employee.getById.invalidate({ id: employeeId });
       setProfileError("");
       setProfileSuccess("Profile saved successfully!");
+      toast.success("Employee profile saved.");
       setTimeout(() => setProfileSuccess(""), 3000);
     },
-    onError: (error) => setProfileError(error.message),
+    onError: (error) => {
+      setProfileError(error.message);
+      toast.error(error.message);
+    },
   });
 
   const setSalaryStructure = api.payroll.setSalaryStructure.useMutation({
@@ -160,9 +166,13 @@ export default function EmployeeProfilePage() {
       await utils.employee.getById.invalidate({ id: employeeId });
       setSalaryError("");
       setSalarySuccess("Salary saved successfully!");
+      toast.success("Salary saved successfully.");
       setTimeout(() => setSalarySuccess(""), 3000);
     },
-    onError: (error) => setSalaryError(error.message),
+    onError: (error) => {
+      setSalaryError(error.message);
+      toast.error(error.message);
+    },
   });
 
   const assignComponent = api.payroll.assignComponent.useMutation({
@@ -170,6 +180,7 @@ export default function EmployeeProfilePage() {
       await utils.employee.getById.invalidate({ id: employeeId });
       setComponentError("");
       setComponentSuccess("Component assigned!");
+      toast.success("Salary component assigned.");
       setTimeout(() => setComponentSuccess(""), 3000);
       setComponentForm({
         salaryComponentId: "",
@@ -177,7 +188,10 @@ export default function EmployeeProfilePage() {
         effectiveFrom: "",
       });
     },
-    onError: (error) => setComponentError(error.message),
+    onError: (error) => {
+      setComponentError(error.message);
+      toast.error(error.message);
+    },
   });
 
   if (isLoading || meLoading) {
@@ -263,7 +277,9 @@ export default function EmployeeProfilePage() {
       Number.isNaN(basicSalary) ||
       Number.isNaN(hra)
     ) {
-      setSalaryError("Please enter valid salary details");
+      const message = "Please enter valid salary details";
+      setSalaryError(message);
+      toast.error(message);
       return;
     }
 
@@ -281,7 +297,9 @@ export default function EmployeeProfilePage() {
 
     const amount = Number(componentForm.amount);
     if (!componentForm.salaryComponentId || Number.isNaN(amount)) {
-      setComponentError("Please select a component and amount");
+      const message = "Please select a component and amount";
+      setComponentError(message);
+      toast.error(message);
       return;
     }
 

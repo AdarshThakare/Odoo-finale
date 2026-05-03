@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
 
+import { useToast } from "~/components/ui/Toaster";
 import { api } from "~/trpc/react";
 
 const bootstrapFieldsSchema = z.object({
@@ -83,6 +84,7 @@ const initialValues: FormValues = {
 
 export default function RegisterPage() {
   const router = useRouter();
+  const toast = useToast();
   const [step, setStep] = useState(0);
   const [values, setValues] = useState<FormValues>(initialValues);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -92,9 +94,13 @@ export default function RegisterPage() {
   const bootstrapAdmin = api.auth.bootstrapAdmin.useMutation({
     onSuccess: () => {
       setServerError("");
+      toast.success("Workspace created. Sign in with your admin account.");
       router.push("/login");
     },
-    onError: (error) => setServerError(error.message),
+    onError: (error) => {
+      setServerError(error.message);
+      toast.error(error.message);
+    },
   });
 
   function setField(field: FieldName, value: string | undefined) {
@@ -114,7 +120,9 @@ export default function RegisterPage() {
   function validateStep(stepIndex: number) {
     if (stepIndex === 0) {
       if (logoUploading) {
-        setServerError("Please wait for the logo upload to finish");
+        const message = "Please wait for the logo upload to finish";
+        setServerError(message);
+        toast.error(message);
         return false;
       }
 
@@ -127,6 +135,9 @@ export default function RegisterPage() {
 
       if (!result.success) {
         setErrors(collectErrors(result.error.issues));
+        toast.error(
+          result.error.issues[0]?.message ?? "Check the highlighted fields.",
+        );
         return false;
       }
     }
@@ -141,6 +152,9 @@ export default function RegisterPage() {
 
       if (!result.success) {
         setErrors(collectErrors(result.error.issues));
+        toast.error(
+          result.error.issues[0]?.message ?? "Check the highlighted fields.",
+        );
         return false;
       }
     }
@@ -153,6 +167,9 @@ export default function RegisterPage() {
 
       if (!result.success) {
         setErrors(collectErrors(result.error.issues));
+        toast.error(
+          result.error.issues[0]?.message ?? "Check the highlighted fields.",
+        );
         return false;
       }
     }
@@ -181,11 +198,13 @@ export default function RegisterPage() {
     }
 
     if (file.size > MAX_LOGO_BYTES) {
+      const message = "Logo must be under 1MB";
       setErrors((prev) => ({
         ...prev,
-        companyLogoUrl: "Logo must be under 1MB",
+        companyLogoUrl: message,
       }));
       setField("companyLogoUrl", undefined);
+      toast.error(message);
       return;
     }
 
@@ -216,13 +235,16 @@ export default function RegisterPage() {
       }
 
       setField("companyLogoUrl", payload.url);
+      toast.success("Company logo uploaded.");
     } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Logo upload failed";
       setField("companyLogoUrl", undefined);
       setErrors((prev) => ({
         ...prev,
-        companyLogoUrl:
-          error instanceof Error ? error.message : "Logo upload failed",
+        companyLogoUrl: message,
       }));
+      toast.error(message);
     } finally {
       setLogoUploading(false);
     }
@@ -233,7 +255,9 @@ export default function RegisterPage() {
     setServerError("");
 
     if (logoUploading) {
-      setServerError("Please wait for the logo upload to finish");
+      const message = "Please wait for the logo upload to finish";
+      setServerError(message);
+      toast.error(message);
       return;
     }
 
@@ -241,6 +265,9 @@ export default function RegisterPage() {
 
     if (!result.success) {
       setErrors(collectErrors(result.error.issues));
+      toast.error(
+        result.error.issues[0]?.message ?? "Check the highlighted fields.",
+      );
       const firstInvalidStep = result.error.issues.some((issue) =>
         ["companyName", "companyLogoUrl"].includes(String(issue.path[0])),
       )
@@ -259,7 +286,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6 sm:m-16">
+    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:m-16 sm:p-6">
       <div className="mb-5">
         <p className="text-xs font-semibold tracking-[0.18em] text-purple-700 uppercase">
           Company setup
@@ -362,7 +389,10 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
         const isComplete = index < currentStep;
 
         return (
-          <li key={stepItem.title} className="relative flex flex-col items-center">
+          <li
+            key={stepItem.title}
+            className="relative flex flex-col items-center"
+          >
             {index > 0 && (
               <span
                 className={`absolute top-5 right-1/2 h-0.5 w-full ${
@@ -439,7 +469,7 @@ function CompanyStep({
           type="file"
           accept="image/*"
           onChange={onLogoChange}
-          className={`mt-2 block w-full rounded-lg border bg-white px-3 py-2 text-sm text-gray-700 shadow-sm transition file:mr-3 file:rounded-md file:border-0 file:bg-purple-50 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-purple-700 outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-100 ${
+          className={`mt-2 block w-full rounded-lg border bg-white px-3 py-2 text-sm text-gray-700 shadow-sm transition outline-none file:mr-3 file:rounded-md file:border-0 file:bg-purple-50 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-purple-700 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 ${
             errors.companyLogoUrl
               ? "border-red-400 bg-red-50"
               : "border-gray-300"

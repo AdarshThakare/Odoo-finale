@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
 
+import { useToast } from "~/components/ui/Toaster";
 import { api } from "~/trpc/react";
 
 const passwordSchema = z
@@ -42,6 +43,7 @@ export function ChangePasswordForm({
   successRedirect = "/dashboard",
 }: ChangePasswordFormProps) {
   const router = useRouter();
+  const toast = useToast();
   const [errors, setErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState("");
   const [success, setSuccess] = useState("");
@@ -50,6 +52,7 @@ export function ChangePasswordForm({
     onSuccess: async (result, variables) => {
       setSuccess("Password updated! Signing you in...");
       setServerError("");
+      toast.success("Password updated. Refreshing your secure session.");
 
       // Re-sign in with the new password so the session token is refreshed
       // and mustChangePassword is cleared.
@@ -64,6 +67,7 @@ export function ChangePasswordForm({
         setServerError(
           "Password updated but auto sign-in failed. Please log in manually.",
         );
+        toast.error("Password updated, but auto sign-in failed.");
         router.push("/login");
         return;
       }
@@ -74,7 +78,10 @@ export function ChangePasswordForm({
       router.push(successRedirect);
       router.refresh();
     },
-    onError: (error) => setServerError(error.message),
+    onError: (error) => {
+      setServerError(error.message);
+      toast.error(error.message);
+    },
   });
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -96,6 +103,9 @@ export function ChangePasswordForm({
         fieldErrors[field] ??= issue.message;
       });
       setErrors(fieldErrors);
+      toast.error(
+        result.error.issues[0]?.message ?? "Check the highlighted fields.",
+      );
       return;
     }
 

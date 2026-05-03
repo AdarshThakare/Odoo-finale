@@ -12,6 +12,7 @@ import {
   type TablerIcon,
 } from "@tabler/icons-react";
 
+import { useToast } from "~/components/ui/Toaster";
 import { api, type RouterOutputs } from "~/trpc/react";
 
 type Period = RouterOutputs["payroll"]["getPayrollEntry"];
@@ -37,15 +38,20 @@ function formatDate(date: Date) {
 
 export function PayrunDetail({ period }: { period: Period }) {
   const router = useRouter();
+  const toast = useToast();
   const [error, setError] = useState("");
   const entry = period.payrollEntries[0];
 
   const runPayroll = api.payroll.runPayroll.useMutation({
     onSuccess: () => {
       setError("");
+      toast.success("Payroll run completed.");
       router.refresh();
     },
-    onError: (mutationError) => setError(mutationError.message),
+    onError: (mutationError) => {
+      setError(mutationError.message);
+      toast.error(mutationError.message);
+    },
   });
 
   return (

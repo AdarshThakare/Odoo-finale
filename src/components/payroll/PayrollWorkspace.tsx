@@ -12,6 +12,7 @@ import {
 } from "@tabler/icons-react";
 import { z } from "zod";
 
+import { useToast } from "~/components/ui/Toaster";
 import { api, type RouterOutputs } from "~/trpc/react";
 
 type Period = RouterOutputs["payroll"]["listPeriods"][number];
@@ -53,6 +54,7 @@ export function PayrollWorkspace({
 }) {
   const router = useRouter();
   const utils = api.useUtils();
+  const toast = useToast();
   const [error, setError] = useState("");
   const [created, setCreated] = useState("");
 
@@ -68,10 +70,14 @@ export function PayrollWorkspace({
     onSuccess: async () => {
       setError("");
       setCreated("Payroll period created.");
+      toast.success("Payroll period created.");
       await utils.payroll.listPeriods.invalidate();
       router.refresh();
     },
-    onError: (mutationError) => setError(mutationError.message),
+    onError: (mutationError) => {
+      setError(mutationError.message);
+      toast.error(mutationError.message);
+    },
   });
 
   function handleCreatePeriod(event: React.FormEvent<HTMLFormElement>) {
@@ -86,7 +92,9 @@ export function PayrollWorkspace({
     });
 
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? "Invalid period");
+      const message = result.error.issues[0]?.message ?? "Invalid period";
+      setError(message);
+      toast.error(message);
       return;
     }
 
