@@ -13,10 +13,32 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 const demoPassword = "Employee@123";
+const adminPassword = "Admin@123";
 const demoPasswordHash = await bcrypt.hash(demoPassword, 12);
+const adminPasswordHash = await bcrypt.hash(adminPassword, 12);
 
 function utcDate(value: string) {
   return new Date(`${value}T00:00:00Z`);
+}
+
+function utcDay(year: number, monthIndex: number, day: number) {
+  return new Date(Date.UTC(year, monthIndex, day));
+}
+
+function dateKey(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function addMonths(date: Date, months: number) {
+  return utcDay(date.getUTCFullYear(), date.getUTCMonth() + months, 1);
+}
+
+function startOfMonth(date: Date) {
+  return utcDay(date.getUTCFullYear(), date.getUTCMonth(), 1);
+}
+
+function endOfMonth(date: Date) {
+  return utcDay(date.getUTCFullYear(), date.getUTCMonth() + 1, 0);
 }
 
 function loginInitials(firstName: string, lastName: string) {
@@ -37,6 +59,49 @@ async function upsertDesignation(departmentId: string, name: string) {
     update: {},
     create: { name, departmentId },
   });
+}
+
+async function upsertDemoCompanyAdmin() {
+  const company = await prisma.company.upsert({
+    where: { code: "ODOO" },
+    update: {
+      name: "Odoo Demo",
+      logoUrl: "/empay.png",
+    },
+    create: {
+      name: "Odoo Demo",
+      code: "ODOO",
+      logoUrl: "/empay.png",
+    },
+  });
+
+  const admin = await prisma.user.upsert({
+    where: { email: "admin@odoo.com" },
+    update: {
+      loginId: "ODOOADMIN20260001",
+      name: "Odoo Admin",
+      passwordHash: adminPasswordHash,
+      role: "ADMIN",
+      companyId: company.id,
+      isActive: true,
+      mustChangePassword: false,
+      lastPasswordChangedAt: new Date(),
+    },
+    create: {
+      email: "admin@odoo.com",
+      loginId: "ODOOADMIN20260001",
+      name: "Odoo Admin",
+      passwordHash: adminPasswordHash,
+      role: "ADMIN",
+      companyId: company.id,
+      isActive: true,
+      mustChangePassword: false,
+      lastPasswordChangedAt: new Date(),
+    },
+    include: { company: true },
+  });
+
+  return { admin, company };
 }
 
 async function upsertDemoEmployee(input: {
@@ -101,7 +166,7 @@ async function upsertDemoEmployee(input: {
       gender: input.gender,
       phone: input.phone,
       address: "Mumbai, Maharashtra",
-      personalEmail: input.email.replace("@empay.com", "@gmail.com"),
+      personalEmail: input.email.replace(/@[^@]+$/, "@gmail.com"),
       nationality: "Indian",
       maritalStatus: "Single",
       emergencyContactName: "Demo Contact",
@@ -134,7 +199,7 @@ async function upsertDemoEmployee(input: {
       gender: input.gender,
       phone: input.phone,
       address: "Mumbai, Maharashtra",
-      personalEmail: input.email.replace("@empay.com", "@gmail.com"),
+      personalEmail: input.email.replace(/@[^@]+$/, "@gmail.com"),
       nationality: "Indian",
       maritalStatus: "Single",
       emergencyContactName: "Demo Contact",
@@ -176,61 +241,85 @@ async function upsertDemoEmployee(input: {
   return employee;
 }
 
-async function seedAttendance(employeeId: string, startKey: string, endKey: string) {
-  const start = utcDate(startKey);
-  const end = utcDate(endKey);
+async function seedAttendance(
+  employeeId: string,
+  start: Date,
+  end: Date,
+  patternOffset: number,
+) {
   const cursor = new Date(start);
 
   while (cursor <= end) {
     const day = cursor.getUTCDay();
     if (day !== 0 && day !== 6) {
+      const patternSeed =
+        Math.floor(cursor.getTime() / 86_400_000) + patternOffset;
+      const status =
+        patternSeed % 23 === 0
+          ? "ABSENT"
+          : patternSeed % 17 === 0
+            ? "ON_LEAVE"
+            : patternSeed % 11 === 0
+              ? "HALF_DAY"
+              : "PRESENT";
+      const checkIn =
+        status === "ABSENT" || status === "ON_LEAVE"
+          ? null
+          : new Date(
+              Date.UTC(
+                cursor.getUTCFullYear(),
+                cursor.getUTCMonth(),
+                cursor.getUTCDate(),
+                9,
+                15 + (patternSeed % 5) * 5,
+              ),
+            );
+      const checkOut =
+        status === "ABSENT" || status === "ON_LEAVE"
+          ? null
+          : new Date(
+              Date.UTC(
+                cursor.getUTCFullYear(),
+                cursor.getUTCMonth(),
+                cursor.getUTCDate(),
+                status === "HALF_DAY" ? 13 : 18,
+                status === "HALF_DAY" ? 15 : (patternSeed % 4) * 10,
+              ),
+            );
+      const workingHours =
+        status === "PRESENT"
+          ? new Prisma.Decimal(8 + (patternSeed % 3) * 0.25)
+          : status === "HALF_DAY"
+            ? new Prisma.Decimal(4)
+            : null;
+
       await prisma.attendanceRecord.upsert({
         where: { employeeId_date: { employeeId, date: new Date(cursor) } },
         update: {
-          checkIn: new Date(
-            Date.UTC(
-              cursor.getUTCFullYear(),
-              cursor.getUTCMonth(),
-              cursor.getUTCDate(),
-              9,
-              30,
-            ),
-          ),
-          checkOut: new Date(
-            Date.UTC(
-              cursor.getUTCFullYear(),
-              cursor.getUTCMonth(),
-              cursor.getUTCDate(),
-              18,
-              0,
-            ),
-          ),
-          workingHours: new Prisma.Decimal(8),
-          status: "PRESENT",
+          checkIn,
+          checkOut,
+          workingHours,
+          status,
+          notes:
+            status === "ON_LEAVE"
+              ? "Seeded approved leave day"
+              : status === "ABSENT"
+                ? "Seeded absence"
+                : null,
         },
         create: {
           employeeId,
           date: new Date(cursor),
-          checkIn: new Date(
-            Date.UTC(
-              cursor.getUTCFullYear(),
-              cursor.getUTCMonth(),
-              cursor.getUTCDate(),
-              9,
-              30,
-            ),
-          ),
-          checkOut: new Date(
-            Date.UTC(
-              cursor.getUTCFullYear(),
-              cursor.getUTCMonth(),
-              cursor.getUTCDate(),
-              18,
-              0,
-            ),
-          ),
-          workingHours: new Prisma.Decimal(8),
-          status: "PRESENT",
+          checkIn,
+          checkOut,
+          workingHours,
+          status,
+          notes:
+            status === "ON_LEAVE"
+              ? "Seeded approved leave day"
+              : status === "ABSENT"
+                ? "Seeded absence"
+                : null,
         },
       });
     }
@@ -322,19 +411,12 @@ async function main() {
     },
   });
 
-  const admin = await prisma.user.findUnique({
-    where: { email: "admin@empay.com" },
-    include: { company: true },
-  });
+  const { admin, company } = await upsertDemoCompanyAdmin();
 
-  if (!admin?.company) {
-    console.log("Base seed complete. admin@empay.com company not found.");
-    return;
-  }
-
-  const engineering = await upsertDepartment(admin.company.id, "Engineering");
-  const people = await upsertDepartment(admin.company.id, "People Operations");
-  const finance = await upsertDepartment(admin.company.id, "Finance");
+  const engineering = await upsertDepartment(company.id, "Engineering");
+  const people = await upsertDepartment(company.id, "People Operations");
+  const finance = await upsertDepartment(company.id, "Finance");
+  const sales = await upsertDepartment(company.id, "Sales");
 
   const softwareEngineer = await upsertDesignation(
     engineering.id,
@@ -346,6 +428,12 @@ async function main() {
   );
   const hrManager = await upsertDesignation(people.id, "HR Manager");
   const payrollOfficer = await upsertDesignation(finance.id, "Payroll Officer");
+  const accountant = await upsertDesignation(finance.id, "Accountant");
+  const salesExecutive = await upsertDesignation(sales.id, "Sales Executive");
+  const supportLead = await upsertDesignation(
+    sales.id,
+    "Customer Success Lead",
+  );
 
   const casualLeave = await prisma.leaveType.findUniqueOrThrow({
     where: { name: "Casual Leave" },
@@ -353,9 +441,9 @@ async function main() {
 
   const demoEmployees = await Promise.all([
     upsertDemoEmployee({
-      companyId: admin.company.id,
-      companyCode: admin.company.code,
-      email: "hr.demo@empay.com",
+      companyId: company.id,
+      companyCode: company.code,
+      email: "hr.demo@odoo.com",
       firstName: "Aarav",
       lastName: "Mehta",
       role: "HR_OFFICER",
@@ -367,14 +455,15 @@ async function main() {
       designationId: hrManager.id,
       basicSalary: 65000,
       hra: 26000,
-      about: "HR officer focused on onboarding, policy hygiene, and employee support.",
+      about:
+        "HR officer focused on onboarding, policy hygiene, and employee support.",
       skills: "Employee Relations, Onboarding, Payroll Coordination",
       certifications: "SHRM-CP",
     }),
     upsertDemoEmployee({
-      companyId: admin.company.id,
-      companyCode: admin.company.code,
-      email: "payroll.demo@empay.com",
+      companyId: company.id,
+      companyCode: company.code,
+      email: "payroll.demo@odoo.com",
       firstName: "Isha",
       lastName: "Rao",
       role: "PAYROLL_OFFICER",
@@ -386,14 +475,15 @@ async function main() {
       designationId: payrollOfficer.id,
       basicSalary: 70000,
       hra: 28000,
-      about: "Payroll officer who keeps pay runs accurate, compliant, and on time.",
+      about:
+        "Payroll officer who keeps pay runs accurate, compliant, and on time.",
       skills: "Payroll, Compliance, Statutory Deductions",
       certifications: "Payroll Compliance Certificate",
     }),
     upsertDemoEmployee({
-      companyId: admin.company.id,
-      companyCode: admin.company.code,
-      email: "employee.demo1@empay.com",
+      companyId: company.id,
+      companyCode: company.code,
+      email: "employee.demo1@odoo.com",
       firstName: "Rohan",
       lastName: "Shah",
       role: "EMPLOYEE",
@@ -405,14 +495,15 @@ async function main() {
       designationId: softwareEngineer.id,
       basicSalary: 55000,
       hra: 22000,
-      about: "Software engineer working across HR workflows and internal tooling.",
+      about:
+        "Software engineer working across HR workflows and internal tooling.",
       skills: "React, TypeScript, Prisma, PostgreSQL",
       certifications: "AWS Cloud Practitioner",
     }),
     upsertDemoEmployee({
-      companyId: admin.company.id,
-      companyCode: admin.company.code,
-      email: "employee.demo2@empay.com",
+      companyId: company.id,
+      companyCode: company.code,
+      email: "employee.demo2@odoo.com",
       firstName: "Neha",
       lastName: "Patel",
       role: "EMPLOYEE",
@@ -429,9 +520,9 @@ async function main() {
       certifications: "Google UX Design",
     }),
     upsertDemoEmployee({
-      companyId: admin.company.id,
-      companyCode: admin.company.code,
-      email: "employee.demo3@empay.com",
+      companyId: company.id,
+      companyCode: company.code,
+      email: "employee.demo3@odoo.com",
       firstName: "Kabir",
       lastName: "Singh",
       role: "EMPLOYEE",
@@ -443,9 +534,90 @@ async function main() {
       designationId: softwareEngineer.id,
       basicSalary: 58000,
       hra: 23200,
-      about: "Backend engineer building reliable payroll and attendance services.",
+      about:
+        "Backend engineer building reliable payroll and attendance services.",
       skills: "Node.js, PostgreSQL, API Design",
       certifications: "PostgreSQL Associate",
+    }),
+    upsertDemoEmployee({
+      companyId: company.id,
+      companyCode: company.code,
+      email: "hr.ops@odoo.com",
+      firstName: "Maya",
+      lastName: "Nair",
+      role: "HR_OFFICER",
+      employeeCode: "DEMO-HR-002",
+      serial: "0106",
+      phone: "9876501006",
+      gender: "FEMALE",
+      departmentId: people.id,
+      designationId: hrManager.id,
+      basicSalary: 62000,
+      hra: 24800,
+      about:
+        "People operations partner coordinating reviews, leaves, and policy updates.",
+      skills: "HR Operations, Leave Management, Employee Engagement",
+      certifications: "People Analytics Foundations",
+    }),
+    upsertDemoEmployee({
+      companyId: company.id,
+      companyCode: company.code,
+      email: "payroll.ops@odoo.com",
+      firstName: "Dev",
+      lastName: "Kapoor",
+      role: "PAYROLL_OFFICER",
+      employeeCode: "DEMO-PR-002",
+      serial: "0107",
+      phone: "9876501007",
+      gender: "MALE",
+      departmentId: finance.id,
+      designationId: accountant.id,
+      basicSalary: 66000,
+      hra: 26400,
+      about:
+        "Finance specialist supporting salary components, taxes, and payroll audits.",
+      skills: "Accounting, Payroll Audit, Reconciliation",
+      certifications: "Tally Payroll Specialist",
+    }),
+    upsertDemoEmployee({
+      companyId: company.id,
+      companyCode: company.code,
+      email: "employee.demo4@odoo.com",
+      firstName: "Ananya",
+      lastName: "Iyer",
+      role: "EMPLOYEE",
+      employeeCode: "DEMO-SALES-001",
+      serial: "0108",
+      phone: "9876501008",
+      gender: "FEMALE",
+      departmentId: sales.id,
+      designationId: salesExecutive.id,
+      basicSalary: 50000,
+      hra: 20000,
+      about:
+        "Sales executive managing demos, renewals, and customer follow-ups.",
+      skills: "CRM, Sales Operations, Account Management",
+      certifications: "HubSpot Sales Software",
+    }),
+    upsertDemoEmployee({
+      companyId: company.id,
+      companyCode: company.code,
+      email: "employee.demo5@odoo.com",
+      firstName: "Vikram",
+      lastName: "Menon",
+      role: "EMPLOYEE",
+      employeeCode: "DEMO-SALES-002",
+      serial: "0109",
+      phone: "9876501009",
+      gender: "MALE",
+      departmentId: sales.id,
+      designationId: supportLead.id,
+      basicSalary: 54000,
+      hra: 21600,
+      about:
+        "Customer success lead keeping client onboarding smooth and measurable.",
+      skills: "Customer Success, Training, Reporting",
+      certifications: "Customer Success Manager Level 1",
     }),
   ]);
 
@@ -460,9 +632,21 @@ async function main() {
     create: { name: "Meal Deduction", type: "DEDUCTION" },
   });
 
-  for (const employee of demoEmployees) {
-    await seedAttendance(employee.id, "2026-04-01", "2026-04-30");
-    await seedAttendance(employee.id, "2026-05-01", "2026-05-31");
+  const today = new Date();
+  const attendanceEnd = utcDay(
+    today.getUTCFullYear(),
+    today.getUTCMonth(),
+    today.getUTCDate(),
+  );
+  const attendanceStart = addMonths(startOfMonth(attendanceEnd), -2);
+
+  for (const [index, employee] of demoEmployees.entries()) {
+    await seedAttendance(
+      employee.id,
+      attendanceStart,
+      attendanceEnd,
+      index * 7,
+    );
     await seedLeaveAllocation(employee.id, casualLeave.id);
 
     await prisma.employeeSalaryComponent.upsert({
@@ -508,40 +692,58 @@ async function main() {
     });
   }
 
-  const aprilPeriod = await prisma.payrollPeriod.upsert({
-    where: { name: "April 2026 Demo" },
+  const previousMonth = addMonths(startOfMonth(attendanceEnd), -1);
+  const twoMonthsAgo = addMonths(startOfMonth(attendanceEnd), -2);
+  const previousMonthName = new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(previousMonth);
+  const twoMonthsAgoName = new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(twoMonthsAgo);
+
+  const previousPeriod = await prisma.payrollPeriod.upsert({
+    where: { name: `${previousMonthName} Demo` },
     update: {},
     create: {
-      name: "April 2026 Demo",
-      startDate: utcDate("2026-04-01"),
-      endDate: utcDate("2026-04-30"),
+      name: `${previousMonthName} Demo`,
+      startDate: previousMonth,
+      endDate: endOfMonth(previousMonth),
       createdById: admin.id,
     },
   });
 
   await prisma.payrollPeriod.upsert({
-    where: { name: "May 2026 Demo" },
+    where: { name: `${twoMonthsAgoName} Demo` },
     update: {},
     create: {
-      name: "May 2026 Demo",
-      startDate: utcDate("2026-05-01"),
-      endDate: utcDate("2026-05-31"),
+      name: `${twoMonthsAgoName} Demo`,
+      startDate: twoMonthsAgo,
+      endDate: endOfMonth(twoMonthsAgo),
       createdById: admin.id,
     },
   });
 
   if (
     !(await prisma.payrollEntry.findFirst({
-      where: { payrollPeriodId: aprilPeriod.id },
+      where: { payrollPeriodId: previousPeriod.id },
       select: { id: true },
     }))
   ) {
-    await runPayroll(prisma, admin.id, aprilPeriod.id);
+    await runPayroll(prisma, admin.id, previousPeriod.id);
   }
 
   console.log("Seed complete");
-  console.log("Demo company:", admin.company.name);
-  console.log("Admin login: admin@empay.com / Admin@123");
+  console.log("Demo company:", company.name);
+  console.log("Seeded users:", demoEmployees.length + 1);
+  console.log(
+    "Attendance range:",
+    `${dateKey(attendanceStart)} to ${dateKey(attendanceEnd)}`,
+  );
+  console.log("Admin login: admin@odoo.com / Admin@123");
   console.log("Demo user password:", demoPassword);
 }
 

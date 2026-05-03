@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
   IconCalendarCheck,
+  IconCalendarStats,
   IconChartBar,
   IconLayoutDashboard,
   IconLockCheck,
@@ -54,6 +55,12 @@ const navItems: NavItem[] = [
     href: "/dashboard/attendance",
     roles: ["ADMIN", "HR_OFFICER", "PAYROLL_OFFICER", "EMPLOYEE"],
     icon: IconCalendarCheck,
+  },
+  {
+    label: "Calendar",
+    href: "/dashboard/calendar",
+    roles: ["ADMIN", "HR_OFFICER", "PAYROLL_OFFICER", "EMPLOYEE"],
+    icon: IconCalendarStats,
   },
   {
     label: "Leave",
@@ -137,17 +144,20 @@ export function Sidebar({ role, userAvatarUrl, userName }: SidebarProps) {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${isActive
-                      ? "bg-purple-50 text-purple-700"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                      }`}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                      isActive
+                        ? "bg-purple-50 text-purple-700"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    }`}
                   >
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center">
                       <NavIcon
                         size={20}
                         stroke={1.9}
                         aria-hidden="true"
-                        className={isActive ? "text-purple-700" : "text-gray-500"}
+                        className={
+                          isActive ? "text-purple-700" : "text-gray-500"
+                        }
                       />
                     </span>
                     {item.label}
@@ -213,10 +223,11 @@ export function Sidebar({ role, userAvatarUrl, userName }: SidebarProps) {
               <li key={item.href} className="min-w-0 flex-1">
                 <Link
                   href={item.href}
-                  className={`flex flex-col items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition-colors ${isActive
-                    ? "bg-purple-50 text-purple-700"
-                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
-                    }`}
+                  className={`flex flex-col items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition-colors ${
+                    isActive
+                      ? "bg-purple-50 text-purple-700"
+                      : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                  }`}
                 >
                   <NavIcon size={20} stroke={1.9} aria-hidden="true" />
                   <span className="max-w-full truncate">{item.label}</span>
@@ -244,7 +255,10 @@ export function Sidebar({ role, userAvatarUrl, userName }: SidebarProps) {
                 <IconLogout size={20} stroke={1.8} aria-hidden="true" />
               </span>
               <div>
-                <h2 id="signout-title" className="text-base font-semibold text-gray-900">
+                <h2
+                  id="signout-title"
+                  className="text-base font-semibold text-gray-900"
+                >
                   Sign out?
                 </h2>
                 <p className="text-sm text-gray-500">
