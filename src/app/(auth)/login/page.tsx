@@ -7,6 +7,7 @@ import { useState } from "react";
 import { z } from "zod";
 
 import { BrandName } from "~/components/BrandLogo";
+import { useToast } from "~/components/ui/Toaster";
 
 const loginSchema = z.object({
   identifier: z.string().min(1, "Login ID or email is required"),
@@ -17,6 +18,7 @@ type FieldErrors = Partial<Record<"identifier" | "password", string>>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const toast = useToast();
   const [errors, setErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,6 +40,9 @@ export default function LoginPage() {
         fieldErrors[field] = issue.message;
       });
       setErrors(fieldErrors);
+      toast.error(
+        result.error.issues[0]?.message ?? "Check the highlighted fields.",
+      );
       return;
     }
 
@@ -53,15 +58,18 @@ export default function LoginPage() {
     setLoading(false);
 
     if (response?.error) {
-      setServerError("Invalid login ID, email, or password");
+      const message = "Invalid login ID, email, or password";
+      setServerError(message);
+      toast.error(message);
       return;
     }
 
+    toast.success("Signed in successfully.");
     router.push("/dashboard");
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8 sm:m-16">
+    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm sm:m-16 sm:p-8">
       <div className="mb-7">
         <p className="text-xs font-semibold tracking-[0.18em] text-purple-700 uppercase">
           Welcome back
