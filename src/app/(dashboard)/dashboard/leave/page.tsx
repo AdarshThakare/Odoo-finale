@@ -15,12 +15,16 @@ export default async function LeavePage() {
   const canApprove = ["ADMIN", "HR_OFFICER"].includes(session.user.role);
   const hasPersonalLeaveProfile = session.user.role !== "ADMIN";
 
-  const [balances, applications] = hasPersonalLeaveProfile
-    ? await Promise.all([
-        api.leave.getBalance(),
-        api.leave.getMyApplications(),
-      ])
-    : [[], []];
+  const [balances, applications, pendingApprovals, leaveTypes, employees] =
+    await Promise.all([
+      hasPersonalLeaveProfile ? api.leave.getBalance() : Promise.resolve([]),
+      hasPersonalLeaveProfile
+        ? api.leave.getMyApplications()
+        : Promise.resolve([]),
+      canApprove ? api.leave.getPendingApprovals() : Promise.resolve([]),
+      canManage ? api.leave.listTypes() : Promise.resolve([]),
+      canManage ? api.employee.list() : Promise.resolve([]),
+    ]);
 
   return (
     <MyLeaveWorkspace
@@ -30,6 +34,10 @@ export default async function LeavePage() {
       canManage={canManage}
       canApprove={canApprove}
       hasPersonalLeaveProfile={hasPersonalLeaveProfile}
+      pendingApprovals={pendingApprovals}
+      pendingApprovalCount={pendingApprovals.length}
+      leaveTypeCount={leaveTypes.length}
+      employeeCount={employees.length}
     />
   );
 }
