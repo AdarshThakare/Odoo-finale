@@ -3,6 +3,7 @@ import "~/styles/globals.css";
 import { type Metadata } from "next";
 import { Plus_Jakarta_Sans, Source_Sans_3 } from "next/font/google";
 
+import { ToastProvider } from "~/components/ui/Toaster";
 import { TRPCReactProvider } from "~/trpc/react";
 
 const sourceSans = Source_Sans_3({
@@ -35,9 +36,14 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${sourceSans.variable} ${plusJakarta.variable}`}>
+    <html
+      lang="en"
+      className={`${sourceSans.variable} ${plusJakarta.variable}`}
+    >
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </TRPCReactProvider>
       </body>
     </html>
   );

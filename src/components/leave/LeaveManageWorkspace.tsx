@@ -11,6 +11,7 @@ import {
   type TablerIcon,
 } from "@tabler/icons-react";
 
+import { useToast } from "~/components/ui/Toaster";
 import { api, type RouterOutputs } from "~/trpc/react";
 
 type LeaveType = RouterOutputs["leave"]["listTypes"][number];
@@ -29,6 +30,7 @@ export function LeaveManageWorkspace({
   employees: Employee[];
 }) {
   const utils = api.useUtils();
+  const toast = useToast();
   const [typeError, setTypeError] = useState("");
   const [allocationError, setAllocationError] = useState("");
   const [allocationSuccess, setAllocationSuccess] = useState("");
@@ -64,20 +66,26 @@ export function LeaveManageWorkspace({
         carryForward: false,
       });
       setTypeError("");
+      toast.success("Leave type created.");
       void utils.leave.listTypes.invalidate();
     },
-    onError: (error) => setTypeError(error.message),
+    onError: (error) => {
+      setTypeError(error.message);
+      toast.error(error.message);
+    },
   });
 
   const allocate = api.leave.allocate.useMutation({
     onSuccess: () => {
       setAllocationError("");
       setAllocationSuccess("Leave allocated successfully.");
+      toast.success("Leave allocated successfully.");
       setTimeout(() => setAllocationSuccess(""), 3000);
     },
     onError: (error) => {
       setAllocationError(error.message);
       setAllocationSuccess("");
+      toast.error(error.message);
     },
   });
 

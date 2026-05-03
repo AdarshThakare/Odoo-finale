@@ -12,6 +12,7 @@ import {
 } from "@tabler/icons-react";
 
 import { type Role } from "../../../generated/prisma";
+import { useToast } from "~/components/ui/Toaster";
 import { api, type RouterOutputs } from "~/trpc/react";
 
 type Balance = RouterOutputs["leave"]["getBalance"][number];
@@ -64,6 +65,7 @@ export function MyLeaveWorkspace({
   employeeCount: number;
 }) {
   const utils = api.useUtils();
+  const toast = useToast();
   const [cancelError, setCancelError] = useState("");
   const [approvalError, setApprovalError] = useState("");
   const [rejecting, setRejecting] = useState<Approval | null>(null);
@@ -83,10 +85,14 @@ export function MyLeaveWorkspace({
   const cancel = api.leave.cancel.useMutation({
     onSuccess: () => {
       setCancelError("");
+      toast.success("Leave application cancelled.");
       void utils.leave.getMyApplications.invalidate();
       void utils.leave.getBalance.invalidate();
     },
-    onError: (error) => setCancelError(error.message),
+    onError: (error) => {
+      setCancelError(error.message);
+      toast.error(error.message);
+    },
   });
 
   function invalidateApprovals() {
@@ -97,9 +103,13 @@ export function MyLeaveWorkspace({
   const approve = api.leave.approve.useMutation({
     onSuccess: () => {
       setApprovalError("");
+      toast.success("Leave request approved.");
       invalidateApprovals();
     },
-    onError: (error) => setApprovalError(error.message),
+    onError: (error) => {
+      setApprovalError(error.message);
+      toast.error(error.message);
+    },
   });
 
   const reject = api.leave.reject.useMutation({
@@ -107,9 +117,13 @@ export function MyLeaveWorkspace({
       setRejecting(null);
       setRejectionReason("");
       setApprovalError("");
+      toast.success("Leave request rejected.");
       invalidateApprovals();
     },
-    onError: (error) => setApprovalError(error.message),
+    onError: (error) => {
+      setApprovalError(error.message);
+      toast.error(error.message);
+    },
   });
 
   const totalAllocated = balances.reduce(

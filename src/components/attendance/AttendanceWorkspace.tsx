@@ -15,6 +15,7 @@ import {
   type TablerIcon,
 } from "@tabler/icons-react";
 
+import { useToast } from "~/components/ui/Toaster";
 import { api } from "~/trpc/react";
 
 type AttendanceStatus =
@@ -147,6 +148,7 @@ function EmployeeAttendanceWorkspace({
   canSwitchView,
 }: Extract<AttendanceWorkspaceProps, { mode: "mine" }>) {
   const router = useRouter();
+  const toast = useToast();
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -154,11 +156,13 @@ function EmployeeAttendanceWorkspace({
     onSuccess: () => {
       setMessage("Check-in recorded.");
       setError(null);
+      toast.success("Check-in recorded.");
       router.refresh();
     },
     onError: (mutationError) => {
       setMessage(null);
       setError(mutationError.message);
+      toast.error(mutationError.message);
     },
   });
 
@@ -166,11 +170,13 @@ function EmployeeAttendanceWorkspace({
     onSuccess: () => {
       setMessage("Check-out recorded.");
       setError(null);
+      toast.success("Check-out recorded.");
       router.refresh();
     },
     onError: (mutationError) => {
       setMessage(null);
       setError(mutationError.message);
+      toast.error(mutationError.message);
     },
   });
 
@@ -724,7 +730,7 @@ function StatusBadge({ status }: { status: AttendanceStatus }) {
 
   return (
     <span
-      className={`inline-flex min-w-20 justify-center whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${styles[status]}`}
+      className={`inline-flex min-w-20 justify-center rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap ring-1 ${styles[status]}`}
     >
       {status.replace("_", " ")}
     </span>

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
 
+import { useToast } from "~/components/ui/Toaster";
 import { api, type RouterOutputs } from "~/trpc/react";
 
 type Balance = RouterOutputs["leave"]["getBalance"][number];
@@ -23,9 +24,7 @@ const applySchema = z
     path: ["halfDayDate"],
   });
 
-type FieldErrors = Partial<
-  Record<keyof z.infer<typeof applySchema>, string>
->;
+type FieldErrors = Partial<Record<keyof z.infer<typeof applySchema>, string>>;
 
 function toUtcDate(value: string) {
   if (!value) return null;
@@ -63,6 +62,7 @@ function calculateLeaveDaysClient(
 
 export function ApplyLeaveWorkspace({ balances }: { balances: Balance[] }) {
   const router = useRouter();
+  const toast = useToast();
   const [errors, setErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState("");
   const [isHalfDay, setIsHalfDay] = useState(false);
@@ -75,10 +75,14 @@ export function ApplyLeaveWorkspace({ balances }: { balances: Balance[] }) {
 
   const apply = api.leave.applyForLeave.useMutation({
     onSuccess: () => {
+      toast.success("Leave request submitted.");
       router.push("/dashboard/leave");
       router.refresh();
     },
-    onError: (error) => setServerError(error.message),
+    onError: (error) => {
+      setServerError(error.message);
+      toast.error(error.message);
+    },
   });
 
   const selectedBalance = balances.find(
@@ -122,6 +126,9 @@ export function ApplyLeaveWorkspace({ balances }: { balances: Balance[] }) {
         nextErrors[field] ??= issue.message;
       });
       setErrors(nextErrors);
+      toast.error(
+        result.error.issues[0]?.message ?? "Check the highlighted fields.",
+      );
       return;
     }
 
@@ -131,7 +138,9 @@ export function ApplyLeaveWorkspace({ balances }: { balances: Balance[] }) {
       (balance) => balance.leaveTypeId === result.data.leaveTypeId,
     );
     if (!selected) {
-      setErrors({ leaveTypeId: "No allocation found for this leave type" });
+      const message = "No allocation found for this leave type";
+      setErrors({ leaveTypeId: message });
+      toast.error(message);
       return;
     }
     const requested = calculateLeaveDaysClient(
@@ -141,9 +150,11 @@ export function ApplyLeaveWorkspace({ balances }: { balances: Balance[] }) {
       result.data.halfDayDate,
     );
     if (requested > selected.remainingDays) {
+      const message = `Requested ${requested} days exceeds remaining ${selected.remainingDays} days`;
       setErrors({
-        toDate: `Requested ${requested} days exceeds remaining ${selected.remainingDays} days`,
+        toDate: message,
       });
+      toast.error(message);
       return;
     }
 
@@ -235,7 +246,7 @@ export function ApplyLeaveWorkspace({ balances }: { balances: Balance[] }) {
 
         {showRequested ? (
           <div
-            className={`md:col-span-2 text-xs ${
+            className={`text-xs md:col-span-2 ${
               isOverLimit ? "text-red-600" : "text-gray-500"
             }`}
           >
