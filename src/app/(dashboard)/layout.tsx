@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { Sidebar } from "~/components/layout/Sidebar";
+import { ChatWidget } from "~/components/chat/ChatWidget";
 import { auth } from "~/server/auth";
 import { db } from "~/server/db";
 
@@ -42,6 +43,7 @@ export default async function DashboardLayout({
       <main className="min-w-0 md:pl-60">
         <div className="px-4 pt-20 pb-24 sm:px-6 md:p-8">{children}</div>
       </main>
+      <ChatWidget />
     </div>
   );
 }
